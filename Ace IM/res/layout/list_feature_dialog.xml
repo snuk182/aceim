@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    android:background="@drawable/cornered_background">
+
+    <EditText
+        android:id="@android:id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:maxLength="2047"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@android:id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@android:id/text2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:maxLength="511"         
+        android:visibility="gone"/>
+	
+	<GridView android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@android:id/text1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:gravity="center_horizontal"/>
+
+</RelativeLayout>

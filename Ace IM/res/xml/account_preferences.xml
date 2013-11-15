@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/account_settings" >
+        <CheckBoxPreference
+            android:defaultValue="@string/default_show_groups"
+            android:key="SHOW_GROUPS"
+            android:title="@string/show_groups" />
+        <CheckBoxPreference
+            android:defaultValue="@string/default_show_offline"
+            android:key="SHOW_OFFLINE"
+            android:title="@string/show_offline" />
+
+        <ListPreference
+            android:defaultValue="@string/default_contact_list_type"
+            android:entries="@array/list_type_names"
+            android:entryValues="@array/list_type_values"
+            android:key="CONTACT_LIST_TYPE"
+            android:title="@string/list_type" />
+
+        <CheckBoxPreference
+            android:defaultValue="@string/default_send_typing_notification"
+            android:key="TYPING_NOTIFICATIONS"
+            android:title="@string/send_typing" />
+        <!--
+             <CheckBoxPreference
+            android:defaultValue="true"
+            android:disableDependentsState="false"
+            android:key="@string/key_show_icons"
+            
+            android:title="@string/show_icons" />
+        -->
+        <CheckBoxPreference
+            android:defaultValue="@string/default_load_icons"
+            android:key="LOAD_ICONS"
+            android:title="@string/load_icons" />
+        <CheckBoxPreference
+            android:defaultValue="@string/default_save_not_in_list"
+            android:key="SAVE_NOT_IN_LIST"
+            android:title="@string/notinlist_save" />
+        <CheckBoxPreference
+            android:defaultValue="@string/default_decline_messages_from_aliens"
+            android:key="DENY_MESSAGES_FROM_ALIENS"
+            android:title="@string/deny_messages_not_from_list" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

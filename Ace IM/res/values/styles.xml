@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="TabWidget" parent="@android:style/Widget.TabWidget"></style>
+    <color name="transparent" >#77000000</color>
+    
+    <color name="chat_message_sender_color_service">#ff00dd00</color>
+    <color name="chat_message_sender_color_sent">#ff9999ff</color>
+    <color name="chat_message_sender_color_received">#ffff9999</color>
+    
+	<style name="chat_message_sender_color_service">
+	    <item name="android:textColor">@color/chat_message_sender_color_service</item>
+	</style>
+	<style name="chat_message_sender_color_sent">
+	    <item name="android:textColor">@color/chat_message_sender_color_sent</item>
+	</style>
+	<style name="chat_message_sender_color_received">
+	    <item name="android:textColor">@color/chat_message_sender_color_received</item>
+	</style>
+</resources>

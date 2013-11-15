@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="contact_list_grid_item_size">75dip</dimen>
+    <dimen name="contact_list_vertical_item_size">36dip</dimen>
+    <dimen name="contact_list_grid_item_icons_size">15dip</dimen>
+    <dimen name="contact_list_grid_items_spacing">2dip</dimen>
+    <dimen name="chat_buddy_status_height">24dp</dimen>
+    <dimen name="chat_buddy_status_font_height">10dip</dimen>
+    <dimen name="chat_participant_group_header_size">4dip</dimen>
+    <dimen name="chat_message_holder_header_height">20dp</dimen>
+    <dimen name="smiley_column_width">70dp</dimen>
+    
+    <dimen name="chat_message_holder_header_font_size">12dip</dimen>
+    <dimen name="default_padding">7dp</dimen>
+    <dimen name="top_bottom_padding">2dp</dimen>
+    <dimen name="info_toast_height">16dp</dimen>
+</resources>

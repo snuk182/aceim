@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/contact_list_grid_item_size"
+    android:layout_height="@dimen/contact_list_grid_item_size"
+    android:clickable="true"
+    android:focusable="false"
+    android:longClickable="true" 
+    android:background="@android:drawable/list_selector_background">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/dummy_icon"         
+    	android:padding="@dimen/default_padding"/>
+
+    <FrameLayout
+        android:id="@+id/wrapper_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="#00000000"     
+    	android:padding="@dimen/default_padding">
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:focusable="false"
+            android:padding="1dp"
+            android:shadowColor="#ef000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.4"
+            android:text="My Nickname"
+            android:textColor="#ffff"
+            android:textSize="12sp" />
+    </FrameLayout>
+
+</RelativeLayout>

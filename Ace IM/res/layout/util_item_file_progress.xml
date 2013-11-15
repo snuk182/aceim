@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/default_padding">
+        <aceim.app.widgets.bottombar.BottomBarButton 
+            android:id="@+id/button"
+            android:layout_width="@dimen/top_bottom_bar_height"
+    		android:layout_height="@dimen/top_bottom_bar_height"
+    		android:layout_alignParentTop="true"
+    		android:layout_alignParentRight="true"
+    		android:src="@android:drawable/ic_menu_upload"/>
+        <TextView android:id="@android:id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lorem ipsum, baby"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/button"/>
+        <ProgressBar android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/top_bottom_bar_height"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@android:id/title"
+            android:layout_toLeftOf="@id/button"
+            android:layout_alignBottom="@id/button"
+            android:indeterminateOnly="false" 
+			android:progressDrawable="@android:drawable/progress_horizontal"
+			android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+			android:visibility="invisible"/>
+    </RelativeLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    android:orientation="horizontal"
+    android:layout_marginLeft="@dimen/default_padding"
+    android:layout_marginRight="@dimen/default_padding"
+    android:layout_marginTop="@dimen/default_padding"
+    android:background="@color/transparent">
+    <ImageView android:id="@+id/icon"
+        android:layout_width="@dimen/chat_buddy_status_height"
+        android:layout_height="@dimen/chat_buddy_status_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/dummy_icon"/>
+    <TextView android:id="@+id/key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="70"
+        android:text="key"
+        android:gravity="left|top"
+        android:paddingLeft="@dimen/default_padding"/>
+    <TextView android:id="@+id/value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="30"
+        android:text="value"
+        android:gravity="right|top"
+        android:paddingLeft="@dimen/default_padding"/>
+</LinearLayout>

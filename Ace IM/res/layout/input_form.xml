@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    >
+    <aceim.app.widgets.bottombar.BottomBar 
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+    	android:layout_height="@dimen/top_bottom_bar_height"
+    	android:layout_alignParentLeft="true"
+    	android:layout_alignParentRight="true"
+    	android:layout_alignParentBottom="true">
+	   <aceim.app.widgets.bottombar.BottomBarButton 
+	        android:id="@+id/run"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@android:drawable/ic_menu_send"/>    
+	</aceim.app.widgets.bottombar.BottomBar>
+	<ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/protocols"
+        android:layout_above="@id/bottom_bar">
+        <LinearLayout android:id="@+id/container" 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" 
+            android:orientation="vertical"   
+            android:padding="15dip"/>
+    </ScrollView>
+</RelativeLayout>

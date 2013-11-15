@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="top_bottom_bar_height" >48dip</dimen>
+    <dimen name="top_bottom_bar_top_padding">4dp</dimen>
+    <dimen name="top_bar_padding">0px</dimen>
+</resources>

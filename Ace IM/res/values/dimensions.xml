@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="top_bottom_bar_height">64dip</dimen>
+    <dimen name="top_bottom_bar_top_padding">3dp</dimen>
+    <dimen name="toast_frame_logo_height">32dip</dimen>
+    <dimen name="top_bar_padding">4dp</dimen>
+</resources>

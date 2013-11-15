@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <ImageView
+        android:id="@+id/image_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/top_bottom_bar_height"
+        android:layout_gravity="center_vertical|left"
+        android:adjustViewBounds="true"
+        android:background="@android:drawable/menuitem_background"
+        android:src="@drawable/dummy_icon" 
+        android:longClickable="false"/>
+
+    <ImageView
+        android:id="@+id/image_extra_1"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:scaleType="fitCenter" 
+        android:paddingLeft="@dimen/top_bottom_bar_top_padding"/>
+
+    <ImageView
+        android:id="@+id/image_extra_2"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:scaleType="fitCenter" 
+        android:paddingLeft="@dimen/top_bottom_bar_top_padding"/>
+
+    <ImageView
+        android:id="@+id/image_extra_3"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:scaleType="fitCenter" 
+        android:paddingLeft="@dimen/top_bottom_bar_top_padding"/>
+
+    <ImageView
+        android:id="@+id/image_extra_4"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:scaleType="fitCenter" 
+        android:paddingLeft="@dimen/top_bottom_bar_top_padding"/>
+
+    <TextView
+        android:id="@+id/label_xstatus"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="right|bottom"
+        android:padding="@dimen/top_bottom_bar_top_padding"
+        android:scaleType="fitCenter" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+        android:indeterminateOnly="false"
+        android:max="10"
+        android:padding="@dimen/top_bottom_bar_top_padding"
+        android:progressDrawable="@android:drawable/progress_horizontal"
+        android:visibility="gone" />
+
+</merge>

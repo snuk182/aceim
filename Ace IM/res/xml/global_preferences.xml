@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:asia="http://ua.snuk182.asia/res" >
+
+    <PreferenceCategory android:title="@string/security_preferences" >
+        <org.aceim.widgets.preference.EditablePasswordPreference
+            android:key="MASTER_PASSWORD"
+            android:title="@string/master_password" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/appearance_prefs" >
+        <ListPreference
+            android:defaultValue="@string/default_screen_type"
+            android:entries="@array/view_type_names"
+            android:entryValues="@array/view_type_values"
+            android:key="SCREEN_TYPE"
+            android:title="@string/view_type" />
+        <ListPreference
+            android:defaultValue="@string/default_screen_orientation"
+            android:entries="@array/list_screen_orientation_names"
+            android:entryValues="@array/list_screen_orientation_values"
+            android:key="SCREEN_ORIENTATION"
+            android:title="@string/screen_orientation" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="TEXT_SMILEYS"
+            android:title="@string/dont_draw_smileys" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notification_prefs" >
+        <ListPreference
+            android:defaultValue="@string/default_led_blinker"
+            android:entries="@array/list_blink_type_names"
+            android:entryValues="@array/list_blink_type_values"
+            android:key="LED_BLINKER"
+            android:title="@string/blink_led" />
+        <ListPreference
+            android:defaultValue="@string/default_sound_notification"
+            android:entries="@array/list_sound_type_names"
+            android:entryValues="@array/list_sound_type_values"
+            android:key="SOUND_NOTIFICATION_TYPE"
+            android:title="@string/sound_type" />
+
+       <org.aceim.widgets.preference.SeekBarPreference
+            android:defaultValue="30"
+            android:key="SOUND_NOTIFICATION_VOLUME"
+            
+            android:title="@string/sound_volume" />
+        
+        <CheckBoxPreference
+            android:defaultValue="@string/default_message_sound_only"
+            android:key="MESSAGE_SOUND_ONLY"
+            android:title="@string/message_sound_only" />
+
+        <ListPreference
+            android:defaultValue="@string/default_statusbar_notification"
+            android:entries="@array/list_statusbar_type_names"
+            android:entryValues="@array/list_statusbar_type_values"
+            android:key="STATUSBAR_NOTIFICATION_TYPE"
+            android:title="@string/statusbar_type" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/chat_prefs" >
+
+        <!--
+             <ListPreference
+            android:defaultValue="@string/value_chat_date_full"
+            android:entries="@array/list_chat_date_names"
+            android:entryValues="@array/list_chat_date_values"
+            android:key="@string/key_chat_date"
+            
+            android:title="@string/chat_date" />
+        -->
+
+
+        <!-- <ua.snuk182.asia.view.more.widgets.SeekBarPreference
+            android:defaultValue="16"
+            android:key="@string/key_text_size"
+            android:title="@string/text_size" /> -->
+        
+        <CheckBoxPreference
+            android:defaultValue="@string/default_smilies_in_separate_dialog"
+            android:key="SMILEYS_IN_DIALOG"
+            android:title="@string/smileys_in_dialog" />
+        <CheckBoxPreference
+            android:defaultValue="@string/default_send_with_enter_key"
+            android:key="SEND_WITH_ENTER_KEY"
+            android:title="@string/send_by_enter" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/misc_prefs" >
+        <CheckBoxPreference 
+            android:key="FORCE_DRAW_WALLPAPER"
+            android:title="@string/force_draw_wallpaper"
+            android:defaultValue="@string/default_force_draw_wallpaper"/>
+        <CheckBoxPreference
+            android:defaultValue="@string/default_autoconnect"
+            android:key="AUTO_CONNECT"
+            android:title="@string/autoconnect" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

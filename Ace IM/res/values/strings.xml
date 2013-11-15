@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unsaved_data">Unsaved data exists</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="search_result">Search result</string>
+    <string name="rename_X" formatted="false">Rename %s</string>
+    <string name="move_X" formatted="false">Move %s</string>
+    <string name="add_X">Add %s</string>
+    <string name="confirm_delete">Confirm delete</string>
+    <string name="unknown_command" formatted="false">Unknown command: %s</string>
+    <string name="choose_photo">Choose photo</string>
+    <string name="take_photo">Take photo</string>
+    <string name="remove_photo">Remove photo</string>
+    <string name="take_photo">Take photo</string>
+    <string name="setting_account_icon">Set new account icon</string>
+    <string name="force_draw_wallpaper">Force wallpaper drawing</string>
+    <string name="set_status">"Set status"</string>
+    <string name="pw_does_not_match">Passwords does not match</string>
+    <string name="enter_password">Enter a new password</string>
+    <string name="reenter_password">Re-enter new password</string>
+    <string name="export_accounts">Export accounts to storage</string>    
+    <string name="import_accounts">Import accounts from storage file</string>
+    <string name="utils">Utils</string>
+    <string name="buddy_sends_files">%s sends the following files:</string>
+    <string name="send_photo">Send photo</string>
+    <string name="press_to_open">Press to open</string>
+    <string name="file_transfers" formatted="false">Files - %s</string>
+    <string name="no_app_for_picking_file_found">No file explorer found for picking files. Please install one and try again.</string>
+    <string name="confirm_delete_history">Confirm deleting all buddy\'s chat history? (Cannot undo!)</string>
+    <string name="get_more" formatted="false">Get next %s</string>
+    <string name="new_message_added">New message added</string>
+    
+    <string name="smileys_in_dialog">Smileys in separate dialog</string>
+    
+    <string name="history_header" formatted="false">Chat history - %s</string>
+    <string name="file_transfer_init" formatted="false">Initializing...</string>
+    <string name="file_transfer_completed" formatted="false">Transfer completed</string>
+    <string name="file_transfer_bytes_completed" formatted="false">%s of %s bytes transferred</string>
+    
+    <string name="encrypted_message">The message is encrypted. Please open a corresponding chat to read it.</string>
+    
+    <string name="pick_protocol_to_proceed">Pick protocol in a combo box above to proceed</string>
+    <string name="no_protocol_services_installed_found">Seems like you don\'t have any protocol services installed on your device. Protocol services enable support for particular chat service (XMPP, ICQ etc). Please press Play market button below to search for protocol services in Google Play.</string>
+    <string name="no_protocol_service_installed_found_for_x">No protocol service installed found for %s.</string>
+    <string name="click_to_search_in_play">Click here to search in Play market</string>
+    
+    <string name="unfilled_mandatory_warning">The highlighted fields are mandatory</string>
+
+    <string name="options">Options</string>
+   	<string name="options_for" formatted="false">Options for %s</string>
+   
+    <string name="X_cannot_be_empty" formatted="false">%s cannot be empty</string>
+    <string name="wrong_pw">Wrong password</string>
+    <string name="use_master_password">Use Master Password</string>    
+    <string name="pls_enter_master_password">Please enter the Master Password</string>
+    <string name="old_pw">Old Password</string>
+    <string name="new_pw">New Password (leave blank for removing)</string>
+    <string name="master_password">Master Password</string>
+    
+    <string name="view_type">View type</string>
+   	<string name="view_type_auto">Auto (Screen size dependent)</string>
+    <string name="view_type_simple">Simple</string>
+    <string name="view_type_tablet">Tablet</string>
+    <string name="view_type_panorama">Panorama</string>
+    
+    <string name="screen_orientation">Screen orientation</string>
+    <string name="screen_orientation_system">System</string>
+    <string name="screen_orientation_portrait">Portrait</string>
+    <string name="screen_orientation_landscape">Landscape</string>
+    <string name="screen_orientation_sensor">Sensor</string>
+    
+    <string name="blink_type_off">Don\'t blink</string>
+    <string name="blink_type_default">Default Android blink</string>
+    <string name="blink_type_native">Device-specific blink (may not work on every device)</string>
+    
+    <string name="sound_type_all_on">"Sound + vibra"</string>
+    <string name="sound_type_vibra">"Vibra only"</string>
+    <string name="sound_type_off">"Off"</string>
+    <string name="sound_type_profile">"Profile dependent"</string>
+    <string name="sound_type_sound">"Sound only"</string>
+    
+    <string name="statusbar_type_messages">"Incoming messages"</string>
+    <string name="statusbar_type_accounts">"Accounts"</string>
+    <string name="statusbar_type_off">"Off"</string>
+    <string name="statusbar_type_icon">Application icon</string>
+    
+    <string name="unread_group">"Unread"</string>
+    <string name="online_group">"Online"</string>
+    <string name="offline_group">"Offline"</string>
+    <string name="chats_group">"Group chats"</string>
+    <string name="not_in_list_group">"Not in list"</string>
+    
+    <string name="create_groupchat">Create group chat</string>
+    <string name="connect_to_chat">Connect to chat</string>
+    <string name="refresh_chat_list">Refresh chats list</string>
+    <string name="joinedchats">Joined chats</string>
+    <string name="chat_name">Chat name</string>
+    <string name="nickname">Nickname</string>
+    <string name="chat_id">Chat ID (letters, numbers, dash, and underscore only)</string>
+    <string name="pwd_protected">Protect with password</string>
+    <string name="password">Password</string>
+    <string name="get_available_chats">Get available</string>
+    <string name="chat_options">Chat options</string>
+    <string name="hide_participants">Hide participants</string>
+    <string name="show_participants">Show participants</string>
+    <string name="chat_enter_manually">Enter manually</string>
+    <string name="this_account_to_be_enabled" formatted="false">"%s is to be enabled, proceed?"</string>
+    <string name="this_account_to_be_disabled" formatted="false">"$s is to be disabled, proceed?"</string>
+    <string name="name">Name</string>
+    <string name="account_activity_log">Account activity log</string>
+    <string name="copy_all">Copy all</string>
+    <string name="personal_info_X">Personal info - %s</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="autoconnect">Autoconnect on startup</string>
+    <string name="message_sound_only">Message sound only</string>
+    <string name="manage_visibility">Visibility</string>
+    <string name="blink_led">Blink LED on new message</string>
+    <string name="secure_login">Secure login</string>
+    <string name="send_typing">Send typing notifications</string>
+    <string name="fullscreen_landscape_kb">Fullscreen landscape keyboard</string>
+    <string name="deny_messages_not_from_list">"Deny all messages from 'not in list' buddies"</string>
+    <string name="sound_volume">Notification volume</string>
+	
+    <string name="buddy">"Buddy "</string>
+    <string name="group">"Group "</string>
+    <string name="X_added" formatted="false">%s added</string>
+    <string name="X_modified" formatted="false">%s modified</string>
+    <string name="X_deleted" formatted="false">%s deleted</string>
+    <string name="error_fill_uid">Please fill in UID field</string>
+    <string name="search_buddies">"Search/Add..."</string>
+    <string name="add_to_list">"Add"</string>
+    <string name="rename">"Rename"</string>
+    <string name="move">"Move"</string>
+    <string name="inempty_group">"This group is not empty. What to do with buddies from it?"</string>
+    <string name="dont_draw_smileys">"Don't draw smileys"</string>
+    <string name="text_size">Chat font size</string>
+    
+    <string name="file_from">"File from "</string>
+    <string name="files">" files"</string>
+    <string name="add_me_request">"Hurry, add me to your list"</string>
+    <string name="wait">"Please wait..."</string>
+    <string name="export">Export to SD card</string>
+    <string name="copied_to_clipboard">"Copied to clipboard"</string>
+    <string name="send_file">"Send file"</string>
+    
+    <string name="enable_pgp">Enable PGP crypting</string>
+    <string name="my_pgp_key">PGP key</string>
+    <string name="my_pgp_key_pw">PGP key password</string>
+    <string name="securitize">Secure chat</string>
+	<string name="desecuritize">Disable secure chat</string>
+	
+    <string name="security_preferences">Security preferences</string>
+
+    <string name="delete_history">"Delete history"</string>
+    <string name="grid">Grid</string>
+    <string name="list">List</string>
+    <string name="doublelist">Two-column list</string>
+    
+    <string name="notinlist_save">"Save 'Not in list' group"</string>
+    <string name="sound_type">"Sound notifications"</string>
+    <string name="statusbar_type">"Status bar notifications"</string>
+    <string name="contact_menu" formatted="false">Menu for %s</string>
+    <string name="im_here" formatted="false">I\'m here - %s</string>
+    <string name="auth_request">"Authorization request"</string>
+    <string name="auth_request_from">"Authorization request from "</string>
+    <string name="deny">"Deny"</string>
+    <string name="allow">"Allow"</string>
+    <string name="ignore">"Ignore"</string>
+    <string name="add_group">"Add group"</string>
+    <string name="app_name">"Ace IM"</string>
+    <string name="wait_starting">"Starting"</string>
+    <string name="new_account">"New account"</string>
+    <string name="offline">"Offline"</string>
+    <string name="online">Online</string>
+    <string name="x_gone_y" formatted="false">%s gone %s</string>
+    <string name="accounts">"Accounts"</string>
+    <string name="me">"Me"</string>
+    <string name="unread_messages">"Unread messages"</string>
+    <string name="connect">"Connect"</string>
+    <string name="disconnect">"Disconnect"</string>
+    <string name="account_settings">"Account settings"</string>
+    <string name="more">"More"</string>
+    <string name="about">"About"</string>
+    <string name="manage_accounts">"Manage accounts"</string>
+    <string name="exit_app">"Exit Ace IM"</string>
+    <string name="pick_status">"Pick a status"</string>
+    <string name="smileys">Smileys</string>
+    <string name="disconnected">"Disconnected"</string>
+    <string name="buddy_details">"Buddy details"</string>
+    <string name="return_to_buddylist">"Return to buddy list"</string>
+    <string name="edit">"Edit "</string>
+    <string name="remove">"Remove "</string>
+    <string name="are_you_sure_you_want_to_remove" formatted="false">"Are you sure you want to remove %s?"</string>
+    <string name="yes">"Yes"</string>
+    <string name="no">"No"</string>
+    <string name="close">"Close"</string>
+    <string name="add_new_account">"Add new account"</string>
+    <string name="account_type">"Account type:"</string>
+    <string name="account_id">"Account ID:"</string>
+    <string name="account_password">"Account password:"</string>
+    <string name="create">"Create"</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="dont_save">Don\'t save</string>
+    <string name="sorry_back_button">"Sorry. Minimize app with Home, close from menu"</string>
+    <string name="are_you_sure_you_want_to_cancel" formatted="false">Are you sure you want to cancel %s?</string>
+    <string name="log_to_file">"Enable log to file"</string>
+    <string name="bg_type">"Background type"</string>
+    <string name="show_groups">"Show groups"</string>
+    <string name="show_offline">"Show offline buddies"</string>
+    <string name="service_addr">"Service address"</string>
+    <string name="service_port">"Service port"</string>
+    <string name="history">History</string>
+    <string name="appearance_prefs">Appearance</string>
+    <string name="notification_prefs">Notification</string>
+    <string name="chat_prefs">Chat</string>
+    <string name="misc_prefs">Miscellaneous</string>
+    <string name="account_options">Account options</string>
+    <string name="general_options">General options</string>
+    <string name="you_must_enter_uid">"You must enter UID"</string>
+    <string name="list_type">"Contact list type"</string>
+    <string name="clear">None</string>
+    <string name="tabs_list">"Tabs list"</string>
+    <string name="xstatus_text_title">"Title"</string>
+    <string name="xstatus_text_value">"Text"</string>
+    <string name="chat_date">"Chat date"</string>
+    <string name="load_icons">"Download buddy icons"</string>
+    <string name="show_icons">"Show buddy icons"</string>
+    <string name="send_by_enter">"Send by Enter key"</string>
+    <string name="send_my_location">"Send my location"</string>
+    <string name="about_text">"\nAuthor: Sergiy Plygun.
+		\nMailto:snuk182@mail.ru. \nThe emoticons authors are Roland81
+		(http://www.openclipart.org/user-detail/roland81) and me. Special
+		thanks to http://OpenClipArt.org and its
+		participants: Warszawianka
+		(Tango project), nicubunu and others.
+		XMPP functionality by Smack (
+		http://igniterealtime.org )\nPGP functionality by Spongycastle Android lib"</string>
+    <string name="connecting">connecting</string>
+    <string name="completed">completed</string>
+    <string name="too_many_accounts">Too many accounts</string>
+    <string name="menu_value_copy">Copy</string>
+    <string name="menu_value_add_to_copied">Add to copied</string>
+    <string name="menu_value_copy_all">Copy all</string>
+    <string name="menu_value_add_to_list">"Add to list"</string>
+    <string name="menu_value_view_info">"View personal Info"</string>
+    <string name="menu_value_delete_contact">"Delete contact"</string>
+    <string name="menu_value_ask_auth">"Ask for authorization"</string>
+    <string name="menu_value_rename">"Rename"</string>
+    <string name="menu_value_move">"Move"</string>
+    <string name="menu_value_to_permits">"To Permitted list"</string>
+    <string name="menu_value_from_permits">Delete from Permitted list</string>
+    <string name="menu_value_to_denys">To Denied list</string>
+    <string name="menu_value_from_denys">Delete from Denied list</string>
+    <string name="menu_value_add_group">"Add new group..."</string>
+    <string name="menu_value_delete_group">"Delete group"</string>
+    <string name="menu_value_join_chat">Join chat</string>
+    <string name="menu_value_leave_chat">Leave chat</string>
+    <string name="menu_value_add_pgp_key">Assign PGP key</string>
+	<string name="menu_value_remove_pgp_key">Clear PGP key</string>
+    <string formatted="false" name="logparam_typing">"%s is typing"</string>
+    <string formatted="false" name="logparam_buddy_state">"%s went %s"</string>
+    <string formatted="false" name="logparam_ask_for_auth">"%s asks for authorization: %s"</string>
+    <string formatted="false" name="logparam_file_request">"%s sends you files: %s"</string>
+    <string formatted="false" name="logparam_default">"%s"</string>
+    <string name="chat_menu">Chat menu</string>
+    <string name="account_menu">Account menu</string>
+    <string name="no_group">No group</string>
+	<string name="toggle_menu_on_tab_longclick">Toggle menu on tab long click</string>
+</resources>

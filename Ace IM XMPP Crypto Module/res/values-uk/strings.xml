@@ -1,0 +1,53 @@
+<resources>
+
+    <string name="app_name">Ace IM XMPP Crypto Module</string>
+
+    <string name="jid">JID</string>
+    <string name="password">Пароль</string>
+    <string name="server_host">Ім\'я серверу</string>
+    <string name="server_port">Порт серверу</string>
+    <string name="proxy_type">Проксі</string>
+    <string name="proxy_host">Хост проксі</string>
+    <string name="proxy_port">Порт проксі</string>
+    <string name="proxy_username">Користувач проксі</string>
+    <string name="proxy_password">Пароль користувача проксі</string>
+    <string name="pgp_key_file">Приватний ключ PGP</string>
+    <string name="pgp_key_password">Пароль ключа PGP</string>
+    <string name="ping_timeout">Таймаут пінга</string>
+    
+    <string name="label_st_online">В мережі</string>
+    <string name="label_st_away">Пішов</string>
+    <string name="label_st_na">Недоступний</string>
+    <string name="label_st_dnd">Не турбувати</string>
+    <string name="label_st_free4chat">Бажаю чатитись</string>
+    <string name="label_st_invisible">Невидимий</string>
+    <string name="label_secure_connection">Безпечне з\'єднання</string>
+    
+    <string name="status">Статус</string>
+    
+    <string name="ask_authorization">Запит авторизації</string>
+    <string name="add_buddy">Додати контакт</string>
+    <string name="nickname">Нік (необов\'язково)</string>
+    
+    <string name="message">Повідомлення</string>
+    <string name="ask_authorization_message_default">Привіт, скоріш додай мене до свого списку контактів</string>
+    
+    <string name="groupchats">Гуртові чати</string>
+    <string name="add_connect_groupchat">Підключити чат</string> 
+    <string name="host">Хост</string>     
+    <string name="chat_room_id">ID чата</string>
+    
+	<string name="chat_action">Дія</string>
+    <string name="join_existing_room">Підключитись до чату</string>
+    <string name="create_new_chat">Створити новий чат</string>
+    
+    <string name="chat_exists" formatted="false">Чат %s не може бути створений, бо вже існує</string>
+    <string name="room_configuration">Налаштування чату</string>
+    <string name="destroy_room">Знищити чат</string>
+    <string name="confirm_destroy_room">Чат буде знищено, продовжити?</string>
+    
+    <string name="add_public_key">Додати ключ PGP</string>
+    <string name="remove_public_key">Видалити ключ PGP</string>
+    <string name="encryption_on">Шифрування ввімкнене</string>
+    <string name="encryption_off">Шифрування вимкнене</string>
+</resources>

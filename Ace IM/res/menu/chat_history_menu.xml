@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/menuitem_close"
+	    android:icon="@android:drawable/ic_menu_close_clear_cancel"
+	     android:title="@string/close" />
+	<item android:id="@+id/menuitem_delete" 
+	    android:icon="@android:drawable/ic_menu_delete"
+	    android:title="@string/delete_history" />
+	<item android:id="@+id/menuitem_export"
+	    android:icon="@android:drawable/ic_menu_set_as"
+	     android:title="@string/export" />
+</menu>

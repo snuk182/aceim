@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_show_menu_button">false</string>
+    <string name="default_force_draw_wallpaper">true</string>
+    <string name="default_screen_type">Auto</string>
+    <string name="default_screen_orientation">SYSTEM</string>
+    <string name="default_fullscreen_landscape_kb">true</string>
+    <string name="default_led_blinker">OFF</string>
+    <string name="default_sound_notification">PROFILE_DEPENDENT</string>
+    <string name="default_message_sound_only">false</string>
+    <string name="default_statusbar_notification">MESSAGES</string>
+    <string name="default_smilies_in_separate_dialog">true</string>
+    <string name="default_send_with_enter_key">true</string>
+    <string name="default_autoconnect">false</string>
+    <string name="default_log_to_file">false</string>
+    <string name="default_text_smilies">false</string>
+    
+    <string name="default_show_groups">false</string>
+    <string name="default_show_offline">true</string>
+    <string name="default_contact_list_type">org.aceim.view.page.contactlist.GridContactList</string>
+    <string name="default_send_typing_notification">false</string>
+    <string name="default_load_icons">true</string>
+    <string name="default_save_not_in_list">false</string>
+    <string name="default_decline_messages_from_aliens">false</string>    
+</resources>

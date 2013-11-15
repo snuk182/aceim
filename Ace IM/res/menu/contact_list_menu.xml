@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/menuitem_connect" android:icon="@drawable/ic_menu_login"
+		android:title="@string/connect" android:orderInCategory="0"/>
+	<item android:id="@+id/menuitem_add_group" android:icon="@android:drawable/ic_menu_add"
+		android:title="@string/add_group" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_account" android:icon="@android:drawable/ic_menu_manage"
+		android:title="@string/account_options" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_prefs" android:icon="@android:drawable/ic_menu_preferences"
+		android:title="@string/general_options" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_account_log" android:icon="@android:drawable/ic_menu_agenda"
+		android:title="@string/account_activity_log" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_accounts" android:icon="@drawable/ic_menu_allfriends"
+		android:title="@string/manage_accounts" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_about" android:icon="@android:drawable/ic_menu_info_details"
+		android:title="@string/about" android:orderInCategory="2"/>
+	<item android:id="@+id/menuitem_exit" android:icon="@android:drawable/ic_menu_close_clear_cancel"
+		android:title="@string/exit_app" android:orderInCategory="2"/>
+	
+</menu>

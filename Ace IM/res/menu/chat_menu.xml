@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  	<item android:id="@+id/menuitem_history"
+          android:icon="@android:drawable/ic_menu_today"
+          android:title="@string/history" />
+    <item android:id="@+id/menuitem_send_location"
+          android:icon="@android:drawable/ic_menu_mylocation"
+          android:title="@string/send_my_location" />
+    <item android:id="@+id/menuitem_send_file"
+          android:icon="@android:drawable/ic_menu_upload"
+    	  android:title="@string/send_file" />
+    <item android:id="@+id/menuitem_send_photo"
+          android:icon="@android:drawable/ic_menu_camera"
+    	  android:title="@string/send_photo" />
+    <item android:id="@+id/menuitem_join_chat"
+          android:icon="@android:drawable/ic_menu_add"
+    	  android:title="@string/menu_value_join_chat" />
+    <item android:id="@+id/menuitem_leave_chat"
+          android:icon="@android:drawable/ic_menu_delete"
+          android:title="@string/menu_value_leave_chat" />
+    <item android:id="@+id/menuitem_participants"
+          android:icon="@android:drawable/ic_menu_view"
+          android:title="@string/hide_participants" />
+    <item android:id="@+id/menuitem_close"
+          android:icon="@android:drawable/ic_menu_close_clear_cancel"
+          android:title="@string/close" />
+</menu>

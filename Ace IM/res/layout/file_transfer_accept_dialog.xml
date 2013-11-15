@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <ImageView android:id="@+id/icon"
+        android:layout_width="@dimen/contact_list_grid_item_size"
+        android:layout_height="@dimen/contact_list_grid_item_size"
+        android:src="@drawable/dummy_icon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/default_padding"/>
+    <TextView android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/icon"
+        android:paddingTop="@dimen/default_padding"
+        android:paddingRight="@dimen/default_padding"
+        android:text="title"/>"
+	<ListView android:id="@+id/list"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentRight="true"
+	    android:layout_below="@id/title"
+	    android:layout_toRightOf="@id/icon"
+	    android:padding="@dimen/default_padding"/>
+</RelativeLayout>

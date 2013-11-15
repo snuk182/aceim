@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="uin">ICQ Номер</string>
+	<string name="password">Пароль</string>
+	<string name="host">Адрес сервера</string>
+	<string name="port">Порт сервера</string>
+	<string name="ping">Таймаут пинга (секунды)</string>
+	<string name="secure">Безопасное подключение</string>
+	
+	<string-array name="icq_visibility_descr">
+		<item>"Видимый всем"</item>
+		<item>"Всем, кроме запрещенных"</item>
+		<item>"Видимый только списку контактов"</item>
+		<item>"Видимый только разрешенным"</item>
+		<item>"Невидимый всем"</item>
+	</string-array>
+	
+	<string name="xstatus_shopping">Магазин</string>
+    <string name="xstatus_bath">Плаваю</string>
+    <string name="xstatus_tired">Устал</string>
+    <string name="xstatus_party">Праздник</string>
+    <string name="xstatus_beer">Пиво</string>
+    <string name="xstatus_thinking">Раздумья</string>
+    <string name="xstatus_meal">Пища</string>
+    <string name="xstatus_tv">Телек</string>
+    <string name="xstatus_friends">Друзья</string>
+    <string name="xstatus_coffee">Кофе</string>
+    <string name="xstatus_music">Музыка</string>
+    <string name="xstatus_business">Дела</string>
+    <string name="xstatus_movies">Кино</string>
+    <string name="xstatus_joy">Радость</string>
+    <string name="xstatus_phone">Телефон</string>
+    <string name="xstatus_games">Игры</string>
+    <string name="xstatus_study">Учусь</string>
+    <string name="xstatus_sick">Нездоров</string>
+    <string name="xstatus_sleeping">Сплю</string>
+    <string name="xstatus_extreme">Отрываюсь</string>
+    <string name="xstatus_internet">В инете</string>
+    <string name="xstatus_engineering">Инженер</string>
+    <string name="xstatus_typing">Пишу</string>
+    <string name="xstatus_fury">Очень злой</string>
+    <string name="xstatus_sweet">Сладости</string>
+    <string name="xstatus_smartphone">Смартфон</string>
+    <string name="xstatus_mobile">Мобильник</string>
+    <string name="xstatus_zzz">Отключился</string>
+    <string name="xstatus_toilet">В туалете</string>
+    <string name="xstatus_question">Вопрос</string>
+    <string name="xstatus_road">Дорога</string>
+    <string name="xstatus_heart">Люблю</string>
+    <string name="xstatus_feelings">Страсть</string>
+    <string name="xstatus_smoking">Курение</string>
+    <string name="xstatus_sex">Секс</string>
+    <string name="xstatus_search">В поисках</string>
+    <string name="xstatus_blog">Дневник</string>
+	
+	<string-array name="icq_marital_names">
+		<item>Один</item>
+		<item>Отношения</item>
+		<item>Помолвлен</item>
+		<item>Женат/Замужем</item>
+		<item>Развод</item>
+		<item>Живу отдельно</item>
+		<item>Вдовец</item>
+	</string-array>
+</resources>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<string-array name="list_screen_orientation_values">
+		<item>SYSTEM</item>
+		<item>PORTRAIT</item>
+		<item>LANDSCAPE</item>
+		<item>SENSOR</item>
+	</string-array>
+	
+	<string-array name="list_screen_orientation_names">
+		<item>@string/screen_orientation_system</item>
+		<item>@string/screen_orientation_portrait</item>
+		<item>@string/screen_orientation_landscape</item>
+		<item>@string/screen_orientation_sensor</item>
+	</string-array>
+	
+	<string-array name="view_type_values">
+	    <item>Auto</item>
+		<item>org.aceim.screen.simple.SimpleScreen</item>
+		<item>org.aceim.screen.tablet.TabletScreen</item>
+		<item>org.aceim.screen.pano.PanoScreen</item>
+	</string-array>
+	
+	<string-array name="view_type_names">
+	    <item>@string/view_type_auto</item>
+		<item>@string/view_type_simple</item>
+		<item>@string/view_type_tablet</item>
+		<item>@string/view_type_panorama</item>
+	</string-array>
+	
+	<string-array name="list_type_values">
+		<item>org.aceim.view.page.contactlist.GridContactList</item>
+		<item>org.aceim.view.page.contactlist.PlainContactList</item>
+		<item>org.aceim.view.page.contactlist.DoubleContactList</item>
+	</string-array>
+	
+	<string-array name="list_type_names">
+		<item>@string/grid</item>
+		<item>@string/list</item>
+		<item>@string/doublelist</item>
+	</string-array>
+
+	<string-array name="list_sound_type_names">
+		<item>@string/sound_type_off</item>
+		<item>@string/sound_type_sound</item>
+		<item>@string/sound_type_vibra</item>
+		<item>@string/sound_type_all_on</item>
+		<item>@string/sound_type_profile</item>
+	</string-array>
+	
+	<string-array name="list_statusbar_type_names">
+		<item>@string/statusbar_type_off</item>
+		<item>@string/statusbar_type_icon</item>
+		<item>@string/statusbar_type_messages</item>
+		<item>@string/statusbar_type_accounts</item>
+	</string-array>
+	
+	<string-array name="list_sound_type_values">
+		<item>OFF</item>
+		<item>SOUND</item>
+		<item>VIBRA</item>
+		<item>SOUND_VIBRA</item>
+		<item>PROFILE_DEPENDENT</item>
+	</string-array>
+
+	<string-array name="list_statusbar_type_values">
+		<item>OFF</item>
+		<item>APP_ICON</item>
+		<item>MESSAGES</item>
+		<item>ACCOUNTS</item>
+	</string-array>
+	
+	<string-array name="list_blink_type_names">
+	    <item>@string/blink_type_off</item>
+	    <item>@string/blink_type_default</item>
+	    <item>@string/blink_type_native</item>
+	</string-array>
+	
+	<string-array name="list_blink_type_values">
+	    <item>OFF</item>
+	    <item>DEFAULT_BLINK</item>
+	    <item>NATIVE_BLINK</item>
+	</string-array>
+	
+	<string-array name="contact_menu_names">
+		<item>@string/menu_value_add_to_list</item>
+		<item>@string/menu_value_view_info</item>
+		<item>@string/menu_value_delete_contact</item>
+		<item>@string/menu_value_rename</item>
+		<item>@string/menu_value_move</item>
+		<item>@string/menu_value_join_chat</item>
+		<item>@string/menu_value_leave_chat</item>
+	</string-array>
+	
+	<string-array name="group_menu_names">
+		<item>@string/menu_value_delete_group</item>
+		<item>@string/menu_value_rename</item>
+	</string-array>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+        android:background="@color/transparent">      
+        
+        <aceim.app.widgets.HorizontalListView 
+        	android:id="@+id/horizontal_list"
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_alignParentTop="true"
+        	android:layout_alignParentBottom="true"
+        	android:layout_alignParentLeft="true"
+        	android:layout_alignParentRight="true">
+        
+   		</aceim.app.widgets.HorizontalListView>
+    	 <aceim.app.widgets.bottombar.BottomBarButton
+                android:id="@+id/menu_button"
+                android:layout_width="@dimen/top_bottom_bar_height"
+                android:layout_height="@dimen/top_bottom_bar_height"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"                
+                android:scaleType="center"
+                android:src="@drawable/menu_button_caption" 
+                android:visibility="gone"/>
+    </RelativeLayout>
+
+</FrameLayout>

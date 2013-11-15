@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="simple_placeholder" formatted="false">%s</string>
+    <string name="group_name_mask" formatted="false">%s (%s/%s)</string>
+    <string name="xstatus_text_format" formatted="false">%s: %s</string>
+    <string name="file_transfer_progress_format" formatted="false">%s / %s</string>
+    <string name="file_transfer_request_format" formatted="false">%s: %s</string>
+    <string name="accept_dialog_header_format" formatted="false">%s: %s</string>
+    <string name="default_key_value_format" formatted="false">%s: %s</string>
+    <string name="copy_mode_format" formatted="false">%s (%s): %s</string>
+</resources>
