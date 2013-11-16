@@ -52,7 +52,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.BitmapAjaxCallback;
 
 public final class DialogUtils {
 
@@ -658,10 +657,7 @@ public final class DialogUtils {
 			
 			AQuery aq = new AQuery(view);
 			
-			BitmapAjaxCallback callback = new BitmapAjaxCallback();
-			callback.fallback(R.drawable.dummy_icon).animation(android.R.anim.slide_in_left);
-			aq.id(R.id.image_icon).image(ViewUtils.getBitmapFile(activity, buddy.getFilename()), true, 0, callback);			
-		
+			ViewUtils.fillIcon(R.id.icon, aq, buddy.getFilename(), activity);	
 			aq.id(R.id.list).adapter(new FileTransferRequestAdapter(activity, ((FileMessage)message).getFiles()));
 			aq.id(R.id.title).text(activity.getString(R.string.buddy_sends_files, buddy.getSafeName()));
 			

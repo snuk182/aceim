@@ -10,7 +10,6 @@ import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
-
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;

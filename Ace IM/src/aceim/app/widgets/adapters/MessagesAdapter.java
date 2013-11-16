@@ -12,7 +12,6 @@ import aceim.api.dataentity.MessageAckState;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.utils.Logger;
-
 import aceim.app.R;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
@@ -26,12 +25,15 @@ import android.text.method.MovementMethod;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.androidquery.AQuery;
 
 public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
@@ -41,7 +43,15 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
 	private boolean mDontDrawSmilies = false;
 	
-	private boolean isCopyMode = false;
+	private Object copyModeStarter = null;
+	
+	private final  OnClickListener mCheckForCopyClickListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			new AQuery(v).id(R.id.checkbox).checked(true);
+		}
+	};
 	
 	public MessagesAdapter(Context context, int resource, ChatMessageTimeFormat timeDisplayFormat) {
 		super(context, resource, R.id.sender);
@@ -67,7 +77,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = super.getView(position, convertView, parent);
-
+		
 		ChatMessageHolder holder = getItem(position);
 
 		ImageView status = (ImageView) v.findViewById(R.id.status);
@@ -80,12 +90,19 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		if (status != null) {
 			status.setImageResource(getImageResourceForAckState(holder.getAckState()));
 			
-			status.setVisibility(isCopyMode ? View.INVISIBLE : View.VISIBLE);
+			status.setVisibility(copyModeStarter != null ? View.INVISIBLE : View.VISIBLE);
 		}
-		checkbox.setVisibility(isCopyMode ? View.VISIBLE : View.GONE);
 		
-		if (!isCopyMode) {
+		checkbox.setVisibility(copyModeStarter != null ? View.VISIBLE : View.GONE);
+		
+		if (copyModeStarter == null) {
 			checkbox.setChecked(false);
+			v.setOnClickListener(null);
+		} else {
+			v.setOnClickListener(mCheckForCopyClickListener);
+			if (copyModeStarter == v) {
+				checkbox.setChecked(true);
+			}
 		}
 		
 		if (v.getTag() != null && v.getTag() == holder) {
@@ -301,8 +318,16 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		this.mDontDrawSmilies = mDontDrawSmilies;
 	}
 
-	public void setCopyMode(boolean copyMode) {
-		isCopyMode = copyMode;
+	public void setCopyMode(boolean copyMode, View starter) {
+		if (copyMode) {
+			if (starter != null) {
+				copyModeStarter = starter;
+			} else {
+				copyModeStarter = new Object();
+			}
+		} else {
+			copyModeStarter = null;
+		}
 		notifyDataSetChanged();
 	}
 }

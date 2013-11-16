@@ -6,10 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ListFeature;
+import aceim.api.dataentity.Message;
 import aceim.api.dataentity.OnlineInfo;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.service.ApiConstants;
@@ -26,6 +29,7 @@ import aceim.app.dataentity.ProtocolResources;
 import aceim.app.preference.OptionsActivity;
 import aceim.app.view.page.Page;
 import aceim.app.view.page.chat.Chat;
+import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.history.History;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -612,13 +616,26 @@ public final class ViewUtils {
 		File file = getBitmapFile(context, filename);
 		callback
 				//.animation(android.R.anim.slide_in_left)
-				.fallback(R.drawable.dummy_icon)
 				.memCache(true)
 				.fallback(R.drawable.dummy_icon)
-				.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
+				//.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
 				.file(file)
 				.url(file.getAbsolutePath());
 		aq.id(R.id.image_icon).image(callback);		
 	}
 
+	public static List<ChatMessageHolder> wrapMessages(Buddy buddy, Account account, List<Message> messages) {
+		if (messages == null) {
+			return Collections.emptyList();
+		}
+		
+		List<ChatMessageHolder> messageHolders = new ArrayList<ChatMessageHolder>(messages.size());		
+		
+		for (Message m : messages) {
+			String senderName = m.isIncoming() ? (m.getContactDetail() != null ? m.getContactDetail() : buddy.getSafeName()) : account.getSafeName();
+			messageHolders.add(new ChatMessageHolder(m, senderName));
+		}
+		
+		return messageHolders;
+	}
 }

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import com.androidquery.util.AQUtility;
-
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.ConnectionState;
@@ -66,6 +64,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.androidquery.util.AQUtility;
 
 public class MainActivity extends FragmentActivity {
 
@@ -222,6 +222,10 @@ public class MainActivity extends FragmentActivity {
 
 	@Override
 	public void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		
+		setIntent(intent);
+		
 		String classNameExtra;
 		if (intent == null || (classNameExtra = intent.getStringExtra(Constants.INTENT_EXTRA_CLASS_NAME)) == null) {
 			return;

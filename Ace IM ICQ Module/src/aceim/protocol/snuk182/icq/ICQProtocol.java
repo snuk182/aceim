@@ -246,14 +246,15 @@ public class ICQProtocol extends ProtocolService {
 
 		@Override
 		public void uploadAccountPhoto(byte serviceId, String filePath) throws RemoteException {
-			byte[] scaledImage = Utils.scaleAccountIcon(filePath, 60);
-
 			ICQService service = (ICQService) findAccountServiceById(serviceId);
 
 			try {
+				byte[] scaledImage = Utils.scaleAccountIcon(filePath, 60);
+
 				service.internal.request(ICQServiceInternal.REQ_UPLOADICON, scaledImage);
-			} catch (ICQException e) {
+			} catch (Exception e) {
 				Logger.log(e);
+				getCallback().notification(serviceId, e.getLocalizedMessage());
 			}
 		}
 

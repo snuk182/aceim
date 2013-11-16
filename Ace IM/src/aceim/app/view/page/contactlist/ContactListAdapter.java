@@ -3,7 +3,6 @@ package aceim.app.view.page.contactlist;
 import java.util.List;
 
 import aceim.api.dataentity.Buddy;
-
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.view.page.contactlist.ContactListUpdater.ContactListModelGroup;
 import android.widget.BaseExpandableListAdapter;

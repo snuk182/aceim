@@ -2,7 +2,6 @@ package aceim.app.dataentity;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.FileProgress;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

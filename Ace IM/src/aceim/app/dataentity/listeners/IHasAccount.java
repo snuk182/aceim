@@ -3,7 +3,6 @@ package aceim.app.dataentity.listeners;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.OnlineInfo;
-
 import aceim.app.dataentity.Account;
 
 public interface IHasAccount extends IHasBuddy {

@@ -5,7 +5,6 @@ import java.util.List;
 
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-
 import aceim.app.MainActivity;
 import aceim.app.view.page.NoPage;
 import aceim.app.view.page.Page;

@@ -2,7 +2,6 @@ package aceim.app.dataentity;
 
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.utils.Logger;
-
 import aceim.app.AceImException;
 import aceim.app.AceImException.AceImExceptionReason;
 import android.content.pm.ApplicationInfo;

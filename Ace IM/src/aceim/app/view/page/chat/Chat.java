@@ -3,6 +3,7 @@ package aceim.app.view.page.chat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -21,7 +22,6 @@ import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.api.utils.Utils;
-
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
@@ -36,8 +36,8 @@ import aceim.app.dataentity.listeners.IHasFilePicker;
 import aceim.app.dataentity.listeners.IHasMessages;
 import aceim.app.service.ServiceUtils;
 import aceim.app.utils.DialogUtils;
-import aceim.app.utils.ViewUtils;
 import aceim.app.utils.LinqRules.BuddyLinqRule;
+import aceim.app.utils.ViewUtils;
 import aceim.app.utils.linq.KindaLinq;
 import aceim.app.view.page.Page;
 import aceim.app.widgets.HorizontalListView;
@@ -55,6 +55,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
@@ -145,7 +146,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			copyMode();
+			copyMode(view);
 			return true;
 		}	
 	};
@@ -466,10 +467,9 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		ArrayList<ChatMessageHolder> holders = bundle.getParcelableArrayList(SAVE_PARAM_MESSAGES);
-		mMessageHolders.addAll(holders);
 		mEditorUnsavedContent = bundle.getCharSequence(SAVE_PARAM_TEXT);
 		mAwaitingUri = bundle.getParcelable(SAVE_PARAM_URI);
+		initMessages(bundle);
 	}
 
 	private void resetUnread() {
@@ -507,26 +507,43 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 	}
 
-	private void initMessages(Bundle saved) {
+	private void initMessages(final Bundle saved) {
 		if (mMessageHolders.size() > 0) {
 			return;
 		}		
 		
-		if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
-			recoverFromStoredData(saved);
-		} else if (mMessageAdapter.getCount() < 1) {
-			try {
-				List<Message> messages = getMainActivity().getCoreService().getLastMessages(mBuddy);
-				for (Message m : messages) {
-					String senderName = m.isIncoming() ? (m.getContactDetail() != null ? m.getContactDetail() : mBuddy.getSafeName()) : mAccount.getSafeName();
-					mMessageHolders.add(new ChatMessageHolder(m, senderName));
+		AsyncTask<Void, Void, List<ChatMessageHolder>> messagesGetter = new AsyncTask<Void, Void, List<ChatMessageHolder>>() {
+
+			@Override
+			protected List<ChatMessageHolder> doInBackground(Void... params) {
+				List<ChatMessageHolder> result;
+				
+				try {
+					if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
+						result = saved.getParcelableArrayList(SAVE_PARAM_MESSAGES);
+					} else if (mMessageAdapter.getCount() < 1) {
+						result =  ViewUtils.wrapMessages(mBuddy, mAccount, getMainActivity().getCoreService().getLastMessages(mBuddy));
+					} else {
+						result = Collections.emptyList();
+					}
+				} catch (RemoteException e) {
+					return Collections.emptyList();
 				}
-			} catch (RemoteException e) {
-				getMainActivity().onRemoteException(e);
+				
+				return result;
 			}
-		} 
+			
+			@Override
+			protected void onPostExecute(List<ChatMessageHolder> messages){
+				mMessageHolders.addAll(messages);
+				
+				if (mMessageAdapter != null) {
+					mMessageAdapter.notifyDataSetInvalidated();
+				}
+			}
+		};
 		
-		mMessageAdapter.notifyDataSetInvalidated();
+		messagesGetter.execute();
 	}
 	
 	private void sendTypingNotification() {
@@ -856,8 +873,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 	}
 	
-	private void copyMode() {
-		mMessageAdapter.setCopyMode(true);
+	private void copyMode(View starter) {
+		mMessageAdapter.setCopyMode(true, starter);
 		
 		mEditor.setVisibility(View.GONE);
 		mSmileyBtn.setVisibility(View.GONE);
@@ -869,7 +886,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	}
 	
 	private void readWriteMode() {
-		mMessageAdapter.setCopyMode(false);
+		mMessageAdapter.setCopyMode(false, null);
 		
 		mEditor.setVisibility(View.VISIBLE);
 		mSmileyBtn.setVisibility(View.VISIBLE);

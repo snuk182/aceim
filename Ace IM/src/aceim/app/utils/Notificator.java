@@ -20,7 +20,6 @@ import aceim.api.dataentity.TextMessage;
 import aceim.api.service.ProtocolException;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-
 import aceim.app.AceImException;
 import aceim.app.Constants;
 import aceim.app.MainActivity;
@@ -82,14 +81,15 @@ public class Notificator {
 		builder.setSubText(account.getSafeName());
 		builder.setWhen(System.currentTimeMillis());
 		
+		Intent notificationIntent = new Intent(mContext, MainActivity.class);
+		fillMessageIntent(notificationIntent, account, buddy, message);
+		
 		String text; 
 		
 		if (message instanceof TextMessage) {
-			Intent notificationIntent = new Intent(mContext, MainActivity.class);
-
 			notificationIntent.putExtra(Constants.INTENT_EXTRA_CLASS_NAME, Chat.class.getName());
-			notificationIntent.putExtra(Constants.INTENT_EXTRA_BUDDY, buddy);
-
+			notificationIntent.setData(ViewUtils.stringAsIntentDataUri(MainActivity.class.getName()));
+			
 			text = message.getText();
 			
 			if (buddy.getUnread() > 1) {
@@ -133,9 +133,8 @@ public class Notificator {
 			text = message.getText();
 			builder.setSmallIcon(R.drawable.ic_service_message);
 		}
-		Intent notificationIntent = new Intent(mContext, MainActivity.class);
-		fillMessageIntent(notificationIntent, account, buddy, message);
-		PendingIntent contentIntent = PendingIntent.getActivity(mContext, buddy.getId(), notificationIntent, 0);
+		
+		PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, notificationIntent, 0);
 		
 		builder.setContentIntent(contentIntent);
 		builder.setContentText(text);

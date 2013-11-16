@@ -16,15 +16,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.FileMessage;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.utils.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import aceim.app.utils.history.HistorySaver;
 import android.content.Context;
 
@@ -128,8 +128,13 @@ public final class JsonHistorySaver implements HistorySaver {
                 {
                     if (sb.length() > 2) {
                     	if (index >= startFrom) {
-                    		HistoryObject o = new HistoryObject(sb.toString());
-                        	messages.add(0, o.toMessage(buddy));
+                    		try {
+								HistoryObject o = new HistoryObject(sb.toString());
+								messages.add(0, o.toMessage(buddy));
+							} catch (JSONException e) {
+								Logger.log(e);
+								endTo++;
+							}
                     	}
                     } 
                     
@@ -147,8 +152,6 @@ public final class JsonHistorySaver implements HistorySaver {
 		} catch (FileNotFoundException e) {
 			Logger.log("No history found for " + buddy);
 		} catch (IOException e) {
-			Logger.log(e);
-		} catch (JSONException e) {
 			Logger.log(e);
 		} finally {
 			if (stream != null) {

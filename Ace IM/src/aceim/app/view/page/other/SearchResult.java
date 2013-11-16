@@ -5,7 +5,6 @@ import java.util.List;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.PersonalInfo;
 import aceim.api.service.ApiConstants;
-
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.utils.DialogUtils;

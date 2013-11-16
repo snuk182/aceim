@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.ConnectionState;
@@ -18,10 +22,6 @@ import aceim.api.dataentity.ProtocolOption;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
-
 import aceim.app.AceImException;
 import aceim.app.AceImException.AceImExceptionReason;
 import aceim.app.dataentity.Account;

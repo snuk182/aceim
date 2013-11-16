@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import aceim.api.dataentity.ListFeature;
-
 import aceim.app.AceImException;
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;

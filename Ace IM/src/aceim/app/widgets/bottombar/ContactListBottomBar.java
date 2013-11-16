@@ -1,7 +1,6 @@
 package aceim.app.widgets.bottombar;
 
 import aceim.api.dataentity.ConnectionState;
-
 import aceim.app.R;
 import android.content.Context;
 import android.util.AttributeSet;

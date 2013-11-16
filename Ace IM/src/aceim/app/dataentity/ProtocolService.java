@@ -4,7 +4,6 @@ import aceim.api.service.ICoreProtocolCallback;
 import aceim.api.service.ICoreProtocolCallback.Stub;
 import aceim.api.service.IProtocolService;
 import aceim.api.utils.Logger;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

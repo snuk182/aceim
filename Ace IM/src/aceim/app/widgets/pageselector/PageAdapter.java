@@ -2,7 +2,6 @@ package aceim.app.widgets.pageselector;
 
 import java.util.List;
 
-import aceim.app.R;
 import aceim.app.view.page.Page;
 import android.content.Context;
 import android.view.View;

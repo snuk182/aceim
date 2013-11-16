@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import aceim.api.dataentity.FileProgress;
 import aceim.api.utils.Logger;
-
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.FileTransfer;

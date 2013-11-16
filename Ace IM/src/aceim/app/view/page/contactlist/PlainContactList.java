@@ -15,9 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import com.androidquery.AQuery;
-import com.androidquery.callback.BitmapAjaxCallback;
-
 public class PlainContactList extends ContactList {
 
 	private ExpandableListView mListView;

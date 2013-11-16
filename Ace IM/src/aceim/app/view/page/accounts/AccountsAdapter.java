@@ -32,7 +32,6 @@ import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.BitmapAjaxCallback;
 
 public class AccountsAdapter extends ArrayAdapter<Account> {
 
@@ -96,9 +95,7 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
 			});
 		}
 		
-		BitmapAjaxCallback callback = new BitmapAjaxCallback();
-		callback.fallback(R.drawable.dummy_icon).animation(android.R.anim.slide_in_left);
-		aq.id(R.id.image_icon).image(ViewUtils.getBitmapFile(getContext(), a.getFilename()), true, 0, callback);
+		ViewUtils.fillIcon(R.id.image_icon, aq, a.getFilename(), getContext());
 		
 		disableBtn.setChecked(a.isEnabled());
 		disableBtn.setOnCheckedChangeListener(l);

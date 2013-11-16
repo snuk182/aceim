@@ -5,7 +5,6 @@ import java.util.List;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
-
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.utils.ViewUtils;

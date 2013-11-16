@@ -2,7 +2,6 @@ package aceim.app.utils;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.PersonalInfo;
-
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.listeners.IHasAccount;
 import aceim.app.dataentity.listeners.IHasAccountList;

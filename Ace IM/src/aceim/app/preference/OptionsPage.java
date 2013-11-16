@@ -1,7 +1,7 @@
 package aceim.app.preference;
 
-import aceim.app.R;
 import aceim.app.Constants.OptionKey;
+import aceim.app.R;
 import aceim.app.widgets.preference.EditablePasswordPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;

@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import aceim.api.utils.Logger;
-
 import aceim.app.view.page.Page;
 import android.app.Activity;
 import android.content.Context;

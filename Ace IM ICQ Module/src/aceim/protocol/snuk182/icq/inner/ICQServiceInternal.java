@@ -743,29 +743,7 @@ public class ICQServiceInternal {
 
 					@Override
 					public void run() {
-						if (args[0].equals(un)) {
-							try {
-								getBuddyIconEngine().requestIcon(onlineInfo);
-							} catch (Exception e) {
-								log(e);
-							}
-							return;
-						}
-
-						synchronized (buddyList.buddyInfos) {
-							for (ICQOnlineInfo buddy : buddyList.buddyInfos) {
-								if (buddy.uin.equals(args[0])) {
-									if (buddy.iconData != null) {
-										try {
-											getBuddyIconEngine().requestIcon(buddy);
-										} catch (Exception e) {
-											log(e);
-										}
-									}
-									return;
-								}
-							}
-						}
+						getBuddyIconEngine().requestIcon((String) args[0]);
 					}
 				}).start();
 			} else {

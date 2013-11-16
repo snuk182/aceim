@@ -6,10 +6,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import aceim.protocol.snuk182.icq.inner.ICQConstants;
 import aceim.protocol.snuk182.icq.inner.ICQException;
@@ -28,7 +30,7 @@ public class BuddyIconEngine {
 	private ICQServiceInternal service;
 	private ServiceRedirect serviceInfo;
 	private IconRunnableService runnableService;
-	private List<ICQIconRequest> queue = Collections.synchronizedList(new ArrayList<ICQIconRequest>());
+	private Set<String> requests = Collections.synchronizedSet(new HashSet<String>());
 	private short flapSeqNumber = 0;
 	
 	private static final byte CONNSTATE_DISCONNECTED = 0;
@@ -44,7 +46,7 @@ public class BuddyIconEngine {
 	}
 	
 	private final List<Flap> packets = new LinkedList<Flap>();
-	public Flap buffer = null;
+	//public Flap buffer = null;
 	
 	
 	public BuddyIconEngine(ICQServiceInternal icqServiceInternal){
@@ -106,10 +108,10 @@ public class BuddyIconEngine {
 			switch (data.subtypeId){
 			case ICQConstants.SNAC_GENERIC_SERVERSUPPORTEDFAMILIES:
 				connectState = CONNSTATE_CONNECTED;
-				if (buffer!=null){
+				/*if (buffer!=null){
 					runnableService.sendToSocket(buffer);
 					buffer = null;
-				}
+				}*/
 				forceIconRequests();
 				break;
 			}
@@ -174,45 +176,49 @@ public class BuddyIconEngine {
 	}
 
 	private void forceIconRequests(){
-		if (queue.size()>0){
-			ICQIconRequest request = queue.remove(0);
-			Flap flap = null;
-			if (request.request instanceof ICQOnlineInfo) {
-				flap = makeIconRequest((ICQOnlineInfo)request.request);
-			} else if (request.request instanceof byte[]) {
-				flap = makeIconUploadRequest((byte[]) request.request);
-			} else {
-				service.log("Unknown icon request " + request.request);
+		while (requests.size() > 0) {
+			Iterator<String> i = requests.iterator();
+			while(i.hasNext()) {
+				String uin = i.next();
+				ICQOnlineInfo info = null;
+				
+				if (uin.equals(service.getUn())) {
+					info = service.getOnlineInfo();
+				}
+				
+				if (info == null) {
+					info = service.getBuddyList().getByUin(uin);
+				}
+				
+				if (info != null && info.iconData != null && info.iconData.iconId == 1 && info.iconData.flags == 1) {
+					runnableService.sendToSocket(makeIconRequest(info));
+				}
+				
+				i.remove();
 			}
-			runnableService.sendToSocket(flap);			
-		} else {
-			disconnect();
-		}		
+		}
+		
+		if (service.getSSIEngine().newIcon != null) {
+			runnableService.sendToSocket(makeIconUploadRequest(service.getSSIEngine().newIcon));
+			//service.getSSIEngine().newIcon = null;
+		}
+		
+		//disconnect();	
 	}
 	
 	public synchronized void requestIconUpload(byte[] bytes) {
 		if (bytes == null) return;
 		
-		service.getSSIEngine().newIcon = bytes;
-		
-		service.log(" attempt icon upload request " + bytes.length);
-		
-		ICQIconRequest request = new ICQIconRequest();
-		request.request = bytes;
-		queue.add(request);
+		service.getSSIEngine().newIcon = bytes;		
+		service.log(" attempt icon upload request " + bytes.length);		
 		
 		proceed();
 	}
 	
-	public synchronized void requestIcon(ICQOnlineInfo info){
-		service.log(" attempt icon request for "+info.uin + ((info !=null && info.iconData != null) ? ProtocolUtils.getSpacedHexString(info.iconData.hash)+" id "+ info.iconData.iconId +" flags "+info.iconData.flags: ""));
+	public synchronized void requestIcon(String uin){
+		service.log(" attempt icon request for " + uin);
 		
-		if (info == null || info.iconData == null || info.iconData.iconId!=1 || info.iconData.flags!=1) return;
-		
-		ICQIconRequest request = new ICQIconRequest();
-		request.request = info;
-		queue.add(request);
-		
+		requests.add(uin);		
 		proceed();
 	}
 
@@ -226,7 +232,7 @@ public class BuddyIconEngine {
 		
 		if (service.getCurrentState() == ICQServiceInternal.STATE_DISCONNECTED) {
 			service.log("Service disconnected - cancel icon request");
-			queue.clear();
+			requests.clear();
 			return;
 		}
 		
@@ -432,7 +438,7 @@ public class BuddyIconEngine {
 			} catch (IOException e) {
 				service.log(e);
 				disconnect();
-				buffer = flap;
+				//buffer = flap;
 				try {
 					requestServiceServerUrl();
 				} catch (Exception e1) {
@@ -464,9 +470,5 @@ public class BuddyIconEngine {
 
 	public void disconnect() {
 		connectState = CONNSTATE_DISCONNECTED;	
-	}
-	
-	private class ICQIconRequest {
-		Object request;
 	}
 }

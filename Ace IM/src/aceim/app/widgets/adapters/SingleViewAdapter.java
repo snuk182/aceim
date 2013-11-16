@@ -4,7 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import aceim.api.utils.Logger;
-
 import aceim.app.R;
 import android.content.Context;
 import android.view.SoundEffectConstants;

@@ -1,7 +1,6 @@
 package aceim.app.view.page.history;
 
 import aceim.api.dataentity.ServiceMessage;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

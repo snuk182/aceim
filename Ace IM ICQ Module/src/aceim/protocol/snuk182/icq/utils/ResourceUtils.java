@@ -100,7 +100,7 @@ public final class ResourceUtils {
 							false,
 							false,
 							new ProtocolServiceFeatureTarget[]{ProtocolServiceFeatureTarget.GROUP}),
-					new MarkerFeature(ApiConstants.FEATURE_GROUP_MANAGEMENT, 
+					new MarkerFeature(ApiConstants.FEATURE_ACCOUNT_MANAGEMENT, 
 							"Account info management", 
 							android.R.drawable.ic_menu_info_details,
 							false, 
@@ -120,8 +120,8 @@ public final class ResourceUtils {
 	
 	private static final TKV[] getSearchFormTKVs(Context context) {
 		return new TKV[]{
-				new StringTKV(ContentType.STRING, context.getString(R.string.uin), false, null),
-				new StringTKV(ContentType.STRING, context.getString(R.string.screenname), false, null),
+				new StringTKV(ContentType.STRING, context.getString(R.string.uin), false, null)
+				//new StringTKV(ContentType.STRING, context.getString(R.string.screenname), false, null),
 		};
 	}
 

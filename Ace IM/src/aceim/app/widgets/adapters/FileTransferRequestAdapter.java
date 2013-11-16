@@ -3,7 +3,6 @@ package aceim.app.widgets.adapters;
 import java.util.List;
 
 import aceim.api.dataentity.FileInfo;
-
 import aceim.app.R;
 import aceim.app.utils.ViewUtils;
 import android.content.Context;

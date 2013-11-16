@@ -3,7 +3,6 @@ package aceim.app.view.page.chat;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
 import aceim.api.utils.Logger;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

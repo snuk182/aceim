@@ -1,7 +1,6 @@
 package aceim.app.view.page.utils;
 
 import aceim.api.dataentity.FileProgress;
-
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.ActivityResult;

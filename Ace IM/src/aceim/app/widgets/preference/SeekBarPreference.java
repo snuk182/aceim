@@ -1,7 +1,6 @@
 package aceim.app.widgets.preference;
 
 import aceim.api.utils.Logger;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;

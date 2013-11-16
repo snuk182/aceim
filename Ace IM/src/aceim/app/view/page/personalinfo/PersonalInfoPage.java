@@ -6,6 +6,8 @@ import aceim.api.dataentity.PersonalInfo;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.dataentity.ToggleFeature;
 import aceim.api.service.ApiConstants;
+import aceim.api.utils.Logger;
+import aceim.app.AceImException;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ProtocolResources;
@@ -14,6 +16,7 @@ import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -23,10 +26,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.BitmapAjaxCallback;
 
 public class PersonalInfoPage extends Page {
 	
@@ -78,10 +79,7 @@ public class PersonalInfoPage extends Page {
 		
 		final String name = mInfo.getProperties().containsKey(PersonalInfo.INFO_NICK) ? mInfo.getProperties().getString(PersonalInfo.INFO_NICK) : mInfo.getProtocolUid();
 		
-		BitmapAjaxCallback callback = new BitmapAjaxCallback();
-		callback.fallback(R.drawable.dummy_icon).animation(android.R.anim.slide_in_left);
-		
-		aq.id(R.id.image_icon).image(ViewUtils.getBitmapFile(getMainActivity(), buddy.getFilename()), true, 0, callback);			
+		ViewUtils.fillIcon(R.id.icon, aq, buddy.getFilename(), getMainActivity());
 		aq.id(R.id.name).text(name);
 		aq.id(R.id.protocolUid).text(mInfo.getProtocolUid());
 		
@@ -173,42 +171,47 @@ public class PersonalInfoPage extends Page {
 			
 			View item = inflater.inflate(R.layout.personal_info_item, null);
 			
+			AQuery aqi = new AQuery(item);
+			
 			ImageView iicon = (ImageView) item.findViewById(R.id.icon);
 			//TODO fix
 			iicon.getLayoutParams().width = 0;
 			
-			TextView keyView = (TextView) item.findViewById(R.id.key);
-			TextView valueView = (TextView) item.findViewById(R.id.value);
-			
-			keyView.setText(key);
-			valueView.setText(mInfo.getProperties().getString(key));
+			aqi.id(R.id.key).text(key);
+			aqi.id(R.id.value).text(mInfo.getProperties().getString(key));
 			
 			container.addView(item);
 		}
 		
 		if (buddy != null) {
 			ProtocolResources res = getMainActivity().getProtocolResourcesForAccount(a);
-			for (String key : buddy.getOnlineInfo().getFeatures().keySet()) {
-				ProtocolServiceFeature f = res.getFeature(key);
-				if (f == null) {
-					continue;
-				}
+			try {
+				Resources protocolResources = res.getNativeResourcesForProtocol(getMainActivity().getPackageManager());
 				
-				View item = inflater.inflate(R.layout.personal_info_item, null);
-				TextView keyView = (TextView) item.findViewById(R.id.key);
-				TextView valueView = (TextView) item.findViewById(R.id.value);
-				
-				keyView.setText(f.getFeatureName());
-				
-				if (f instanceof ListFeature) {
-					ListFeature lf = (ListFeature) f;
-					byte v = buddy.getOnlineInfo().getFeatures().getByte(key, (byte) -1);
-					if (v > -1) {
-						valueView.setText(lf.getNames()[v]);
+				for (String key : buddy.getOnlineInfo().getFeatures().keySet()) {
+					ProtocolServiceFeature f = res.getFeature(key);
+					if (f == null) {
+						continue;
 					}
-				} else if (f instanceof ToggleFeature) {
-					valueView.setText(Boolean.toString(((ToggleFeature)f).getValue()));
+					
+					View item = inflater.inflate(R.layout.personal_info_item, null);
+					
+					AQuery aqi = new AQuery(item);
+					
+					aqi.id(R.id.key).text(f.getFeatureName());
+					
+					if (f instanceof ListFeature) {
+						ListFeature lf = (ListFeature) f;
+						byte v = buddy.getOnlineInfo().getFeatures().getByte(key, (byte) -1);
+						if (v > -1) {
+							aqi.id(R.id.value).text(protocolResources.getString(lf.getNames()[v]));							
+						}
+					} else if (f instanceof ToggleFeature) {
+						aqi.id(R.id.value).text(Boolean.toString(((ToggleFeature)f).getValue()));
+					}
 				}
+			} catch (AceImException e) {
+				Logger.log(e);
 			}
 		}
 		

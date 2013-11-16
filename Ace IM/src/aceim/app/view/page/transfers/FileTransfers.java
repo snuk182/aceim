@@ -6,7 +6,6 @@ import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileProgress;
 import aceim.api.dataentity.OnlineInfo;
-
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.FileTransfer;

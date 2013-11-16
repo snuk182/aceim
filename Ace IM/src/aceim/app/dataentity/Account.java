@@ -23,7 +23,6 @@ import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.api.utils.Utils;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

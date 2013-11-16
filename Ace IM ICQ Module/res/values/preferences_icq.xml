@@ -1,33 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
      
-	<!--  string-array name="icq_contact_menu_names">
-		<item>@string/menu_value_add_to_list</item>
-		<item>@string/menu_value_view_info</item>
-		<item>@string/menu_value_delete_contact</item>
-		<item>@string/menu_value_ask_auth</item>
-		<item>@string/menu_value_rename</item>
-		<item>@string/menu_value_move</item>
-		<item>@string/menu_value_to_permits</item>
-		<item>@string/menu_value_from_permits</item>
-		<item>@string/menu_value_to_denys</item>
-		<item>@string/menu_value_from_denys</item>
-	</string-array -->
-	
-	<!-- string-array name="icq_group_menu_names">
-		<item>@string/menu_value_add_group</item>
-		<item>@string/menu_value_delete_group</item>
-		<item>@string/menu_value_rename</item>
-	</string-array -->
-	
-	<!-- <string-array name="icq_visibility_icons">
-		<item>@drawable/vis_all</item>
-		<item>@drawable/vis_ex</item>
-		<item>@drawable/vis_plain</item>
-		<item>@drawable/vis_tovis</item>
-		<item>@drawable/vis_inv</item>
-	</string-array> -->
-
 	<string-array name="icq_status_icons">
 		<item>@drawable/icq_online_medium</item>
 		<item>@drawable/icq_away_medium</item>

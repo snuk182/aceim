@@ -6,7 +6,6 @@ import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.AccountService;

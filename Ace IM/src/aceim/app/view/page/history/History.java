@@ -7,10 +7,10 @@ import java.util.List;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
-
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
+import aceim.app.dataentity.Account;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.listeners.IHasBuddy;
 import aceim.app.dataentity.listeners.IHasMessages;
@@ -26,6 +26,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.view.LayoutInflater;
@@ -76,11 +77,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		public void onClick(View v) {
 			mMessageAdapter.remove(sAddMoreButtonHolder);
 			
-			List<ChatMessageHolder> messages = getStoredMessages(getMainActivity());
-			for (int i=messages.size()-1; i>=0; i--) {
-				ChatMessageHolder holder = messages.get(i);
-				mMessageAdapter.insert(holder, 0);
-			}
+			getStoredMessagesAsync();
 		}
 	};
 	
@@ -88,7 +85,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			copyMode();
+			copyMode(view);
 			return false;
 		}
 	};
@@ -118,6 +115,26 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		this.mBuddy = buddy;
 	}
 	
+	private void getStoredMessagesAsync() {
+		AsyncTask<Void, Void, List<ChatMessageHolder>> messagesGetter = new AsyncTask<Void, Void, List<ChatMessageHolder>>() {
+
+			@Override
+			protected List<ChatMessageHolder> doInBackground(Void... params) {
+				return getStoredMessages();
+			}
+			
+			@Override
+			protected void onPostExecute(List<ChatMessageHolder> messages){
+				for (int i=messages.size()-1; i>=0; i--) {
+					ChatMessageHolder holder = messages.get(i);
+					mMessageAdapter.insert(holder, 0);
+				}
+			}
+		};
+		
+		messagesGetter.execute();
+	}
+
 	@Override
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved){
 		View view = inflater.inflate(R.layout.history, group, false); 
@@ -162,30 +179,30 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
 			recoverFromStoredData(saved);
 		} else if (mMessageAdapter.getCount() < 1) {
-			mMessageHolders.addAll(getStoredMessages(getMainActivity()));
+			//mMessageHolders.addAll(getStoredMessages(getMainActivity()));
+			getStoredMessagesAsync();
 		} 
 		
 		mMessageAdapter.notifyDataSetInvalidated();
 	}
 
-	private List<ChatMessageHolder> getStoredMessages(Context context) {
+	private List<ChatMessageHolder> getStoredMessages() {
 		List<ChatMessageHolder> messageHolders;
 		try {
 			List<Message> messages = getMainActivity().getCoreService().getMessages(mBuddy, startFrom, MAX_MESSAGES_PER_READ);
 			messageHolders = new ArrayList<ChatMessageHolder>(messages.size());
 			
+			Account account = getMainActivity().getCoreService().getAccount(mBuddy.getServiceId());
+			
 			if (messages.size() == MAX_MESSAGES_PER_READ) {
 				if (sAddMoreButtonHolder == null) {
-					sAddMoreButtonHolder = new ChatMessageHolder(new AddMoreButtonMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid(), context.getString(R.string.get_more, Integer.toString(MAX_MESSAGES_PER_READ))), "");
+					sAddMoreButtonHolder = new ChatMessageHolder(new AddMoreButtonMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid(), getMainActivity().getString(R.string.get_more, Integer.toString(MAX_MESSAGES_PER_READ))), "");
 				}
 				
 				messageHolders.add(sAddMoreButtonHolder);
 			}
 			
-			for (Message m : messages) {
-				String senderName = m.isIncoming() ? mBuddy.getSafeName() : context.getString(R.string.me);
-				messageHolders.add(new ChatMessageHolder(m, senderName));
-			}
+			messageHolders.addAll(ViewUtils.wrapMessages(mBuddy, account, messages));
 			
 			startFrom += MAX_MESSAGES_PER_READ;
 		} catch (RemoteException e) {
@@ -320,8 +337,8 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		builder.create().show();
 	}
 	
-	private void copyMode() {
-		mMessageAdapter.setCopyMode(true);
+	private void copyMode(View starter) {
+		mMessageAdapter.setCopyMode(true, starter);
 		
 		mDeleteBtn.setVisibility(View.GONE);
 		
@@ -330,7 +347,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 	}
 	
 	private void readWriteMode() {
-		mMessageAdapter.setCopyMode(false);
+		mMessageAdapter.setCopyMode(false, null);
 		
 		mDeleteBtn.setVisibility(View.VISIBLE);
 		

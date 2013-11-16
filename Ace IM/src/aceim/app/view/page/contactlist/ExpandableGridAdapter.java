@@ -3,7 +3,6 @@ package aceim.app.view.page.contactlist;
 import java.util.List;
 
 import aceim.api.dataentity.BuddyGroup;
-
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
