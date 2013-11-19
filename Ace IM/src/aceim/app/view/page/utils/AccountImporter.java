@@ -130,7 +130,8 @@ public class AccountImporter implements Util, IHasFilePicker, IHasFileProgress {
 		
 		progress.setVisibility((p.getTotalSizeBytes() > 0 && p.getSentBytes() >= p.getTotalSizeBytes()) || p.getError() != null ? View.INVISIBLE : View.VISIBLE);
 		button.setEnabled((p.getTotalSizeBytes() > 0 && p.getSentBytes() >= p.getTotalSizeBytes()) || p.getError() != null);
-		progress.setProgress((int) (p.getTotalSizeBytes() / MAX_PROGRESS * p.getSentBytes()));
+		progress.setIndeterminate(p.getTotalSizeBytes() < 1);
+		progress.setProgress((int) (MAX_PROGRESS * p.getSentBytes() / p.getTotalSizeBytes()));
 		
 		((View)progress.getParent()).setBackgroundResource(p.getError() != null ? R.drawable.criteria_bad : 0);
 	}

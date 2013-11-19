@@ -404,17 +404,25 @@ public class CoreService extends Service {
 		@Override
 		public Account createAccount(String protocolServiceClassName, List<ProtocolOption> options) throws RemoteException {
 			Logger.log("UI creates account " + protocolServiceClassName, LoggerLevel.VERBOSE);
-			String protocolName = mProtocolServiceManager.getProtocols().get(protocolServiceClassName).getProtocol().getProtocolName();
-			Account account = new Account((byte) mAccounts.size(), options.get(0).getValue(), protocolName, protocolServiceClassName);
-			mStorage.saveAccount(account, options, true);
-			mAccounts.add(initAccount(account));
+			
+			if (findAccountServiceByProtocolUid(options.get(0).getValue()) != null) {
+				ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_menu_info_details, R.string.simple_placeholder, options.get(0).getValue());
+				return null;
+			} else {
+				String protocolName = mProtocolServiceManager.getProtocols().get(protocolServiceClassName).getProtocol().getProtocolName();
+				Account account = new Account((byte) mAccounts.size(), options.get(0).getValue(), protocolName, protocolServiceClassName);
+				mStorage.saveAccount(account, options, true);
+				mAccounts.add(initAccount(account));
 
-			return account;
+				return account;
+			}
 		}
 
 		@Override
 		public void deleteAccount(Account account) throws RemoteException {
 			mNotificator.removeAccountIcon(account);
+			mHistorySaver.removeAccount(account);
+			ViewUtils.removeAccountIcons(account, getBaseContext());			
 			mAccounts.remove(account.getServiceId());
 			mStorage.removeAccount(account);
 		}
@@ -431,10 +439,15 @@ public class CoreService extends Service {
 				Logger.log("Setting protocol class " + protocolServicePackageName + " to " + account.getAccountId(), LoggerLevel.VERBOSE);
 				account = new Account(account.getServiceId(), account.getProtocolUid(), account.getProtocolName(), protocolServicePackageName);
 				AccountService as = initAccount(account);
-				mAccounts.add(account.getServiceId(), as);
+				
+				mAccounts.set(account.getServiceId(), as);
 			}
 
 			mStorage.saveAccount(account, options, false);
+			
+			if (mInterface != null) {
+				mInterface.onAccountUpdated(account, ItemAction.MODIFIED);
+			}
 		}
 
 		@Override
@@ -494,7 +507,7 @@ public class CoreService extends Service {
 
 		@Override
 		public void disconnectAll() throws RemoteException {
-			disconnectAllInternal();
+			disconnectAllInternal(false);
 		}
 
 		@Override
@@ -594,8 +607,8 @@ public class CoreService extends Service {
 		}
 
 		@Override
-		public void exit() throws RemoteException {
-			exitInternal();
+		public void exit(boolean terminate) throws RemoteException {
+			exitService(terminate);
 		}
 
 		@Override
@@ -639,7 +652,12 @@ public class CoreService extends Service {
 
 		@Override
 		public void joinChat(byte serviceId, String chatId) throws RemoteException {
-			mAccounts.get(serviceId).getProtocolService().getProtocol().joinChatRoom(serviceId, chatId);
+			AccountService as = mAccounts.get(serviceId);
+			
+			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), 0).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
+			
+			as.getProtocolService().getProtocol().joinChatRoom(serviceId, chatId, loadIcons);
 		}
 
 		@Override
@@ -738,7 +756,7 @@ public class CoreService extends Service {
 
 		@Override
 		public void importAccounts(String password, FileProgress progress) throws RemoteException {
-			ImportAndExport.importData(progress, password, mInterface, getBaseContext());
+			ImportAndExport.importData(progress, password, mInterface, CoreService.this);
 		}
 
 		@Override
@@ -1199,14 +1217,16 @@ public class CoreService extends Service {
 		}
 	};
 
-	private void exitInternal() {
+	public void exitService(boolean terminate) {
 		Logger.log("Preparing exit", LoggerLevel.VERBOSE);
 		mExiting = true;
 		
-		disconnectAllInternal();
-		cleanupResources();
+		cleanupResources();		
+		disconnectAllInternal(terminate);		
 		
-		Executors.defaultThreadFactory().newThread(mSaveAccountsRunnable).start();
+		if (!terminate) {
+			Executors.defaultThreadFactory().newThread(mSaveAccountsRunnable).start();
+		}
 		
 		mServiceHelper.doStopForeground();
 		stopSelf();
@@ -1220,7 +1240,7 @@ public class CoreService extends Service {
 		}
 	}
 
-	private void disconnectAllInternal() {
+	private void disconnectAllInternal(boolean doNotSave) {
 		for (AccountService as : mAccounts) {
 			Account a = as.getAccount();
 			a.setConnectionState(ConnectionState.DISCONNECTED);
@@ -1234,7 +1254,9 @@ public class CoreService extends Service {
 			}
 		}
 		
-		mStorage.saveServiceState(mAccounts);
+		if (!doNotSave) {
+			mStorage.saveServiceState(mAccounts);
+		}
 	}
 
 	private void reconnect(final AccountService service) {
@@ -1347,6 +1369,16 @@ public class CoreService extends Service {
 
 		return null;
 	}
+	
+	private AccountService findAccountServiceByProtocolUid(String protocolUid) {
+		for (AccountService as : mAccounts) {
+			if (as.getAccount().getProtocolUid().equals(protocolUid)) {
+				return as;
+			}
+		}
+		
+		return null;
+	}
 
 	public void sendLocation(Buddy buddy, String url) {
 		TextMessage message = new TextMessage(buddy.getServiceId(), buddy.getProtocolUid());
@@ -1362,5 +1394,18 @@ public class CoreService extends Service {
 		} catch (RemoteException e) {
 			Logger.log(e);
 		}
+	}
+
+	public void importAccounts(List<Account> accounts) {
+		for (Account a : accounts) {
+			if (findAccountServiceByProtocolUid(a.getProtocolUid()) != null) {
+				Logger.log("Will not import existing account #" + a.getProtocolUid(), LoggerLevel.INFO);
+				ViewUtils.showInformationToast(getBaseContext(), android.R.drawable.ic_menu_myplaces, R.string.simple_placeholder, a.getProtocolUid());
+			} else {
+				mAccounts.add(initAccount(a));
+			}			
+		}
+		
+		mStorage.saveServiceState(mAccounts);;
 	}
 }

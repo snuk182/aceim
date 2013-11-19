@@ -112,7 +112,8 @@ public abstract class Page extends Fragment {
 		Screen screen = activity.getScreen();
 		Page page = getPage(screen, new PageIdLinqRule(getPageIdForEntityWithId(ContactList.class, account)));
 		if (page == null) {
-			screen.addPage(ContactList.createContactListPage(activity, account), true);
+			page = ContactList.createContactListPage(activity, account);
+			if (page != null) screen.addPage(page, true);
 		} else {
 			screen.setSelectedPage(page.getPageId());
 		}

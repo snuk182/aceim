@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Модуль Mail.ru для Ace IM</string>
+    
+    <string name="mrim_service_name">Mail.ru</string>
+    
+    <string name="uin">Mail.ru ID (адрес)</string>
+    <string name="password">Пароль</string>
+    <string name="host">Адрес сервера</string>
+    <string name="port">Порт сервера</string>
+    <string name="ping">Таймаут пинга (секунды)</string>
+    
+    <string name="label_st_online">В сети</string>
+    <string name="label_st_offline">Не в сети</string>
+    <string name="label_st_away">Ушел</string>
+    <string name="label_st_free4chat">Хочу чатиться</string>
+    <string name="label_st_invisible">Невидимый</string>
+    <string name="label_st_undetermined">Неизвестен</string>
+    
+    <string name="status">Статус</string>
+    <string name="xstatus">Х-Статус</string>
+    
+    <string name="sick">Болен</string>
+	<string name="at_home">Дома</string>
+	<string name="meal">Пища</string>
+	<string name="where_am_i">Где я?</string>
+	<string name="wc">Туалет</string>
+	<string name="cooking">Готовлю</string>
+	<string name="friends">Друзья</string>
+	<string name="alien">Лунатик</string>
+	<string name="lobster">Креведко</string>
+	<string name="im_lost">Потерялся</string>
+	<string name="in_love">Любовь</string>
+	<string name="duck">Утка</string>
+	<string name="gaming">Игры</string>
+	<string name="at_work">На работе</string>
+	<string name="at_meeting">На встрече</string>
+	<string name="beer">Пивко</string>
+	<string name="coffee">Кофе</string>
+	<string name="working_hard">Много работаю</string>
+	<string name="sleeping">Сплю</string>
+	<string name="at_the_phone">На телефоне</string>
+	<string name="study">Учёба</string>
+	<string name="at_school">В школе</string>
+	<string name="wrong_number">Неверный номер</string>
+	<string name="squirrel">Белочка</string>
+	<string name="star">Звезда</string>
+	<string name="skull">Череп</string>
+	<string name="kthulhu">Ктулху</string>
+	<string name="adrenaline">Отрываюсь</string>
+	
+    <string name="ask_authorization">Запрос авторизации</string>
+    
+    <string name="message">Сообщение</string>
+    <string name="ask_authorization_message_default">Привет, добавь меня в свой список контактов</string>
+    
+</resources>

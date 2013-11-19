@@ -158,6 +158,12 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		}
 
 		ProtocolResources resources = activity.getProtocolResourcesForAccount(account);
+		
+		if (resources == null) {
+			Logger.log("Cannot find resources with id #" + account.getProtocolServicePackageName() + " for account #" + account.getProtocolUid(), LoggerLevel.WARNING);
+			return null;
+		}
+		
 		Resources appResources = activity.getResources();
 		
 		try {

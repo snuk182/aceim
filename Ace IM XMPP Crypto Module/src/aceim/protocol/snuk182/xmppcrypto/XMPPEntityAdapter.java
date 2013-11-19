@@ -8,22 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import aceim.api.dataentity.Buddy;
-import aceim.api.dataentity.BuddyGroup;
-import aceim.api.dataentity.InputFormFeature;
-import aceim.api.dataentity.MultiChatRoom;
-import aceim.api.dataentity.OnlineInfo;
-import aceim.api.dataentity.PersonalInfo;
-import aceim.api.dataentity.ProtocolServiceFeatureTarget;
-import aceim.api.dataentity.TextMessage;
-import aceim.api.dataentity.tkv.ListTKV;
-import aceim.api.dataentity.tkv.StringTKV;
-import aceim.api.dataentity.tkv.StringTKV.ContentType;
-import aceim.api.dataentity.tkv.TKV;
-import aceim.api.dataentity.tkv.ToggleTKV;
-import aceim.api.service.ApiConstants;
-import aceim.api.utils.Logger;
-import aceim.api.utils.Logger.LoggerLevel;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
@@ -47,9 +31,24 @@ import org.jivesoftware.smackx.packet.EncryptedMessage;
 import org.jivesoftware.smackx.packet.SignedPresence;
 import org.jivesoftware.smackx.provider.EncryptedDataProvider;
 
+import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.BuddyGroup;
+import aceim.api.dataentity.InputFormFeature;
+import aceim.api.dataentity.MultiChatRoom;
+import aceim.api.dataentity.OnlineInfo;
+import aceim.api.dataentity.PersonalInfo;
+import aceim.api.dataentity.ProtocolServiceFeatureTarget;
+import aceim.api.dataentity.TextMessage;
+import aceim.api.dataentity.tkv.ListTKV;
+import aceim.api.dataentity.tkv.StringTKV;
+import aceim.api.dataentity.tkv.StringTKV.ContentType;
+import aceim.api.dataentity.tkv.TKV;
+import aceim.api.dataentity.tkv.ToggleTKV;
+import aceim.api.service.ApiConstants;
+import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 import aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils;
 import android.content.Context;
-import android.os.RemoteException;
 import android.text.TextUtils;
 
 public final class XMPPEntityAdapter {
@@ -57,18 +56,18 @@ public final class XMPPEntityAdapter {
 	static final byte INVISIBLE_STATUS_ID = 5;
 	private static final Mode[] presenceModes = {Mode.available, Mode.away, Mode.xa, Mode.dnd, Mode.chat};
 	
-	public static final TextMessage xmppMessage2TextMessage(Message message, XMPPService service, boolean resourceAsWriterId){
+	public static final TextMessage xmppMessage2TextMessage(Message message, XMPPServiceInternal service, boolean resourceAsWriterId){
 		if (message == null){
 			return null;
 		}
 		
 		TextMessage txtMessage;
 		if (resourceAsWriterId){
-			txtMessage = new TextMessage(service.getServiceId(), StringUtils.parseBareAddress(message.getFrom()));
+			txtMessage = new TextMessage(service.getOnlineInfo().getServiceId(), StringUtils.parseBareAddress(message.getFrom()));
 			txtMessage.setContactDetail(StringUtils.parseResource(message.getFrom()));
 		} else {
 			String from	= normalizeJID(message.getFrom());
-			txtMessage = new TextMessage(service.getServiceId(), from);
+			txtMessage = new TextMessage(service.getOnlineInfo().getServiceId(), from);
 		}
 		txtMessage.setMessageId(message.getPacketID() != null ? message.getPacketID().hashCode() : message.hashCode());
 		txtMessage.setTime(System.currentTimeMillis());
@@ -91,11 +90,7 @@ public final class XMPPEntityAdapter {
 						info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_ON, true);
 						info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_OFF);
 						
-						try {
-							service.getProtocolService().getCallback().buddyStateChanged(info);
-						} catch (RemoteException e) {
-							service.onRemoteException(e);
-						}
+						service.getService().getCoreService().buddyStateChanged(info);
 					}
 				}
 			}
@@ -357,14 +352,14 @@ public final class XMPPEntityAdapter {
 		return message;
 	}
 	
-	public static final List<BuddyGroup> xmppMUCOccupants2mcrOccupants(XMPPService service, MultiUserChat muc, boolean loadIcons) {
+	public static final List<BuddyGroup> xmppMUCOccupants2mcrOccupants(XMPPServiceInternal service, MultiUserChat muc, boolean loadIcons) {
 		List<BuddyGroup> groups = new ArrayList<BuddyGroup>();
-		String ownerJid = service.getProtocolUid();
+		String ownerJid = service.getOnlineInfo().getProtocolUid();
 		
-		BuddyGroup moderators = new BuddyGroup(Integer.toString(2), ownerJid, service.getServiceId());
-		BuddyGroup participants = new BuddyGroup(Integer.toString(5), ownerJid, service.getServiceId());
-		BuddyGroup other = new BuddyGroup(Integer.toString(7), ownerJid, service.getServiceId());
-		BuddyGroup all = new BuddyGroup(Integer.toString(8), ownerJid, service.getServiceId());
+		BuddyGroup moderators = new BuddyGroup(Integer.toString(2), ownerJid, service.getOnlineInfo().getServiceId());
+		BuddyGroup participants = new BuddyGroup(Integer.toString(5), ownerJid, service.getOnlineInfo().getServiceId());
+		BuddyGroup other = new BuddyGroup(Integer.toString(7), ownerJid, service.getOnlineInfo().getServiceId());
+		BuddyGroup all = new BuddyGroup(Integer.toString(8), ownerJid, service.getOnlineInfo().getServiceId());
 		//TODO
 		moderators.setName("Moderators");
 		participants.setName("Participants");
@@ -391,7 +386,7 @@ public final class XMPPEntityAdapter {
 			} else {
 				buddyId = occupant;
 			}
-			Buddy buddy = new Buddy(buddyId, ownerJid, XMPPApiConstants.PROTOCOL_NAME, service.getServiceId());
+			Buddy buddy = new Buddy(buddyId, ownerJid, XMPPApiConstants.PROTOCOL_NAME, service.getOnlineInfo().getServiceId());
 			buddy.setName(buddyId.equals(occupant) ? StringUtils.parseResource(occupant) : occu.getNick());
 			buddy.getOnlineInfo().getFeatures().putByte(ApiConstants.FEATURE_STATUS, xmppPresence2UserStatus(muc.getOccupantPresence(occupant)));
 			
@@ -401,8 +396,8 @@ public final class XMPPEntityAdapter {
 		}
 		
 		try {
-			fillMUCGroup(muc, service, muc.getParticipants(), participants, loadIcons, buddies);
-			fillMUCGroup(muc, service, muc.getModerators(), moderators, loadIcons, buddies);
+			fillMUCGroup(muc.getParticipants(), participants, buddies);
+			fillMUCGroup(muc.getModerators(), moderators, buddies);
 			other.getBuddyList().addAll(buddies.values());
 			
 			groups.add(moderators);
@@ -419,7 +414,7 @@ public final class XMPPEntityAdapter {
 		return groups;
 	}
 
-	private static void fillMUCGroup(MultiUserChat muc, XMPPService service, Collection<Occupant> occupants, BuddyGroup group, boolean loadIcons, Map<String, Buddy> map) {
+	private static void fillMUCGroup(Collection<Occupant> occupants, BuddyGroup group, Map<String, Buddy> map) {
 		for (Occupant occu : occupants){
 			String occupantJid = normalizeJID(occu.getJid());
 			Buddy occupant = map.remove(occupantJid);

@@ -3,7 +3,9 @@ package aceim.app.utils;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -149,6 +151,8 @@ public final class DataStorage {
 		for (AccountService account : accounts) {
 			saveAccount(account.getAccount(), false);
 		}
+		
+		saveServiceState(accounts);
 	}
 
 	public synchronized void saveServiceState(List<AccountService> accounts) {
@@ -214,15 +218,21 @@ public final class DataStorage {
 		}
 	}
 	
-	private void saveAccountInternal(Account account, boolean saveHeaders) {
+	private synchronized void saveAccountInternal(Account account, boolean saveHeaders) {
 		XmlSerializer serializer = Xml.newSerializer();
 		try {
 			serializer.setOutput(new BufferedOutputStream(mContext.openFileOutput(account.getFilename() + PREFERENCES_FILEEXT, ServiceUtils.getAccessMode())), XML_ENCODING);
 			serializer.startDocument(XML_ENCODING, true);
 			serializer.startTag(XML_NAMESPACE, TAG_ACCOUNT);
-			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_NAME, account.getProtocolName().trim());
-			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_SERVICE_CLASS_NAME, account.getProtocolServicePackageName().trim());
 			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_UID, account.getProtocolUid().trim());
+			
+			if (account.getProtocolName() != null) {
+				serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_NAME, account.getProtocolName().trim());
+			}
+			
+			if (account.getProtocolServicePackageName() != null) {
+				serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_SERVICE_CLASS_NAME, account.getProtocolServicePackageName().trim());
+			}
 			
 			if (account.getOwnName() != null) {
 				serializer.startTag(XML_NAMESPACE, TAG_NAME);
@@ -355,24 +365,26 @@ public final class DataStorage {
 		for (Account account : accounts) {
 			serializer.startTag(XML_NAMESPACE, TAG_ACCOUNT);
 			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_UID, account.getProtocolUid());
-			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_NAME, account.getProtocolName());
-			serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_SERVICE_CLASS_NAME, account.getProtocolServicePackageName());
+			
+			if (account.getProtocolName() != null) {
+				serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_NAME, account.getProtocolName());
+			}
+			
+			if (account.getProtocolServicePackageName() != null) {
+				serializer.attribute(XML_NAMESPACE, ATTR_PROTOCOL_SERVICE_CLASS_NAME, account.getProtocolServicePackageName());
+			}
 			serializer.attribute(XML_NAMESPACE, ATTR_CONNECTION_STATE, account.getConnectionState().name());
 			serializer.endTag(XML_NAMESPACE, TAG_ACCOUNT);
 		}
 		serializer.endTag(XML_NAMESPACE, TAG_ACCOUNTS);
 		serializer.endDocument();
 	}
-
-	private synchronized List<Account> getAccountHeaders() throws XmlPullParserException, IOException {
+	
+	static List<Account> readFileWithAccountList(InputStream stream, String encoding) throws XmlPullParserException, IOException {
 		List<Account> accounts = new ArrayList<Account>();
 
 		XmlPullParser parser = Xml.newPullParser();
-		try {
-			parser.setInput(mContext.openFileInput(XMLPARAMS_TOTAL), XML_ENCODING);
-		} catch (FileNotFoundException e) {
-			return accounts;
-		}
+		parser.setInput(stream, encoding);
 
 		int eventType = parser.getEventType();
 		Account account = null;
@@ -389,13 +401,15 @@ public final class DataStorage {
 					String protocolName = parser.getAttributeValue(XML_NAMESPACE, ATTR_PROTOCOL_NAME);
 					String protocolServiceClassName = parser.getAttributeValue(XML_NAMESPACE, ATTR_PROTOCOL_SERVICE_CLASS_NAME);
 					
-					account = new Account((byte) accounts.size(), protocolUid, protocolName, protocolServiceClassName);
-					
-					String connectionState = parser.getAttributeValue(XML_NAMESPACE, ATTR_CONNECTION_STATE);					
-					if (connectionState != null) {
-						account.setConnectionState(ConnectionState.valueOf(connectionState));
-					} else {
-						account.setConnectionState(ConnectionState.DISCONNECTED);
+					if (protocolUid != null) {
+						account = new Account((byte) accounts.size(), protocolUid, protocolName, protocolServiceClassName);
+						
+						String connectionState = parser.getAttributeValue(XML_NAMESPACE, ATTR_CONNECTION_STATE);					
+						if (connectionState != null) {
+							account.setConnectionState(ConnectionState.valueOf(connectionState));
+						} else {
+							account.setConnectionState(ConnectionState.DISCONNECTED);
+						}
 					}
 				}
 				break;
@@ -412,6 +426,16 @@ public final class DataStorage {
 		}
 
 		return accounts;
+	}
+
+	private synchronized List<Account> getAccountHeaders() throws XmlPullParserException {
+		try {
+			return readFileWithAccountList(mContext.openFileInput(XMLPARAMS_TOTAL), XML_ENCODING);
+		} catch (IOException e) {
+			Logger.log(e);
+		}
+		
+		return Collections.emptyList();
 	}
 
 	public synchronized Account getAccount(Account account, boolean getBuddies) throws XmlPullParserException, IOException {

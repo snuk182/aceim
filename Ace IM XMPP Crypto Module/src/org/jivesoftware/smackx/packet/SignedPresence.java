@@ -68,6 +68,7 @@ public class SignedPresence implements PacketExtension {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static String sign(String stanza, String keyPath, char[] pass) throws IOException, NoSuchAlgorithmException, NoSuchProviderException, PGPException, SignatureException {
 		if (stanza == null) {
 			stanza = "";
@@ -249,13 +250,6 @@ public class SignedPresence implements PacketExtension {
 		return lookAhead;
 	}
 
-	private static void processLine(PGPSignature sig, byte[] line) throws SignatureException, IOException {
-		int length = getLengthWithoutWhiteSpace(line);
-		if (length > 0) {
-			sig.update(line, 0, length);
-		}
-	}
-
 	private static void processLine(OutputStream aOut, PGPSignatureGenerator sGen, byte[] line) throws SignatureException, IOException {
 		// note: trailing white space needs to be removed from the end of
 		// each line for signature calculation RFC 4880 Section 7.1
@@ -265,16 +259,6 @@ public class SignedPresence implements PacketExtension {
 		}
 
 		aOut.write(line, 0, line.length);
-	}
-
-	private static int getLengthWithoutSeparatorOrTrailingWhitespace(byte[] line) {
-		int end = line.length - 1;
-
-		while (end >= 0 && isWhiteSpace(line[end])) {
-			end--;
-		}
-
-		return end + 1;
 	}
 
 	private static boolean isLineEnding(byte b) {

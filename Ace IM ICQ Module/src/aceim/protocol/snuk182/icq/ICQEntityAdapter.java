@@ -20,7 +20,6 @@ import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.dataentity.tkv.TKV;
 import aceim.api.service.ApiConstants;
-
 import aceim.protocol.snuk182.icq.inner.ICQConstants;
 import aceim.protocol.snuk182.icq.inner.ICQServiceInternal;
 import aceim.protocol.snuk182.icq.inner.dataentity.ICBMMessage;
@@ -72,7 +71,7 @@ public final class ICQEntityAdapter {
 	}
 
 	static final Buddy ICQBuddy2Buddy(ICQBuddy icqBuddy, String ownerUid, byte serviceId) {
-		Buddy buddy = new Buddy(icqBuddy.uin, ownerUid, ICQService.SERVICE_NAME, serviceId);
+		Buddy buddy = new Buddy(icqBuddy.uin, ownerUid, IcqApiConstants.PROTOCOL_NAME, serviceId);
 		buddy.setName(icqBuddy.screenName);
 		buddy.setId(icqBuddy.itemId);
 		buddy.setGroupId(Integer.toString(icqBuddy.groupId));

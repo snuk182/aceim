@@ -15,6 +15,7 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -32,6 +33,8 @@ import aceim.api.dataentity.FileProgress;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.api.utils.Utils;
+import aceim.app.dataentity.Account;
+import aceim.app.service.CoreService;
 import aceim.app.service.IUserInterface;
 import aceim.app.service.ServiceUtils;
 import android.content.Context;
@@ -140,7 +143,7 @@ public final class ImportAndExport {
 		}
 	}
 
-	public static final void importData(final FileProgress progress, final String password, final IUserInterface ui, final Context context) {
+	public static final void importData(final FileProgress progress, final String password, final IUserInterface ui, final CoreService service) {
 		Logger.log("Import data request from " + progress.getFilePath(), LoggerLevel.VERBOSE);
 
 		Executors.defaultThreadFactory().newThread(new Runnable() {
@@ -151,10 +154,10 @@ public final class ImportAndExport {
 					File tmpFolder = new File(root);
 					tmpFolder.mkdirs();
 					
-					File[] files = decodeAndUnzip(progress, password, ui, context);
+					File[] files = decodeAndUnzip(progress, password, ui, service);
 
 					for (File file : files) {
-						importFile(file, progress, ui, context);
+						importFile(file, progress, ui, service);
 					}
 
 					FileProgress p = new FileProgress(progress.getServiceId(), progress.getMessageId(), progress.getFilePath(), TOTAL_PROGRESS, TOTAL_PROGRESS, progress.isIncoming(), progress.getOwnerUid(), null);
@@ -168,6 +171,13 @@ public final class ImportAndExport {
 						file.delete();
 					}
 					tmpFolder.delete();
+					
+					try {
+						ui.terminate();
+					} catch (Exception e) {
+						Logger.log(e);
+					}
+					service.exitService(true);
 				} catch (Exception e) {
 					Logger.log(e);
 					FileProgress p = new FileProgress(progress.getServiceId(), progress.getMessageId(), progress.getFilePath(), TOTAL_PROGRESS, 10, progress.isIncoming(), progress.getOwnerUid(), e.getMessage());
@@ -181,16 +191,23 @@ public final class ImportAndExport {
 		}).start();
 	}
 
-	private static void importFile(File file, FileProgress progress, IUserInterface ui, Context context) {
+	private static void importFile(File file, FileProgress progress, IUserInterface ui, CoreService coreService) {
 		Logger.log("Importing: " + file, LoggerLevel.VERBOSE);
-
+		
 		try {
 			FileInputStream fis = new FileInputStream(file);
-			FileOutputStream fos = context.openFileOutput(file.getName(), ServiceUtils.getAccessMode());
+			
+			if ("XmlTotalParams".equals(file.getName())) {
+				List<Account> accounts = DataStorage.readFileWithAccountList(fis, "UTF-16LE");
+				coreService.importAccounts(accounts);
+			} else {
+				FileOutputStream fos = coreService.openFileOutput(file.getName(), ServiceUtils.getAccessMode());
+				
+				copyFile(fis, fos);
 
-			copyFile(fis, fos);
-
-			fos.close();
+				fos.close();
+			}
+			
 			fis.close();
 		} catch (Exception e) {
 			Logger.log(e);

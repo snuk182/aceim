@@ -93,7 +93,8 @@ public final class EncryptionUtils {
      * @throws IOException
      * @throws PGPException
      */
-    static PGPPublicKey readPublicKey(InputStream input) throws IOException, PGPException
+    @SuppressWarnings("rawtypes")
+	static PGPPublicKey readPublicKey(InputStream input) throws IOException, PGPException
     {
         PGPPublicKeyRingCollection pgpPub = new PGPPublicKeyRingCollection(
             PGPUtil.getDecoderStream(input));
@@ -140,7 +141,8 @@ public final class EncryptionUtils {
      * @throws IOException on a problem with using the input stream.
      * @throws PGPException if there is an issue parsing the input stream.
      */
-    public static PGPSecretKey readSecretKey(InputStream input) throws IOException, PGPException
+    @SuppressWarnings("rawtypes")
+	public static PGPSecretKey readSecretKey(InputStream input) throws IOException, PGPException
     {
         PGPSecretKeyRingCollection pgpSec = new PGPSecretKeyRingCollection(
             PGPUtil.getDecoderStream(input));

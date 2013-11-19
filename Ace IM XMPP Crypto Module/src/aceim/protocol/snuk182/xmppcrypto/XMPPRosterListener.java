@@ -9,16 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
-import aceim.api.dataentity.Buddy;
-import aceim.api.dataentity.BuddyGroup;
-import aceim.api.dataentity.ItemAction;
-import aceim.api.dataentity.OnlineInfo;
-import aceim.api.dataentity.PersonalInfo;
-import aceim.api.dataentity.ServiceMessage;
-import aceim.api.service.ApiConstants;
-import aceim.api.service.ProtocolException;
-import aceim.api.utils.Logger;
-import aceim.api.utils.Logger.LoggerLevel;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
@@ -32,7 +22,15 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.VCard;
 
-import android.os.RemoteException;
+import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.BuddyGroup;
+import aceim.api.dataentity.ItemAction;
+import aceim.api.dataentity.OnlineInfo;
+import aceim.api.dataentity.PersonalInfo;
+import aceim.api.dataentity.ServiceMessage;
+import aceim.api.service.ApiConstants;
+import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 
 public class XMPPRosterListener extends XMPPListener implements RosterListener, PacketListener, PacketFilter {
 
@@ -41,56 +39,40 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	//private final List<OnlineInfo> infos = Collections.synchronizedList(new ArrayList<OnlineInfo>());
 	private final Map<String, OnlineInfo> presenceCache = new ConcurrentHashMap<String, OnlineInfo>();
 	
-	public XMPPRosterListener(XMPPService service) {
+	public XMPPRosterListener(XMPPServiceInternal service) {
 		super(service);
 	}
 
 	@Override
 	public void entriesUpdated(Collection<String> addresses) {
-		try {
-			clUpdated();
-		} catch (ProtocolException e) {
-			Logger.log(e);
-		}
+		clUpdated();
 	}
 
 	@Override
 	public void entriesDeleted(Collection<String> addresses) {
-		try {
-			clUpdated();
-		} catch (ProtocolException e) {
-			Logger.log(e);
-		}
+		clUpdated();
 	}
 
 	@Override
 	public void entriesAdded(Collection<String> addresses) {
-		try {
-			clUpdated();
-		} catch (ProtocolException e) {
-			Logger.log(e);
-		}
+		clUpdated();
 	}
 	
-	void clUpdated() throws ProtocolException {
+	void clUpdated(){
 		List<BuddyGroup> groups = getContactList();
 		
-		try {
-			getService().getProtocolService().getCallback().buddyListUpdated(getService().getServiceId(), groups);
-		} catch (RemoteException e) {
-			Logger.log(e);
-		}
+		getInternalService().getService().getCoreService().buddyListUpdated( groups);
 	}
 	
 	List<BuddyGroup> getContactList() {
-		Roster roster = getService().getConnection().getRoster();
+		Roster roster = getInternalService().getConnection().getRoster();
 		
 		Collection<RosterEntry> entries = roster.getEntries();
 		for (RosterEntry entry : entries) {
 			if (entry.getName() == null) {
 				try {
 					VCard vc = new VCard();
-					vc.load(getService().getConnection(), entry.getUser());
+					vc.load(getInternalService().getConnection(), entry.getUser());
 					String nick = getNicknameFromVCard(vc);
 					
 					if (nick != null) {
@@ -102,7 +84,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			}
 		}
 		
-		List<BuddyGroup> groups = XMPPEntityAdapter.rosterGroupCollection2BuddyGroupList(roster.getGroups(), entries, getService().getOnlineInfo().getProtocolUid(), getService().getEdProvider(), getService().getProtocolService(), getService().getServiceId());
+		List<BuddyGroup> groups = XMPPEntityAdapter.rosterGroupCollection2BuddyGroupList(roster.getGroups(), entries, getInternalService().getOnlineInfo().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
 		return groups;
 	}
 
@@ -110,16 +92,12 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	public void presenceChanged(Presence presence) {
 		Logger.log(" - presence " + presence.getFrom() + " " + presence.getMode(), LoggerLevel.VERBOSE);
 
-		OnlineInfo info = XMPPEntityAdapter.presence2OnlineInfo(presence, getService().getEdProvider(), getService().getProtocolService(), getService().getServiceId(), getService().getProtocolUid(), presenceCache.get(XMPPEntityAdapter.normalizeJID(presence.getFrom())));
+		OnlineInfo info = XMPPEntityAdapter.presence2OnlineInfo(presence, getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId(), getInternalService().getService().getProtocolUid(), presenceCache.get(XMPPEntityAdapter.normalizeJID(presence.getFrom())));
 		
 		presenceCache.put(info.getProtocolUid(), info);
 		
 		if (isContactListReady) {
-			try {
-				getService().getProtocolService().getCallback().buddyStateChanged(info);
-			} catch (RemoteException e) {
-				Logger.log(e);
-			}
+			getInternalService().getService().getCoreService().buddyStateChanged(info);
 		} 
 	}
 
@@ -128,11 +106,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			for (Iterator<String> i = presenceCache.keySet().iterator(); i.hasNext();) {
 				OnlineInfo info = presenceCache.remove(i.next());
 				i.remove();
-				try {
-					getService().getProtocolService().getCallback().buddyStateChanged(info);
-				} catch (RemoteException e) {
-					Logger.log(e);
-				}
+				getInternalService().getService().getCoreService().buddyStateChanged(info);
 			}
 		}
 	}
@@ -154,27 +128,19 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 		if (packet instanceof Presence) {
 			Presence p = (Presence) packet;
 			if (Presence.Type.subscribe.equals(p.getType())) {	
-				ServiceMessage message = new ServiceMessage(getService().getServiceId(), XMPPEntityAdapter.normalizeJID(p.getFrom()), true);
+				ServiceMessage message = new ServiceMessage(getInternalService().getService().getServiceId(), XMPPEntityAdapter.normalizeJID(p.getFrom()), true);
 				message.setText(p.getFrom());
-				message.setContactDetail(getService().getProtocolService().getString(R.string.ask_authorization));
+				message.setContactDetail(getInternalService().getService().getContext().getString(R.string.ask_authorization));
 				
-				try {
-					getService().getProtocolService().getCallback().message(message);
-				} catch (RemoteException e) {
-					Logger.log(e);
-				}
+				getInternalService().getService().getCoreService().message(message);
 			
 			} else if (Presence.Type.unsubscribe.equals(p.getType())) {					
 				Presence ppacket = new Presence(Presence.Type.unsubscribed);
 				ppacket.setTo(packet.getFrom());
 				ppacket.setFrom(packet.getTo());
-				getService().getConnection().sendPacket(ppacket);					
+				getInternalService().getConnection().sendPacket(ppacket);					
 			} else if (Presence.Type.unsubscribed.equals(p.getType()) || Presence.Type.subscribed.equals(p.getType())) {
-				try {
-					clUpdated();
-				} catch (ProtocolException e) {
-					Logger.log(e);
-				}
+				clUpdated();
 			} else {
 				presenceChanged(p);
 			}
@@ -182,14 +148,10 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	}
 	
 	void renameBuddy(Buddy buddy) {
-		Roster roster = getService().getConnection().getRoster();
+		Roster roster = getInternalService().getConnection().getRoster();
 		RosterEntry buddyEntry = roster.getEntry(buddy.getProtocolUid());
 		buddyEntry.setName(buddy.getName());
-		try {
-			getService().getProtocolService().getCallback().buddyAction(ItemAction.MODIFIED, buddy);
-		} catch (RemoteException e) {
-			Logger.log(e);
-		}
+		getInternalService().getService().getCoreService().buddyAction(ItemAction.MODIFIED, buddy);
 	}
 
 	void renameGroup(final BuddyGroup buddyGroup) {
@@ -198,20 +160,16 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getService().getConnection(), buddyGroup);
+					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
 
 					for (RosterEntry entry : rgroup.getEntries()) {
-						getService().getConnection().getRoster().createEntry(entry.getUser(), entry.getName(), new String[] { buddyGroup.getName() });
+						getInternalService().getConnection().getRoster().createEntry(entry.getUser(), entry.getName(), new String[] { buddyGroup.getName() });
 					}
 
-					getService().getProtocolService().getCallback().groupAction(ItemAction.MODIFIED, buddyGroup);
+					getInternalService().getService().getCoreService().groupAction(ItemAction.MODIFIED, buddyGroup);
 				} catch (Exception e) {
 					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
+					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
 				}
 			}
 		}.start();
@@ -222,19 +180,13 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					Roster roster = getService().getConnection().getRoster();
+					Roster roster = getInternalService().getConnection().getRoster();
 					roster.createEntry(buddy.getProtocolUid(), buddy.getName(), (buddy.getGroupId() != null && buddy.getGroupId().equals(ApiConstants.NO_GROUP_ID)) ? new String[] { buddy.getGroupId() } : new String[0]);
 					buddy.setGroupId(buddy.getGroupId());
-					getService().getProtocolService().getCallback().buddyAction(ItemAction.MODIFIED, buddy);
+					getInternalService().getService().getCoreService().buddyAction(ItemAction.MODIFIED, buddy);
 				} catch (XMPPException e) {
 					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
-				} catch (RemoteException e) {
-					Logger.log(e);
+					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
 				}
 			}
 		}.start();
@@ -246,28 +198,24 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getService().getConnection(), buddyGroup);
-					Roster roster = getService().getConnection().getRoster();
+					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
+					Roster roster = getInternalService().getConnection().getRoster();
 					
 					for (RosterEntry entry : rgroup.getEntries()) {
-						//getService().getConnection().getRoster().removeEntry(entry);
+						//getInternalService().getConnection().getRoster().removeEntry(entry);
 						
 						roster.createEntry(entry.getUser(), entry.getName(), new String[0]);
 						
-						Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(entry, buddyGroup.getOwnerUid(), getService().getEdProvider(), getService().getProtocolService(), buddyGroup.getServiceId());
+						Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(entry, buddyGroup.getOwnerUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), buddyGroup.getServiceId());
 						buddy.setGroupId(ApiConstants.NO_GROUP_ID);
 						
-						getService().getProtocolService().getCallback().buddyAction(ItemAction.MODIFIED, buddy);
+						getInternalService().getService().getCoreService().buddyAction(ItemAction.MODIFIED, buddy);
 					}
 
-					getService().getProtocolService().getCallback().groupAction(ItemAction.DELETED, buddyGroup);
+					getInternalService().getService().getCoreService().groupAction(ItemAction.DELETED, buddyGroup);
 				} catch (Exception e) {
 					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
+					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
 				}
 			}
 		}.start();
@@ -279,17 +227,11 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					getService().getConnection().getRoster().removeEntry(XMPPEntityAdapter.buddy2RosterEntry(getService().getConnection(), buddy));
-					getService().getProtocolService().getCallback().buddyAction(ItemAction.DELETED, buddy);
+					getInternalService().getConnection().getRoster().removeEntry(XMPPEntityAdapter.buddy2RosterEntry(getInternalService().getConnection(), buddy));
+					getInternalService().getService().getCoreService().buddyAction(ItemAction.DELETED, buddy);
 				} catch (XMPPException e) {
 					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
-				} catch (RemoteException e) {
-					Logger.log(e);
+					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
 				}
 			}
 
@@ -301,20 +243,11 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 
 			@Override
 			public void run() {
-				try {
-					BuddyGroup g = new BuddyGroup(buddyGroup.getName(), buddyGroup.getOwnerUid(), buddyGroup.getServiceId());
-					g.setName(buddyGroup.getName());
-					
-					getService().getConnection().getRoster().createGroup(g.getName());
-					getService().getProtocolService().getCallback().groupAction(ItemAction.ADDED, g);
-				} catch (RemoteException e) {
-					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
-				}
+				BuddyGroup g = new BuddyGroup(buddyGroup.getName(), buddyGroup.getOwnerUid(), buddyGroup.getServiceId());
+				g.setName(buddyGroup.getName());
+				
+				getInternalService().getConnection().getRoster().createGroup(g.getName());
+				getInternalService().getService().getCoreService().groupAction(ItemAction.ADDED, g);
 			}
 		}.start();
 	}
@@ -325,18 +258,12 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					Roster roster = getService().getConnection().getRoster();
+					Roster roster = getInternalService().getConnection().getRoster();
 					roster.createEntry(buddy.getProtocolUid(), buddy.getName(), (buddy.getGroupId() != null && !buddy.getGroupId().equals(ApiConstants.NO_GROUP_ID)) ? new String[] { buddy.getGroupId() } : new String[0]);
-					getService().getProtocolService().getCallback().buddyAction(ItemAction.ADDED, XMPPEntityAdapter.rosterEntry2Buddy(roster.getEntry(buddy.getProtocolUid()), getService().getProtocolUid(), getService().getEdProvider(), getService().getProtocolService(), getService().getServiceId()));
+					getInternalService().getService().getCoreService().buddyAction(ItemAction.ADDED, XMPPEntityAdapter.rosterEntry2Buddy(roster.getEntry(buddy.getProtocolUid()),getInternalService().getService().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId()));
 				} catch (XMPPException e) {
 					Logger.log(e);
-					try {
-						getService().getProtocolService().getCallback().notification(getService().getServiceId(), e.getLocalizedMessage());
-					} catch (RemoteException e1) {
-						Logger.log(e1);
-					}
-				} catch (RemoteException e) {
-					Logger.log(e);
+					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
 				}
 			}
 		};
@@ -411,52 +338,48 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 
 		@Override
 		public void run() {
-			try {
-				PersonalInfo info = new PersonalInfo(getService().getServiceId());
-				info.setProtocolUid(uid);
-				
-				VCard card = new VCard();
-				
-				if (isMultiUserChat) {
-					try {
-						RoomInfo room = MultiUserChat.getRoomInfo(getService().getConnection(), uid);
-						info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_DESCRIPTION, room.getDescription());
-						info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_OCCUPANTS, room.getOccupantsCount() + "");
-						info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_SUBJECT, room.getSubject());
-						
-						getService().getProtocolService().getCallback().personalInfo(info);
-						return;
-					} catch (XMPPException e) {
-						Logger.log(e.getLocalizedMessage(), LoggerLevel.DEBUG);
-					}
-				}
-				
+			PersonalInfo info = new PersonalInfo(getInternalService().getService().getServiceId());
+			info.setProtocolUid(uid);
+			
+			VCard card = new VCard();
+			
+			if (isMultiUserChat) {
 				try {
-					card.load(getService().getConnection(), uid);
+					RoomInfo room = MultiUserChat.getRoomInfo(getInternalService().getConnection(), uid);
+					info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_DESCRIPTION, room.getDescription());
+					info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_OCCUPANTS, room.getOccupantsCount() + "");
+					info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_SUBJECT, room.getSubject());
 					
-					switch (target) {
-					case ALL:
-						for (String prop: getAllFieldsOfCard(card).keySet()){
-							info.getProperties().putCharSequence(prop, card.getField(prop));							
-						}
-					case SHORT:
-						String fn = getNicknameFromVCard(card);
-						
-						if (fn != null) {
-							info.getProperties().putString(PersonalInfo.INFO_NICK, fn);
-						}
-						getService().getProtocolService().getCallback().personalInfo(info);
-					case ICON:
-						if (card.getAvatar() != null) {
-							getService().getProtocolService().getCallback().iconBitmap(getService().getServiceId(), uid, card.getAvatar(), card.getAvatarHash());
-						}
-						break;
-					
-					}
+					getInternalService().getService().getCoreService().personalInfo(info);
+					return;
 				} catch (XMPPException e) {
-					Logger.log(e);
+					Logger.log(e.getLocalizedMessage(), LoggerLevel.DEBUG);
 				}
-			} catch (RemoteException e) {
+			}
+			
+			try {
+				card.load(getInternalService().getConnection(), uid);
+				
+				switch (target) {
+				case ALL:
+					for (String prop: getAllFieldsOfCard(card).keySet()){
+						info.getProperties().putCharSequence(prop, card.getField(prop));							
+					}
+				case SHORT:
+					String fn = getNicknameFromVCard(card);
+					
+					if (fn != null) {
+						info.getProperties().putString(PersonalInfo.INFO_NICK, fn);
+					}
+					getInternalService().getService().getCoreService().personalInfo(info);
+				case ICON:
+					if (card.getAvatar() != null) {
+						getInternalService().getService().getCoreService().iconBitmap( uid, card.getAvatar(), card.getAvatarHash());
+					}
+					break;
+				
+				}
+			} catch (XMPPException e) {
 				Logger.log(e);
 			}			
 		}
@@ -485,7 +408,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	public void authorizationResponse(String contactUid, boolean accept) {
 		Presence subscribe = new Presence(accept ? Presence.Type.subscribed : Presence.Type.unsubscribed);
 	    subscribe.setTo(contactUid);
-	    getService().getConnection().sendPacket(subscribe);
+	    getInternalService().getConnection().sendPacket(subscribe);
 	}
 
 	public void uploadIcon(final byte[] bytes) {
@@ -495,13 +418,11 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			public void run() {
 				try {
 					VCard card = new VCard();
-					card.load(getService().getConnection(),getService().getProtocolUid());
+					card.load(getInternalService().getConnection(),getInternalService().getService().getProtocolUid());
 					card.setAvatar(bytes);
-					card.save(getService().getConnection());
-					getService().getProtocolService().getCallback().iconBitmap(getService().getServiceId(), getService().getProtocolUid(), bytes, card.getAvatarHash());
+					card.save(getInternalService().getConnection());
+					getInternalService().getService().getCoreService().iconBitmap(getInternalService().getService().getProtocolUid(), bytes, card.getAvatarHash());
 				} catch (XMPPException e) {
-					Logger.log(e);
-				} catch (RemoteException e) {
 					Logger.log(e);
 				}
 			}

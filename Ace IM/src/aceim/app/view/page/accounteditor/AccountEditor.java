@@ -1,7 +1,9 @@
 package aceim.app.view.page.accounteditor;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 import aceim.api.dataentity.ProtocolOption;
@@ -10,6 +12,7 @@ import aceim.api.dataentity.tkv.ListTKV;
 import aceim.api.dataentity.tkv.StringTKV;
 import aceim.api.dataentity.tkv.ToggleTKV;
 import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.AceImException;
 import aceim.app.MainActivity;
 import aceim.app.R;
@@ -142,7 +145,12 @@ public class AccountEditor extends Page implements IHasFilePicker {
 			try {
 				if (mAccount == null) {
 					Account account = activity.getCoreService().createAccount(mSelectedResources.getProtocolServicePackageName(), mOptions);
-					activity.accountAdded(account);
+					if (account == null) {
+						Logger.log("Cannot create account #" + mOptions.get(0).getValue(), LoggerLevel.INFO);
+						return;
+					} else {
+						activity.accountAdded(account);
+					}
 				} else {
 					activity.getCoreService().editAccount(mAccount, mOptions, mSelectedResources.getProtocolServicePackageName());
 				}
@@ -174,7 +182,8 @@ public class AccountEditor extends Page implements IHasFilePicker {
 	@Override
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
 		MainActivity activity = (MainActivity) getMainActivity();
-		this.mAdapter = new ArrayAdapter<ProtocolResources>(activity.getApplicationContext(), android.R.layout.simple_spinner_item, activity.getProtocolResources().values().toArray(new ProtocolResources[0]));
+		Collection<ProtocolResources> resources = obtainResourcesForEditor();
+		this.mAdapter = new ArrayAdapter<ProtocolResources>(activity.getApplicationContext(), android.R.layout.simple_spinner_item, resources.toArray(new ProtocolResources[0]));
 		this.mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		View view = inflater.inflate(R.layout.account_editor, group, false);
@@ -218,6 +227,23 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		return view;
 	}
 
+	private Collection<ProtocolResources> obtainResourcesForEditor() {
+		List<ProtocolResources> res = new ArrayList<ProtocolResources>();
+		for (ProtocolResources r : getMainActivity().getProtocolResources().values()) {
+			if (mAccount != null && !r.getProtocolName().equals(mAccount.getProtocolName())) {
+				continue;
+			}
+			
+			res.add(r);
+		}
+		
+		if (res.size() > 0) {
+			return res;
+		} else {
+			return getMainActivity().getProtocolResources().values();
+		}
+	}
+
 	private void constructEditor(LinearLayout container) {
 		container.removeAllViews();
 
@@ -235,6 +261,12 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		}
 		
 		LayoutInflater inflater = LayoutInflater.from(activity);
+		
+		if (mAccount != null) {
+			if (mOptions.size() > 0 && TextUtils.isEmpty(mOptions.get(0).getValue())) {
+				mOptions.get(0).setValue(mAccount.getProtocolUid());
+			}
+		}
 
 		for (ProtocolOption o : mOptions) {
 			View item;
@@ -258,6 +290,8 @@ public class AccountEditor extends Page implements IHasFilePicker {
 						break;
 					}
 				}
+				
+				spinner.setEnabled(mOptions.get(0) != o);
 			} else if (o.getTkv() instanceof ToggleTKV) {
 				item = inflater.inflate(R.layout.options_item_checkbox, null);
 				CheckBox cb = (CheckBox) item.findViewById(R.id.value);
@@ -269,6 +303,8 @@ public class AccountEditor extends Page implements IHasFilePicker {
 					o.setValue(o.getDefaultValue());
 				}
 				cb.setChecked(b);
+				
+				cb.setEnabled(mOptions.get(0) != o);
 			} else if (o.getTkv() instanceof StringTKV) {
 				StringTKV tkv = (StringTKV) o.getTkv();
 				switch (tkv.getContentType()) {
@@ -278,7 +314,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 				case TIME:
 					item = fillDialogItem(inflater, o, new TimePickerListener(o.getTkv(), new ProtocolOptionValuePickedListener(o), getMainActivity()));
 					break;
-				case CHECKBOX:
+				/*case CHECKBOX:
 					item = inflater.inflate(R.layout.options_item_checkbox, null);
 					CheckBox cb = (CheckBox) item.findViewById(R.id.value);
 					boolean b;
@@ -289,7 +325,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 						o.setValue(o.getDefaultValue());
 					}
 					cb.setChecked(b);
-					break;
+					break;*/
 				case DOUBLE:
 					item = fillEditTextItem(R.layout.options_item_double, inflater, o);
 					break;
@@ -320,7 +356,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		View item = inflater.inflate(R.layout.options_item, null);
 		ImageButton editBtn = (ImageButton) item.findViewById(R.id.edit);
 		editBtn.setImageResource(android.R.drawable.ic_menu_edit);
-		if (clickListener != null) {
+		if (clickListener != null && mOptions.get(0) != o) {
 			editBtn.setOnClickListener(clickListener);
 		} else {
 			editBtn.setVisibility(View.INVISIBLE);
@@ -380,6 +416,8 @@ public class AccountEditor extends Page implements IHasFilePicker {
 				mHasUnsavedChanges = true;
 			}
 		});
+		
+		et.setEnabled(mOptions.get(0) != o);
 
 		return item;
 	}

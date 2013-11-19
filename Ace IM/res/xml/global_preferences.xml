@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:asia="http://ua.snuk182.asia/res" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/security_preferences" >
-        <org.aceim.widgets.preference.EditablePasswordPreference
+        <aceim.app.widgets.preference.EditablePasswordPreference
             android:key="MASTER_PASSWORD"
             android:title="@string/master_password" />
     </PreferenceCategory>
@@ -40,7 +39,7 @@
             android:key="SOUND_NOTIFICATION_TYPE"
             android:title="@string/sound_type" />
 
-       <org.aceim.widgets.preference.SeekBarPreference
+       <aceim.app.widgets.preference.SeekBarPreference
             android:defaultValue="30"
             android:key="SOUND_NOTIFICATION_VOLUME"
             

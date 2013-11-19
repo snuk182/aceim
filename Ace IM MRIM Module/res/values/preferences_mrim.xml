@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="mrim_status_icons">
+		<item>@drawable/mrim_online_big</item>
+		<item>@drawable/mrim_away_big</item>
+		<item>@drawable/mrim_undetermined_big</item>
+		<item>@drawable/mrim_free4chat_big</item>
+		<item>@drawable/mrim_invisible_big</item>
+		<item>@drawable/mrim_offline_big</item>
+		<item>@drawable/mrim_connecting_big</item>
+	</string-array>
+	
+	<string-array name="mrim_status_strings">
+		<item>@string/label_st_online</item>
+		<item>@string/label_st_away</item>
+		<item>@string/label_st_undetermined</item>
+		<item>@string/label_st_free4chat</item>
+		<item>@string/label_st_invisible</item>
+	</string-array>
+
+	<string-array name="mrim_xstatus_names_32">
+		<item>@drawable/xstatus_sick_32</item>
+		<item>@drawable/xstatus_home_32</item>
+		<item>@drawable/xstatus_eating_32</item>
+		<item>@drawable/xstatus_question_32</item>
+		<item>@drawable/xstatus_wc_32</item>
+		<item>@drawable/xstatus_cook_32</item>
+		<item>@drawable/xstatus_friends_32</item>
+		<item>@drawable/xstatus_alien_32</item>
+		<item>@drawable/xstatus_krevedko_32</item>
+		<item>@drawable/xstatus_way_32</item>
+		<item>@drawable/xstatus_passion_32</item>
+		<item>@drawable/xstatus_duck_32</item>
+		<item>@drawable/xstatus_games_32</item>
+		<item>@drawable/xstatus_man_32</item>
+		<item>@drawable/xstatus_business_32</item>
+		<item>@drawable/xstatus_beer_32</item>
+		<item>@drawable/xstatus_coffee_32</item>
+		<item>@drawable/xstatus_engineering_32</item>
+		<item>@drawable/xstatus_sleeping_32</item>
+		<item>@drawable/xstatus_phone_32</item>
+		<item>@drawable/xstatus_college_32</item>
+		<item>@drawable/xstatus_rambler_journal_32</item>
+		<item>@drawable/xstatus_mobile_32</item>
+		<item>@drawable/xstatus_squirrel_32</item>
+		<item>@drawable/xstatus_star_32</item>
+		<item>@drawable/xstatus_skull_32</item>
+		<item>@drawable/xstatus_kthulhu_32</item>
+		<item>@drawable/xstatus_surfing_32</item>
+	</string-array>
+	
+	<string-array name="mrim_xstatus_descr">	
+		<item>@string/sick</item>
+		<item>@string/at_home</item>
+		<item>@string/meal</item>
+		<item>@string/where_am_i</item>
+		<item>@string/wc</item>
+		<item>@string/cooking</item>
+		<item>@string/friends</item>
+		<item>@string/alien</item>
+		<item>@string/lobster</item>
+		<item>@string/im_lost</item>
+		<item>@string/in_love</item>
+		<item>@string/duck</item>
+		<item>@string/gaming</item>
+		<item>@string/at_work</item>
+		<item>@string/at_meeting</item>
+		<item>@string/beer</item>
+		<item>@string/coffee</item>
+		<item>@string/working_hard</item>
+		<item>@string/sleeping</item>
+		<item>@string/at_the_phone</item>
+		<item>@string/study</item>
+		<item>@string/at_school</item>
+		<item>@string/wrong_number</item>
+		<item>@string/squirrel</item>
+		<item>@string/star</item>
+		<item>@string/skull</item>
+		<item>@string/kthulhu</item>
+		<item>@string/adrenaline</item>
+	</string-array>
+</resources>

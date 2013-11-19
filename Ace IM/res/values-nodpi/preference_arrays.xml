@@ -17,9 +17,9 @@
 	
 	<string-array name="view_type_values">
 	    <item>Auto</item>
-		<item>org.aceim.screen.simple.SimpleScreen</item>
-		<item>org.aceim.screen.tablet.TabletScreen</item>
-		<item>org.aceim.screen.pano.PanoScreen</item>
+		<item>aceim.app.screen.simple.SimpleScreen</item>
+		<item>aceim.app.screen.tablet.TabletScreen</item>
+		<item>aceim.app.screen.pano.PanoScreen</item>
 	</string-array>
 	
 	<string-array name="view_type_names">
@@ -30,9 +30,9 @@
 	</string-array>
 	
 	<string-array name="list_type_values">
-		<item>org.aceim.view.page.contactlist.GridContactList</item>
-		<item>org.aceim.view.page.contactlist.PlainContactList</item>
-		<item>org.aceim.view.page.contactlist.DoubleContactList</item>
+		<item>aceim.app.view.page.contactlist.GridContactList</item>
+		<item>aceim.app.view.page.contactlist.PlainContactList</item>
+		<item>aceim.app.view.page.contactlist.DoubleContactList</item>
 	</string-array>
 	
 	<string-array name="list_type_names">

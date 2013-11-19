@@ -17,7 +17,7 @@
     
     <string name="default_show_groups">false</string>
     <string name="default_show_offline">true</string>
-    <string name="default_contact_list_type">org.aceim.view.page.contactlist.GridContactList</string>
+    <string name="default_contact_list_type">aceim.app.view.page.contactlist.GridContactList</string>
     <string name="default_send_typing_notification">false</string>
     <string name="default_load_icons">true</string>
     <string name="default_save_not_in_list">false</string>

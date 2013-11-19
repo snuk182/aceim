@@ -7,13 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import aceim.api.dataentity.Buddy;
-import aceim.api.dataentity.FileInfo;
-import aceim.api.dataentity.FileMessage;
-import aceim.api.dataentity.FileProgress;
-import aceim.api.utils.Logger;
-import aceim.api.utils.Logger.LoggerLevel;
-import aceim.api.utils.Utils;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
@@ -22,7 +15,13 @@ import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 
-import android.os.RemoteException;
+import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.FileInfo;
+import aceim.api.dataentity.FileMessage;
+import aceim.api.dataentity.FileProgress;
+import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
+import aceim.api.utils.Utils;
 
 public class XMPPFileTransferListener extends XMPPListener implements FileTransferListener {
 
@@ -30,7 +29,7 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 	
 	private final Map<Long, FileTransferRequest> fileTransfers = Collections.synchronizedMap(new HashMap<Long, FileTransferRequest>());
 
-	public XMPPFileTransferListener(XMPPService service) {
+	public XMPPFileTransferListener(XMPPServiceInternal service) {
 		super(service);
 	}
 
@@ -38,19 +37,15 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 	public void fileTransferRequest(FileTransferRequest request) {
 		Logger.log("incoming file " + request.getFileName() + " from " + request.getRequestor(), LoggerLevel.VERBOSE);
 		fileTransfers.put(Long.valueOf(request.getStreamID().hashCode()) , request);
-		FileMessage fm = new FileMessage(getService().getServiceId(), XMPPEntityAdapter.normalizeJID(request.getRequestor()));
+		FileMessage fm = new FileMessage(getInternalService().getService().getServiceId(), XMPPEntityAdapter.normalizeJID(request.getRequestor()));
 
-		FileInfo fi = new FileInfo(getService().getServiceId());
+		FileInfo fi = new FileInfo(getInternalService().getService().getServiceId());
 		fi.setFilename(request.getFileName());
 		fi.setSize(request.getFileSize());
 		fm.getFiles().add(fi);
 		fm.setMessageId(request.getStreamID().hashCode());
 
-		try {
-			getService().getProtocolService().getCallback().message(fm);
-		} catch (RemoteException e) {
-			Logger.log(e);
-		}
+		getInternalService().getService().getCoreService().message(fm);
 	}
 
 	void fileRespond(final FileMessage fileMessage, final Boolean accept) {
@@ -122,16 +117,14 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 						} else {
 							error = null;
 						}
-						FileProgress fp = new FileProgress(getService().getServiceId(), transfer.getStreamID().hashCode(), file.getAbsolutePath(), transfer.getFileSize(), transfer.getAmountWritten(), false, receiverJid, error);
-						getService().getProtocolService().getCallback().fileProgress(fp);
+						FileProgress fp = new FileProgress(getInternalService().getService().getServiceId(), transfer.getStreamID().hashCode(), file.getAbsolutePath(), transfer.getFileSize(), transfer.getAmountWritten(), false, receiverJid, error);
+						getInternalService().getService().getCoreService().fileProgress(fp);
 						Thread.sleep(1000);
 					}
 					
-					FileProgress fp = new FileProgress(getService().getServiceId(), transfer.getStreamID().hashCode(), file.getAbsolutePath(), transfer.getFileSize(), transfer.getFileSize(), false, receiverJid, transfer.getError() != null ? transfer.getError().getMessage() : null);
-					getService().getProtocolService().getCallback().fileProgress(fp);
+					FileProgress fp = new FileProgress(getInternalService().getService().getServiceId(), transfer.getStreamID().hashCode(), file.getAbsolutePath(), transfer.getFileSize(), transfer.getFileSize(), false, receiverJid, transfer.getError() != null ? transfer.getError().getMessage() : null);
+					getInternalService().getService().getCoreService().fileProgress(fp);
 				} catch (InterruptedException e) {
-					Logger.log(e);
-				} catch (RemoteException e) {
 					Logger.log(e);
 				}				
 			}
@@ -150,8 +143,7 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 
 		@Override
 		public void run() {
-			XMPPService service = getService();
-			Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(service.getConnection().getRoster().getEntry(senderJid), service.getProtocolUid(), service.getEdProvider(), service.getProtocolService(), service.getServiceId());
+			Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(getInternalService().getConnection().getRoster().getEntry(senderJid), getInternalService().getService().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
 			File file = Utils.createLocalFileForReceiving(request.getFileName(), buddy, request.getFileSize());
 			IncomingFileTransfer transfer = request.accept();
 			
@@ -170,16 +162,14 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 					} else {
 						error = null;
 					}
-					FileProgress fp = new FileProgress(getService().getServiceId(), transfer.getStreamID().hashCode(), request.getFileName(), transfer.getFileSize(), transfer.getAmountWritten(), true, senderJid, error);
-					getService().getProtocolService().getCallback().fileProgress(fp);
+					FileProgress fp = new FileProgress(getInternalService().getService().getServiceId(), transfer.getStreamID().hashCode(), request.getFileName(), transfer.getFileSize(), transfer.getAmountWritten(), true, senderJid, error);
+					getInternalService().getService().getCoreService().fileProgress(fp);
 					Thread.sleep(1000);
 				}
 				
-				FileProgress fp = new FileProgress(getService().getServiceId(), transfer.getStreamID().hashCode(), request.getFileName(), transfer.getFileSize(), transfer.getAmountWritten(), true, senderJid, transfer.getError() != null ? transfer.getError().getMessage() : null);
-				getService().getProtocolService().getCallback().fileProgress(fp);
+				FileProgress fp = new FileProgress(getInternalService().getService().getServiceId(), transfer.getStreamID().hashCode(), request.getFileName(), transfer.getFileSize(), transfer.getAmountWritten(), true, senderJid, transfer.getError() != null ? transfer.getError().getMessage() : null);
+				getInternalService().getService().getCoreService().fileProgress(fp);
 			} catch (InterruptedException e) {
-				Logger.log(e);
-			} catch (RemoteException e) {
 				Logger.log(e);
 			}
 		}

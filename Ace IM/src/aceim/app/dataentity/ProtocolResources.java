@@ -15,6 +15,7 @@ public class ProtocolResources implements Parcelable {
 
 	private final String protocolServicePackageName;
 	private String protocolServiceName;
+	private String protocolName;
 	
 	private Resources nativeProtocolResources;
 
@@ -32,6 +33,7 @@ public class ProtocolResources implements Parcelable {
 			nativeProtocolResources = getNativeResourcesForProtocol(service.getContext().getPackageManager());
 			
 			mFeatures = service.getProtocol().getProtocolFeatures();
+			protocolName = service.getProtocol().getProtocolName();
 			
 			this.protocolServiceName = nativeProtocolResources.getString(service.getServiceInfo().applicationInfo.labelRes);
 		} catch (Exception e) {
@@ -91,6 +93,13 @@ public class ProtocolResources implements Parcelable {
 
 	public String getProtocolServicePackageName() {
 		return protocolServicePackageName;
+	}
+	
+	/**
+	 * @return the protocolName
+	 */
+	public String getProtocolName() {
+		return protocolName;
 	}
 	
 	@Override

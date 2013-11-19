@@ -21,7 +21,6 @@ import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.AceImException;
 import aceim.app.Constants;
 import aceim.app.MainActivity;
-import aceim.app.MainApplication;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.GlobalOptionKeys;
@@ -266,7 +265,7 @@ public final class ViewUtils {
 	public static Intent getSearchPluginsInPlayStoreIntent(Account account) {
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		if (account == null) {
-			i.setData(Uri.parse("market://search?q=" + MainApplication.class.getPackage().getName()));
+			i.setData(Uri.parse("market://search?q=" + MainActivity.class.getPackage().getName()));
 		} else {
 			i.setData(Uri.parse("market://search?q=" + account.getProtocolServicePackageName()));
 		}
@@ -637,5 +636,15 @@ public final class ViewUtils {
 		}
 		
 		return messageHolders;
+	}
+
+	public static void removeAccountIcons(Account account, Context context) {
+		if (account == null) return; 
+		
+		for (Buddy buddy : account.getBuddyList()) {
+			context.deleteFile(buddy.getFilename() + BUDDYICON_FILEEXT);
+		}
+		
+		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
 }

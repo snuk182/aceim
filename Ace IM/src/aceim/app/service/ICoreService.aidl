@@ -85,5 +85,5 @@ interface ICoreService {
 	
 	void importAccounts(String password, in FileProgress progress); 
 	void exportAccounts(String password, in FileProgress progress);
-	void exit();
+	void exit(boolean terminate);
 }

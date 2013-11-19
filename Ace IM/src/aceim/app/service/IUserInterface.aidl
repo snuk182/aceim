@@ -18,6 +18,7 @@ interface IUserInterface {
 	void onAccountStateChanged(in OnlineInfo info);
 	void onContactListUpdated(in Account account);
 	void onBuddyStateChanged(in Buddy buddy);
+	void onAccountUpdated(in Account account, in ItemAction action);
 	
 	void onMessage(in Message message);
 	void onMessageAck(byte serviceId, long messageId, String senderUid, in MessageAckState ackState);
@@ -29,4 +30,6 @@ interface IUserInterface {
 	void onSearchResult(byte serviceId, in List<PersonalInfo> infoList);
 	void onPersonalInfo(in PersonalInfo info);
 	void showFeatureInputForm(byte serviceId, String uid, in InputFormFeature feature);
+	
+	void terminate();
 }

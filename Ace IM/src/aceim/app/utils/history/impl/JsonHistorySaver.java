@@ -25,6 +25,7 @@ import aceim.api.dataentity.Message;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.utils.Logger;
+import aceim.app.dataentity.Account;
 import aceim.app.utils.history.HistorySaver;
 import android.content.Context;
 
@@ -329,5 +330,14 @@ public final class JsonHistorySaver implements HistorySaver {
 	@Override
 	public boolean deleteHistory(Buddy buddy) {
 		return mContext.deleteFile(buddy.getFilename() + FILE_EXTENSION);
+	}
+
+	@Override
+	public void removeAccount(Account account) {
+		if (account == null) return; 
+		
+		for (Buddy buddy : account.getBuddyList()) {
+			deleteHistory(buddy);
+		}
 	}
 }

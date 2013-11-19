@@ -2,18 +2,18 @@
 <resources>
      
 	<string-array name="icq_status_icons">
-		<item>@drawable/icq_online_medium</item>
-		<item>@drawable/icq_away_medium</item>
-		<item>@drawable/icq_na_medium</item>
-		<item>@drawable/icq_busy_medium</item>
-		<item>@drawable/icq_dnd_medium</item>
-		<item>@drawable/icq_free4chat_medium</item>
-		<item>@drawable/icq_invisible_medium</item>
-		<item>@drawable/icq_angry_medium</item>
-		<item>@drawable/icq_depress_medium</item>
-		<item>@drawable/icq_dinner_medium</item>
-		<item>@drawable/icq_home_medium</item>
-		<item>@drawable/icq_work_medium</item>
+		<item>@drawable/icq_online_big</item>
+		<item>@drawable/icq_away_big</item>
+		<item>@drawable/icq_na_big</item>
+		<item>@drawable/icq_busy_big</item>
+		<item>@drawable/icq_dnd_big</item>
+		<item>@drawable/icq_free4chat_big</item>
+		<item>@drawable/icq_invisible_big</item>
+		<item>@drawable/icq_angry_big</item>
+		<item>@drawable/icq_depress_big</item>
+		<item>@drawable/icq_dinner_big</item>
+		<item>@drawable/icq_home_big</item>
+		<item>@drawable/icq_work_big</item>
 	</string-array>
 	
 	<integer-array name="icq_occupation_codes">

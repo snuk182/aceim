@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ace IM Mail.Ru module</string>
+    
+    <string name="mrim_service_name">Mail.ru</string>
+    <string name="uin">Mail.ru ID (email)</string>
+    <string name="password">Password</string>
+    <string name="host">Login host</string>
+    <string name="port">Login port</string>
+    <string name="ping">Ping timeout (seconds)</string>
+    
+    <string name="label_st_online">"Online"</string>
+    <string name="label_st_offline">"Offline"</string>
+    <string name="label_st_away">"Away"</string>
+    <string name="label_st_free4chat">"Free for chat"</string>
+    <string name="label_st_invisible">"Invisible"</string>
+    <string name="label_st_undetermined">"Undetermined"</string>
+    
+    <string name="status">Status</string>
+    <string name="xstatus">Extended status</string>
+    
+    <string name="sick">Sick</string>
+	<string name="at_home">At home</string>
+	<string name="meal">Having meal</string>
+	<string name="where_am_i">Where am I?</string>
+	<string name="wc">WC</string>
+	<string name="cooking">Cooking</string>
+	<string name="friends">Friends</string>
+	<string name="alien">Alien</string>
+	<string name="lobster">Lobster</string>
+	<string name="im_lost">I\'m lost</string>
+	<string name="in_love">In love</string>
+	<string name="duck">Duck</string>
+	<string name="gaming">Gaming</string>
+	<string name="at_work">At work</string>
+	<string name="at_meeting">At meeting</string>
+	<string name="beer">Beer</string>
+	<string name="coffee">Coffee</string>
+	<string name="working_hard">Working hard</string>
+	<string name="sleeping">Sleeping</string>
+	<string name="at_the_phone">At the phone</string>
+	<string name="study">Study</string>
+	<string name="at_school">At school</string>
+	<string name="wrong_number">Wrong number</string>
+	<string name="squirrel">Squirrel</string>
+	<string name="star">Star</string>
+	<string name="skull">Skull</string>
+	<string name="kthulhu">Kthulhu</string>
+	<string name="adrenaline">Adrenaline</string>
+	
+	<string name="ask_authorization">Ask for authorization</string>
+    
+    <string name="message">Message</string>
+    <string name="ask_authorization_message_default">Hello, add me to your contact list</string>
+</resources>

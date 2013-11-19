@@ -322,7 +322,9 @@ public class MainActivity extends FragmentActivity {
 						Page.getContactListPage(this, a);
 					}
 					mScreen.setSelectedPage(Page.getPageIdForEntityWithId(ContactList.class, accounts.get(0)));
-				} else {
+				} 
+
+				if (mScreen.getAllPages().size() < 2) { //Splash and at least one Contact list should present
 					Page.addAccountManagerPage(mScreen, mCoreService.getAccounts(true));
 				}
 			} else {
@@ -610,6 +612,38 @@ public class MainActivity extends FragmentActivity {
 				}
 			});
 		}
+
+		@Override
+		public void terminate() throws RemoteException {
+			finish();
+		}
+
+		@Override
+		public void onAccountUpdated(final Account account, final ItemAction action) throws RemoteException {
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					List<Page> pages = mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()));
+					
+					switch (action) {
+					case MODIFIED:
+						for (Page page : pages) {
+							mScreen.removePage(page);
+						}
+					case ADDED:
+						Page.getContactListPage(MainActivity.this, account);
+						break;
+					case DELETED:
+						onAccountRemoved(account);
+						break;
+					default:
+						Logger.log("Unsupported operation " + action, LoggerLevel.DEBUG);
+						break;
+					}
+				}
+			});
+		}
 	};
 
 	public ICoreService getCoreService() {
@@ -626,7 +660,7 @@ public class MainActivity extends FragmentActivity {
 
 	public void exitApplication() {
 		try {
-			mCoreService.exit();
+			mCoreService.exit(false);
 		} catch (RemoteException e) {
 			onRemoteException(e);
 		}
@@ -648,18 +682,22 @@ public class MainActivity extends FragmentActivity {
 		try {
 			mCoreService.deleteAccount(account);
 
-			List<Page> accountPages = mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()));
-			for (Page p : accountPages) {
-				mScreen.removePage(p);
-			}
-
-			List<Page> accountListPages = mScreen.findPagesByRule(new AccountListPageLinqRule());
-
-			for (Page p : accountListPages) {
-				((IHasAccountList) p).onAccountRemoved(account);
-			}
+			onAccountRemoved(account);
 		} catch (RemoteException e) {
 			onRemoteException(e);
+		}
+	}
+
+	private void onAccountRemoved(Account account) {
+		List<Page> accountPages = mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()));
+		for (Page p : accountPages) {
+			mScreen.removePage(p);
+		}
+
+		List<Page> accountListPages = mScreen.findPagesByRule(new AccountListPageLinqRule());
+
+		for (Page p : accountListPages) {
+			((IHasAccountList) p).onAccountRemoved(account);
 		}
 	}
 
