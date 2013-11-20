@@ -329,6 +329,7 @@ public final class MrimEntityAdapter {
 		out.getFeatures().putByte(ApiConstants.FEATURE_STATUS, mrimUserStatus2UserStatus(in.status, in.xstatusId));
 		out.getFeatures().putByte(ApiConstants.FEATURE_XSTATUS, mrimXStatus2XStatus(in.xstatusId));
 		
+		
 		if (in.status != MrimConstants.STATUS_OFFLINE) {
 			out.getFeatures().putBoolean(ApiConstants.FEATURE_FILE_TRANSFER, true);
 		}

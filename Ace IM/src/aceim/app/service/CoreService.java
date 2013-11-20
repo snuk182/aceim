@@ -118,7 +118,9 @@ public class CoreService extends Service {
 
 			if (mInterface != null) {
 				try {
-					mInterface.onProtocolUpdated(protocol.getResources(), action);
+					//mInterface.onProtocolUpdated(protocol.getResources(), action);
+					mInterface.terminate();
+					exitService(true);
 				} catch (RemoteException e) {
 					Logger.log(e);
 				}
@@ -295,14 +297,7 @@ public class CoreService extends Service {
 		}
 
 		Logger.log("Protocols got", LoggerLevel.VERBOSE);
-		List<Account> accounts;
-		try {
-			accounts = mStorage.getAccounts();
-		} catch (AceImException e1) {
-			// TODO
-			Logger.log(e1);
-			return;
-		}
+		List<Account> accounts = mStorage.getAccounts();
 
 		for (Account account : accounts) {
 			if (account == null || account.getProtocolUid() == null) continue;
@@ -1092,7 +1087,7 @@ public class CoreService extends Service {
 			Logger.log("Protocol's buddy list updated for account #" + serviceId, LoggerLevel.VERBOSE);
 			AccountService accountService = mAccounts.get(serviceId);
 
-			boolean saveNotInList = getBaseContext().getSharedPreferences(accountService.getAccount().getAccountId(), 0).getBoolean(AccountOptionKeys.SAVE_NOT_IN_LIST.name(), true);
+			boolean saveNotInList = getBaseContext().getSharedPreferences(accountService.getAccount().getAccountId(), 0).getBoolean(AccountOptionKeys.SAVE_NOT_IN_LIST.name(), Boolean.parseBoolean(getBaseContext().getString(R.string.default_save_not_in_list)));
 			accountService.getAccount().removeAllBuddies(saveNotInList);
 			accountService.getAccount().setBuddyList(buddyList);
 
@@ -1260,7 +1255,7 @@ public class CoreService extends Service {
 	}
 
 	private void reconnect(final AccountService service) {
-		Executors.newScheduledThreadPool(1).schedule(new Runnable() {
+		Executors.newScheduledThreadPool(3).schedule(new Runnable() {
 
 			@Override
 			public void run() {

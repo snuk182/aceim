@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="all_transfers">All transfers</string>
     <string name="unsaved_data">Unsaved data exists</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
@@ -37,8 +38,6 @@
     <string name="file_transfer_init" formatted="false">Initializing...</string>
     <string name="file_transfer_completed" formatted="false">Transfer completed</string>
     <string name="file_transfer_bytes_completed" formatted="false">%s of %s bytes transferred</string>
-    
-    <string name="encrypted_message">The message is encrypted. Please open a corresponding chat to read it.</string>
     
     <string name="pick_protocol_to_proceed">Pick protocol in a combo box above to proceed</string>
     <string name="no_protocol_services_installed_found">Seems like you don\'t have any protocol services installed on your device. Protocol services enable support for particular chat service (XMPP, ICQ etc). Please press Play market button below to search for protocol services in Google Play.</string>

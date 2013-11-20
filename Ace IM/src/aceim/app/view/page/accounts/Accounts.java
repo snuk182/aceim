@@ -15,9 +15,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -51,6 +48,14 @@ public class Accounts extends Page implements IHasAccountList {
 		}
 	};
 	
+	private final OnClickListener mUtilsListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			Page.getUtilsPage(getMainActivity().getScreen());
+		}
+	};
+	
 	@Override
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
 		View view = inflater.inflate(R.layout.accounts, group, false);
@@ -62,6 +67,7 @@ public class Accounts extends Page implements IHasAccountList {
 		aq.id(R.id.list).adapter(mAdapter);
 		aq.id(R.id.add).clicked(mGetAccountEditorClickListener);
 		aq.id(R.id.search_play_store).clicked(mSearchInPlayClickListener);
+		aq.id(R.id.utils).clicked(mUtilsListener);
 		
 		return view;
 	}
@@ -98,26 +104,5 @@ public class Accounts extends Page implements IHasAccountList {
 	@Override
 	public void onAccountRemoved(Account account) {
 		mAdapter.remove(account);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.accounts_menu, menu);
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		MainActivity activity = (MainActivity) getMainActivity();
-		
-		switch(item.getItemId()) {
-		case R.id.menuitem_close:
-			activity.getScreen().removePage(this);
-			break;
-		case R.id.menuitem_utils:
-			Page.getUtilsPage(activity.getScreen());
-			break;
-		}
-		return false;
 	}
 }

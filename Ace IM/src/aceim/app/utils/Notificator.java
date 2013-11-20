@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.text.TextUtils;
 
 public class Notificator {
 
@@ -235,44 +236,46 @@ public class Notificator {
 		NotificationCompat.Builder builder = mFileTransferViews.get(progress.getMessageId());
 
 		if (builder == null) {
-			mNotificatorManager.cancel((int) progress.getMessageId());
+			//mNotificatorManager.cancel((int) progress.getMessageId());
 
 			builder = new NotificationCompat.Builder(mContext);
-
-			builder.setAutoCancel(true);
-
+			String path = progress.getFilePath();
+			builder.setContentTitle(path.contains(File.separator) ? path.substring(path.lastIndexOf(File.separator) + 1) : path);
+			builder.setSmallIcon(R.drawable.ic_file_message);
+			
 			mFileTransferViews.put(progress.getMessageId(), builder);
 		}
 
-		String path = progress.getFilePath();
-		builder.setContentText(path.contains(File.separator) ? path.substring(path.lastIndexOf(File.separator) + 1) : path);
-
-		if (progress.getError() == null) {
+		builder.setWhen(System.currentTimeMillis());
+		
+		if (TextUtils.isEmpty(progress.getError())) {
 			if (progress.getSentBytes() >= progress.getTotalSizeBytes()) {
 				PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, ViewUtils.getOpenFileInCorrespondingApplicationIntent(progress.getFilePath()), 0);
 				builder.setContentIntent(contentIntent);
+				builder.setAutoCancel(true);
 				builder.setProgress(0, 0, false);
-				builder.setContentTitle(mContext.getString(R.string.file_transfer_completed));
+				builder.setContentText(mContext.getString(R.string.file_transfer_completed));
 
 				mFileTransferViews.remove(progress.getMessageId());
 			} else {
+				builder.setAutoCancel(false);
 				if (progress.getTotalSizeBytes() > 0) {
 					int percentDone = (int) ((progress.getSentBytes() * 100f) / progress.getTotalSizeBytes());
 					builder.setProgress(100, percentDone, false);
-					mFileTransferViews.remove(progress.getMessageId());
-					builder.setContentTitle(mContext.getString(R.string.file_transfer_bytes_completed, Long.toString(progress.getSentBytes()), Long.toString(progress.getTotalSizeBytes())));
+					builder.setContentText(mContext.getString(R.string.file_transfer_bytes_completed, Long.toString(progress.getSentBytes()), Long.toString(progress.getTotalSizeBytes())));
 				} else {
 					builder.setProgress(100, 0, true);
-					builder.setContentTitle(mContext.getString(R.string.file_transfer_init));
+					builder.setContentText(mContext.getString(R.string.file_transfer_init));
 				}
 			}
 		} else {
 			Intent intent = new Intent(mContext, MainActivity.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
 			builder.setContentIntent(contentIntent);
-			builder.setContentTitle(progress.getError());
+			builder.setContentText(progress.getError());
 
-			builder.setProgress(0, 0, false);
+			builder.setAutoCancel(true);
+			builder.setProgress(100, 100, false);
 
 			mFileTransferViews.remove(progress.getMessageId());
 		}

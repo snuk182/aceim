@@ -49,10 +49,6 @@ public class ProtocolService implements ServiceConnection {
 			protocol.registerCallback(callback);
 			
 			fillResources();
-			
-			/*for (Account account: mAccounts) {
-				protocol.addAccount(account.serviceId, account.protocolUid);
-			}*/
 		} catch (RemoteException e) {
 			Logger.log(e);
 		}
@@ -68,33 +64,7 @@ public class ProtocolService implements ServiceConnection {
 		
 	}
 	
-	/*public void addAccount(Account account) {
-		mAccounts.add(account);
-		
-		if (protocol == null) {
-			bind();
-		} else {
-			try {
-				protocol.addAccount(account.serviceId, account.protocolUid);
-			} catch (RemoteException e) {
-				Logger.log(e);
-			}
-		}		
-	}
-	
-	public void removeAccount(Account account) {
-		mAccounts.remove(account);
-		
-		if (mAccounts.size() < 1 && protocol != null) {
-			try {
-				protocol.shutdown();
-			} catch (RemoteException e) {
-				Logger.log(e);
-			}
-		}
-	}
-
-	*/public Context getContext() {
+	public Context getContext() {
 		return mContext;
 	}
 

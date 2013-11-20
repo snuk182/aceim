@@ -7,9 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
@@ -35,10 +32,6 @@ import android.os.Parcelable;
 public class Account extends Entity implements EntityWithID {
 
 	private final List<Buddy> noGroupBuddies = Collections.synchronizedList(new ArrayList<Buddy>());
-
-	private final ReentrantReadWriteLock buddyGroupLock = new ReentrantReadWriteLock(true);
-	private final ReadLock readLock = buddyGroupLock.readLock();
-	private final WriteLock writeLock = buddyGroupLock.writeLock();
 
 	/**
 	 * "Account enabled" flag
@@ -91,8 +84,12 @@ public class Account extends Entity implements EntityWithID {
 		dest.writeString(protocolName);
 		dest.writeString(protocolUid);
 		dest.writeParcelable(onlineInfo, flags);
-		dest.writeList(buddyGroupList);
-		dest.writeList(noGroupBuddies);
+		synchronized (buddyGroupList) {
+			dest.writeList(buddyGroupList);
+		}
+		synchronized (noGroupBuddies) {
+			dest.writeList(noGroupBuddies);
+		}
 		dest.writeParcelable(connectionState, flags);
 		dest.writeByte((byte) (isEnabled ? 1 : 0));
 	}
@@ -120,9 +117,7 @@ public class Account extends Entity implements EntityWithID {
 		protocolName = in.readString();
 		protocolUid = in.readString();
 		onlineInfo = in.readParcelable(OnlineInfo.class.getClassLoader());
-		buddyGroupList.clear();
 		buddyGroupList.addAll(in.readArrayList(BuddyGroup.class.getClassLoader()));
-		noGroupBuddies.clear();
 		noGroupBuddies.addAll(in.readArrayList(Buddy.class.getClassLoader()));
 		connectionState = in.readParcelable(ConnectionState.class.getClassLoader());
 		isEnabled = in.readByte() != 0;
@@ -144,19 +139,13 @@ public class Account extends Entity implements EntityWithID {
 	 * @return buddy or null
 	 */
 	public Buddy getBuddyByProtocolUid(String uid) {
-		try {
-			readLock.lock();
-
-			for (Buddy buddy : getBuddyList()) {
-				if (uid.equals(buddy.getProtocolUid())) {
-					return buddy;
-				}
+		for (Buddy buddy : getBuddyList()) {
+			if (uid.equals(buddy.getProtocolUid())) {
+				return buddy;
 			}
-
-			return null;
-		} finally {
-			readLock.unlock();
 		}
+		
+		return null;
 	}
 
 	/**
@@ -167,28 +156,21 @@ public class Account extends Entity implements EntityWithID {
 	 * @return group or null
 	 */
 	public BuddyGroup getBuddyGroupByGroupId(String id) {
-		try {
-			readLock.lock();
-
+		synchronized (buddyGroupList) {
 			for (BuddyGroup group : buddyGroupList) {
 				if (group.getId().equals(id)) {
 					return group;
 				}
 			}
-
-			return null;
-		} finally {
-			readLock.unlock();
 		}
+		return null;
 	}
 
 	public int getUnreadMessages() {
 		int unread = 0;
-		readLock.lock();
 		for (Buddy buddy : getBuddyList()) {
 			unread += buddy.getUnread();
 		}
-		readLock.unlock();
 		return unread;
 	}
 
@@ -205,8 +187,6 @@ public class Account extends Entity implements EntityWithID {
 		Buddy buddy = getBuddyByProtocolUid(newBuddy.getProtocolUid());
 
 		if (buddy != null) {
-			writeLock.lock();
-
 			buddy.merge(newBuddy);
 
 			if (!buddy.getGroupId().equals(newBuddy.getGroupId())) {
@@ -218,8 +198,6 @@ public class Account extends Entity implements EntityWithID {
 				oldGroup.getBuddyList().remove(buddy);
 				newGroup.getBuddyList().add(buddy);
 			}
-
-			writeLock.unlock();
 		}
 
 		return buddy;
@@ -239,14 +217,10 @@ public class Account extends Entity implements EntityWithID {
 	 * (reset buddies' state etc...)
 	 */
 	public void disconnected() {
-		writeLock.lock();
-
 		for (Buddy buddy : getBuddyList()) {
 			buddy.getOnlineInfo().getFeatures().remove(ApiConstants.FEATURE_STATUS);
 		}
 		connectionState = ConnectionState.DISCONNECTED;
-
-		writeLock.unlock();
 	}
 
 	/**
@@ -258,7 +232,6 @@ public class Account extends Entity implements EntityWithID {
 	 *            chat records.
 	 */
 	public void removeAllBuddies(boolean keepNotInList) {
-		writeLock.lock();
 		undeletable = new LinkedList<Buddy>();
 		
 		for (Buddy bu : getBuddyList()) {
@@ -270,10 +243,12 @@ public class Account extends Entity implements EntityWithID {
 			}
 		}
 		
-		noGroupBuddies.clear();
-		buddyGroupList.clear();
-
-		writeLock.unlock();
+		synchronized (noGroupBuddies) {
+			noGroupBuddies.clear();
+		}
+		synchronized (buddyGroupList) {
+			buddyGroupList.clear();
+		}
 	}
 
 	/**
@@ -282,20 +257,27 @@ public class Account extends Entity implements EntityWithID {
 	 * @param buddy
 	 */
 	public void removeBuddyByUid(String buddyUid) {
-		writeLock.lock();
-		for (BuddyGroup group : buddyGroupList) {
-			for (int i = group.getBuddyList().size() - 1; i >= 0; i--) {
-				if (group.getBuddyList().get(i).getProtocolUid().equals(buddyUid)) {
-					group.getBuddyList().remove(i);
+		synchronized (buddyGroupList) {
+			for (BuddyGroup group : buddyGroupList) {
+				List<Buddy> buddyList = group.getBuddyList();
+				synchronized (buddyList) {
+					for (Iterator<Buddy> i = buddyList.iterator(); i.hasNext();) {
+						Buddy b = i.next();
+						if (b.getProtocolUid().equals(buddyUid)) {
+							i.remove();
+						}
+					}
 				}
 			}
 		}
-		for (int i = noGroupBuddies.size() - 1; i >= 0; i--) {
-			if (noGroupBuddies.get(i).getProtocolUid().equals(buddyUid)) {
-				noGroupBuddies.remove(i);
-			}
+		synchronized (noGroupBuddies) {
+			for (Iterator<Buddy> i = noGroupBuddies.iterator(); i.hasNext();) {
+				Buddy b = i.next();
+				if (b.getProtocolUid().equals(buddyUid)) {
+					i.remove();
+				}
+			}			
 		}
-		writeLock.unlock();
 	}
 
 	/**
@@ -305,18 +287,12 @@ public class Account extends Entity implements EntityWithID {
 	 * @return buddy, if found, or null.
 	 */
 	public Buddy getBuddyByBuddyId(int id) {
-		try {
-			readLock.lock();
-
-			for (Buddy buddy : getBuddyList()) {
-				if (buddy.getId() == id) {
-					return buddy;
-				}
+		for (Buddy buddy : getBuddyList()) {
+			if (buddy.getId() == id) {
+				return buddy;
 			}
-			return null;
-		} finally {
-			readLock.unlock();
 		}
+		return null;
 	}
 
 	/**
@@ -334,20 +310,20 @@ public class Account extends Entity implements EntityWithID {
 
 		List<Buddy> target = null;
 
-		writeLock.lock();
-		for (BuddyGroup group : buddyGroupList) {
-			if (group.getId().equals(buddy.getGroupId())) {
-				target = group.getBuddyList();
-				break;
+		synchronized (buddyGroupList) {
+			for (BuddyGroup group : buddyGroupList) {
+				if (group.getId().equals(buddy.getGroupId())) {
+					target = group.getBuddyList();
+					break;
+				}
 			}
 		}
-
+		
 		if (target == null) {
 			target = noGroupBuddies;
 		}
 
 		target.add(buddy);
-		writeLock.unlock();
 	}
 
 	/**
@@ -357,12 +333,12 @@ public class Account extends Entity implements EntityWithID {
 	 *            a group's new data holder.
 	 */
 	public void editGroup(BuddyGroup newGroup) {
-		for (BuddyGroup group : buddyGroupList) {
-			if (group.getId().equals(newGroup.getId())) {
-				writeLock.lock();
-				group.setName(newGroup.getName());
-				writeLock.unlock();
-				break;
+		synchronized (buddyGroupList) {
+			for (BuddyGroup group : buddyGroupList) {
+				if (group.getId().equals(newGroup.getId())) {
+					group.setName(newGroup.getName());
+					break;
+				}
 			}
 		}
 	}
@@ -373,12 +349,13 @@ public class Account extends Entity implements EntityWithID {
 	 * @param group
 	 */
 	public void removeGroup(BuddyGroup group) {
-		for (int i = 0; i < buddyGroupList.size(); i++) {
-			if (buddyGroupList.get(i).getId().equals(group.getId())) {
-				writeLock.lock();
-				buddyGroupList.remove(i);
-				writeLock.unlock();
-				break;
+		synchronized (buddyGroupList) {
+			for (Iterator<BuddyGroup> i = buddyGroupList.iterator(); i.hasNext();) {
+				BuddyGroup bg = i.next();
+				if (bg.getId().equals(group.getId())) {
+					i.remove();
+					break;
+				}
 			}
 		}
 	}
@@ -394,8 +371,6 @@ public class Account extends Entity implements EntityWithID {
 			return;
 		}
 
-		writeLock.lock();
-
 		synchronized (buddyGroupList) {
 			buddyGroupList.clear();
 			buddyGroupList.addAll(origin.buddyGroupList);
@@ -409,8 +384,6 @@ public class Account extends Entity implements EntityWithID {
 		connectionState = origin.connectionState;
 
 		onlineInfo.merge(origin.getOnlineInfo());
-
-		writeLock.unlock();
 	}
 
 	/**
@@ -434,14 +407,14 @@ public class Account extends Entity implements EntityWithID {
 
 	public List<Buddy> getBuddyList() {
 		List<Buddy> list = new ArrayList<Buddy>();
-		readLock.lock();
-		list.addAll(noGroupBuddies);
-		
-		for (BuddyGroup g : buddyGroupList) {
-			list.addAll(g.getBuddyList());
+		synchronized (noGroupBuddies) {
+			list.addAll(noGroupBuddies);
 		}
-
-		readLock.unlock();
+		synchronized (buddyGroupList) {
+			for (BuddyGroup g : buddyGroupList) {
+				list.addAll(g.getBuddyList());
+			}
+		}
 		return list;
 	}
 
@@ -450,33 +423,35 @@ public class Account extends Entity implements EntityWithID {
 	 * 
 	 * @param buddyList
 	 */
-	public void setBuddyList(List<BuddyGroup> buddyList) {
-		writeLock.lock();
+	public synchronized void setBuddyList(List<BuddyGroup> buddyList) {
 		List<BuddyGroup> old = new ArrayList<BuddyGroup>();
-		old.addAll(this.buddyGroupList);
-		this.buddyGroupList.clear();
-		this.buddyGroupList.addAll(buddyList);
-		for (Iterator<BuddyGroup> i = this.buddyGroupList.iterator(); i.hasNext();) {
-			boolean done = false;
-			BuddyGroup bg = i.next();
+		
+		synchronized (buddyGroupList) {
+			old.addAll(this.buddyGroupList);
+			this.buddyGroupList.clear();
+			this.buddyGroupList.addAll(buddyList);
+			for (Iterator<BuddyGroup> i = this.buddyGroupList.iterator(); i.hasNext();) {
+				boolean done = false;
+				BuddyGroup bg = i.next();
 
-			if (bg.getId() == null || bg.getId().equals(ApiConstants.NO_GROUP_ID) || bg.getId().equals(ApiConstants.NOT_IN_LIST_GROUP_ID)) {
-				noGroupBuddies.addAll(bg.getBuddyList());
-				i.remove();
-			} 
+				if (bg.getId() == null || bg.getId().equals(ApiConstants.NO_GROUP_ID) || bg.getId().equals(ApiConstants.NOT_IN_LIST_GROUP_ID)) {
+					noGroupBuddies.addAll(bg.getBuddyList());
+					i.remove();
+				}
 
-			for (BuddyGroup obg : old) {
-				if (bg.getId().equals(obg.getId())) {
-					bg.setCollapsed(obg.isCollapsed());
-					done = true;
-					break;
+				for (BuddyGroup obg : old) {
+					if (bg.getId().equals(obg.getId())) {
+						bg.setCollapsed(obg.isCollapsed());
+						done = true;
+						break;
+					}
+				}
+				if (done) {
+					continue;
 				}
 			}
-			if (done) {
-				continue;
-			}
 		}
-
+		
 		for (Iterator<String> unreads = unreadsMap.keySet().iterator(); unreads.hasNext();) {
 			String unreadKey = unreads.next();
 			for (Buddy bu : getBuddyList()) {
@@ -485,12 +460,13 @@ public class Account extends Entity implements EntityWithID {
 				}
 			}
 		}
+		
 		if (undeletable != null) {
 			noGroupBuddies.addAll(undeletable);
 			undeletable = null;
 		}
+		
 		unreadsMap.clear();
-		writeLock.unlock();
 	}
 
 	@Override

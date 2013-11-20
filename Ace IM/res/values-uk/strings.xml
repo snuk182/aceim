@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="all_transfers">Всі передавання</string>
     <string name="unsaved_data">Є незбережена інформація</string>
     <string name="accept">Прийняти</string>
     <string name="decline">Відхилити</string>
@@ -35,9 +36,7 @@
     <string name="file_transfer_completed" formatted="false">Передачу завершено</string>
     <string name="file_transfer_bytes_completed" formatted="false">%s з %s байтів оброблено</string>
    
-   	<string name="encrypted_message">Це повідомлення зашифроване. Будь ласка, відкрийте відповідний чат для його читання.</string>
-    
-    <string name="pick_protocol_to_proceed">Оберіть протокол з виринаючого списку угорі для продовження.</string>
+   	<string name="pick_protocol_to_proceed">Оберіть протокол з виринаючого списку угорі для продовження.</string>
     <string name="no_protocol_services_installed_found">Не знайдено потрібного протоколу для {}.</string>
     <string name="no_protocol_service_installed_found_for_x">Здається, на вашому пристрої не встановлено жодного протокольного сервісу. Протокольні сервіси додають можливості використання різноманітних видів чату (ICQ, XMPP тощо). Натисніть кнопку Play market, щоб знайти протокольні сервіси у магазині додатків Google Play.</string>
     <string name="click_to_search_in_play_for_x">Натисніть, щоб пошукати у Play</string>

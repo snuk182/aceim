@@ -1,7 +1,6 @@
 package aceim.app.view.page.transfers;
 
 import java.util.ArrayList;
-
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileProgress;
@@ -10,11 +9,15 @@ import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.FileTransfer;
 import aceim.app.dataentity.listeners.IHasFileTransfer;
-import aceim.app.utils.ViewUtils;
+import aceim.app.utils.DialogUtils;
 import aceim.app.view.page.Page;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,11 +34,36 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 	
 	private ListView mList;
 	
+	@SuppressLint("DefaultLocale")
 	private final OnClickListener mCancelAllClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			ViewUtils.showInformationToast(getMainActivity(), R.drawable.scratch_one_s_head_18, android.R.string.yes, null);
+			AlertDialog.Builder newBuilder = new AlertDialog.Builder(getMainActivity());
+			newBuilder.setMessage(getMainActivity().getString(R.string.are_you_sure_you_want_to_cancel, getMainActivity().getString(R.string.all_transfers).toLowerCase())).setCancelable(false).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					for (FileTransfer t : mTransfers) {
+						try {
+							getMainActivity().getCoreService().cancelFileTransfer(t.getProgress().getServiceId(), t.getMessageId());
+						} catch (RemoteException e) {
+							getMainActivity().onRemoteException(e);
+						}
+					}
+					
+					mAdapter.clear();
+				}
+
+			}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+
+			});
+			DialogUtils.showBrandedDialog(newBuilder.create());
 		}
 	};
 

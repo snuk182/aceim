@@ -87,36 +87,44 @@ final class ContactListUpdater {
 		chatsGroup.getBuddyList().clear();
 		noGroup.getBuddyList().clear();
 		
-		for (Buddy buddy : account.getNoGroupBuddies()) {
-
-			BuddyGroup targetGroup = getTargetGroup(buddy, null);
-			if (targetGroup != null) {
-				targetGroup.getBuddyList().add(buddy);
-			}
-		}
+		List<Buddy> noGroupBuddies = account.getNoGroupBuddies();
 		
-		for (BuddyGroup origin : account.getBuddyGroupList()) {
+		synchronized (noGroupBuddies) {
+			for (Buddy buddy : noGroupBuddies) {
 
-			ContactListModelGroup viewGroup;
-			if (showGroups && !origin.getId().equals(ApiConstants.NO_GROUP_ID)) {
-				viewGroup = initGroup(origin);
-			} else {
-				viewGroup = null;
-			}
-
-			for (Buddy buddy : origin.getBuddyList()) {
-
-				BuddyGroup targetGroup = getTargetGroup(buddy, viewGroup);
+				BuddyGroup targetGroup = getTargetGroup(buddy, null);
 				if (targetGroup != null) {
 					targetGroup.getBuddyList().add(buddy);
 				}
 			}
+		}
+		
+		List<BuddyGroup> groups = account.getBuddyGroupList();
+		
+		synchronized (groups) {
+			for (BuddyGroup origin : groups) {
 
-			if (viewGroup != null) {
-				mContactListGroups.add(viewGroup);
+				ContactListModelGroup viewGroup;
+				if (showGroups && !origin.getId().equals(ApiConstants.NO_GROUP_ID)) {
+					viewGroup = initGroup(origin);
+				} else {
+					viewGroup = null;
+				}
+
+				for (Buddy buddy : origin.getBuddyList()) {
+
+					BuddyGroup targetGroup = getTargetGroup(buddy, viewGroup);
+					if (targetGroup != null) {
+						targetGroup.getBuddyList().add(buddy);
+					}
+				}
+
+				if (viewGroup != null) {
+					mContactListGroups.add(viewGroup);
+				}
 			}
 		}
-
+		
 		if (!showGroups) {
 			mContactListGroups.add(onlineGroup);
 		}
@@ -178,7 +186,7 @@ final class ContactListUpdater {
 		} 	
 	}
 
-	public void onBuddyStateChanged(final Buddy buddy) {
+	public synchronized void onBuddyStateChanged(final Buddy buddy) {
 		// We may need the actual protocol group for a view with "show groups",
 		// so create a spare group link for it
 		BuddyGroup idGroup = null;

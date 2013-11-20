@@ -167,6 +167,8 @@ public final class MrimProcessor {
 		try {
 			String email = MrimEntityAdapter.lpsa2String(packet.rawData, pos);
 			
+			service.log("Email \n" + email);
+			
 			String date = getMailValue(email, "Date");
 			String from = getMailValue(email, "From");
 			String msg = getMailMessage(email);
@@ -183,12 +185,14 @@ public final class MrimProcessor {
 			message.from = from;
 			message.messageId = id;
 			
-			new Thread(){
-				@Override
-				public void run(){
-					service.getServiceResponse().respond(MrimServiceResponse.RES_MESSAGE, message);
-				}
-			}.start();
+			if (message.from != null && message.from.length() > 0) {
+				new Thread(){
+					@Override
+					public void run(){
+						service.getServiceResponse().respond(MrimServiceResponse.RES_MESSAGE, message);
+					}
+				}.start();
+			}
 			
 			//sendDeleteOfflineMsgRequest(idBytes);
 			
@@ -521,6 +525,7 @@ public final class MrimProcessor {
 		service.setCurrentState(MrimServiceInternal.STATE_CONNECTED);
 		service.startKeepalive();
 		service.getServiceResponse().respond(MrimServiceResponse.RES_CONNECTED);
+		service.getServiceResponse().respond(MrimServiceResponse.RES_ACCOUNTUPDATED, service.getOnlineInfo());
 		getIcon(service.getMrid());
 	}
 

@@ -15,6 +15,12 @@
     		android:layout_height="match_parent"
     		android:src="@android:drawable/ic_menu_add"
     	/>
+        <aceim.app.widgets.bottombar.BottomBarButton
+            android:id="@+id/utils"
+            android:layout_width="wrap_content"
+    		android:layout_height="match_parent"
+    		android:src="@android:drawable/ic_menu_myplaces"
+    	/>
         <aceim.app.widgets.bottombar.BottomBarButton 
             android:id="@+id/search_play_store"
             android:layout_width="wrap_content"

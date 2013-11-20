@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Ace IM XMPP Crypto Module</string>
+    <string name="app_name">Модуль Ace IM XMPP з шифруванням</string>
 
     <string name="jid">JID</string>
     <string name="password">Пароль</string>

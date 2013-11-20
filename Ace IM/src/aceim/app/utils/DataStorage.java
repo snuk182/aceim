@@ -24,9 +24,8 @@ import aceim.api.dataentity.ProtocolOption;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import aceim.app.AceImException;
-import aceim.app.AceImException.AceImExceptionReason;
 import aceim.app.dataentity.Account;
+import aceim.app.dataentity.AccountOptionKeys;
 import aceim.app.dataentity.AccountService;
 import aceim.app.service.ServiceUtils;
 import android.content.Context;
@@ -126,7 +125,7 @@ public final class DataStorage {
 		return preferences.getString(key, null);
 	}
 
-	public synchronized List<Account> getAccounts() throws AceImException  {
+	public synchronized List<Account> getAccounts() {
 		Logger.log("Get all saved accounts", LoggerLevel.VERBOSE);
 		try {
 			//context.getFileStreamPath(XMLPARAMS_TOTAL).delete();
@@ -142,7 +141,8 @@ public final class DataStorage {
 
 			return accounts;
 		} catch (Exception e1) {
-			throw new AceImException(e1, AceImExceptionReason.STORAGE_ERROR);
+			Logger.log(e1);
+			return new ArrayList<Account>();
 		} 		
 	}
 
@@ -169,7 +169,6 @@ public final class DataStorage {
 	}
 
 	public void removeAccount(Account account) {
-		Logger.log("Remove request for " + account, LoggerLevel.VERBOSE);
 		
 		mContext.deleteFile(account.getAccountId());
 		mContext.deleteFile(account.getFilename() + PREFERENCES_FILEEXT);
@@ -183,6 +182,7 @@ public final class DataStorage {
 				}
 			}
 			saveAccountHeaders(acco);
+			Logger.log("Account removed #" + account, LoggerLevel.VERBOSE);
 		} catch (Exception e) {
 			Logger.log(e);
 		}
@@ -219,6 +219,8 @@ public final class DataStorage {
 	}
 	
 	private synchronized void saveAccountInternal(Account account, boolean saveHeaders) {
+		boolean saveNotInList = mContext.getSharedPreferences(account.getAccountId(), 0).getBoolean(AccountOptionKeys.SAVE_NOT_IN_LIST.name(), false);		
+		
 		XmlSerializer serializer = Xml.newSerializer();
 		try {
 			serializer.setOutput(new BufferedOutputStream(mContext.openFileOutput(account.getFilename() + PREFERENCES_FILEEXT, ServiceUtils.getAccessMode())), XML_ENCODING);
@@ -288,6 +290,11 @@ public final class DataStorage {
 				serializer.attribute(XML_NAMESPACE, ATTR_BUDDIES, Integer.toString(account.getBuddyList().size()));
 				
 				for (Buddy buddy : group.getBuddyList()) {
+					
+					if (buddy.getGroupId().equals(ApiConstants.NOT_IN_LIST_GROUP_ID) && !saveNotInList) {
+						continue;
+					}
+					
 					if (buddy instanceof MultiChatRoom) {
 						serializer.startTag(XML_NAMESPACE, TAG_CHAT);
 					} else {
@@ -350,6 +357,8 @@ public final class DataStorage {
 
 				saveAccountHeaders(accounts);
 			}
+			
+			Logger.log("Account saved " + account, LoggerLevel.VERBOSE);
 		} catch (Exception e) {
 			Logger.log(e);
 		}

@@ -176,28 +176,29 @@ public class BuddyIconEngine {
 	}
 
 	private void forceIconRequests(){
-		while (requests.size() > 0) {
-			Iterator<String> i = requests.iterator();
-			while(i.hasNext()) {
-				String uin = i.next();
-				ICQOnlineInfo info = null;
-				
-				if (uin.equals(service.getUn())) {
-					info = service.getOnlineInfo();
+		synchronized (requests) {
+			while (requests.size() > 0) {
+				Iterator<String> i = requests.iterator();
+				while (i.hasNext()) {
+					String uin = i.next();
+					ICQOnlineInfo info = null;
+
+					if (uin.equals(service.getUn())) {
+						info = service.getOnlineInfo();
+					}
+
+					if (info == null) {
+						info = service.getBuddyList().getByUin(uin);
+					}
+
+					if (info != null && info.iconData != null && info.iconData.iconId == 1 && info.iconData.flags == 1) {
+						runnableService.sendToSocket(makeIconRequest(info));
+					}
+
+					i.remove();
 				}
-				
-				if (info == null) {
-					info = service.getBuddyList().getByUin(uin);
-				}
-				
-				if (info != null && info.iconData != null && info.iconData.iconId == 1 && info.iconData.flags == 1) {
-					runnableService.sendToSocket(makeIconRequest(info));
-				}
-				
-				i.remove();
 			}
 		}
-		
 		if (service.getSSIEngine().newIcon != null) {
 			runnableService.sendToSocket(makeIconUploadRequest(service.getSSIEngine().newIcon));
 			//service.getSSIEngine().newIcon = null;
@@ -449,23 +450,6 @@ public class BuddyIconEngine {
 			}
 			return true;
 		}
-		
-		/*public boolean sendMultipleToSocket(Flap[] flaps){
-			
-			try {
-				OutputStream os = socket.getOutputStream();
-				byte[] out = service.getDataParser().flaps2Bytes(flaps);
-				service.log("icon engine sent "+ProtocolUtils.getSpacedHexString(out));
-				synchronized(os){
-					os.write(out);
-				}
-			} catch (IOException e) {
-				service.log(e.getLocalizedMessage());
-			} catch (ICQException e) {
-				service.log(e.getLocalizedMessage());
-			}
-			return true;
-		}*/		
 	}
 
 	public void disconnect() {

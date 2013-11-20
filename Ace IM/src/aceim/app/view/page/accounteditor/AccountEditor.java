@@ -291,7 +291,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 					}
 				}
 				
-				spinner.setEnabled(mOptions.get(0) != o);
+				spinner.setEnabled(mAccount == null || mOptions.get(0) != o);
 			} else if (o.getTkv() instanceof ToggleTKV) {
 				item = inflater.inflate(R.layout.options_item_checkbox, null);
 				CheckBox cb = (CheckBox) item.findViewById(R.id.value);
@@ -356,7 +356,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		View item = inflater.inflate(R.layout.options_item, null);
 		ImageButton editBtn = (ImageButton) item.findViewById(R.id.edit);
 		editBtn.setImageResource(android.R.drawable.ic_menu_edit);
-		if (clickListener != null && mOptions.get(0) != o) {
+		if (clickListener != null && (mAccount == null || mOptions.get(0) != o)) {
 			editBtn.setOnClickListener(clickListener);
 		} else {
 			editBtn.setVisibility(View.INVISIBLE);
@@ -417,7 +417,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 			}
 		});
 		
-		et.setEnabled(mOptions.get(0) != o);
+		et.setEnabled(mAccount == null || mOptions.get(0) != o);
 
 		return item;
 	}

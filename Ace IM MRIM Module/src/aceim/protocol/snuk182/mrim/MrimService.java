@@ -276,38 +276,16 @@ public class MrimService extends AccountService {
 			case MrimServiceResponse.RES_NOTIFICATION:
 				getCoreService().notification((String) args[0]);
 				break;
-				/*if (args.length > 1){
-					return serviceResponse.respond(IAccountServiceResponse.RES_NOTIFICATION, getServiceId(), args[0], args[1]);
-				} else {
-					return serviceResponse.respond(IAccountServiceResponse.RES_NOTIFICATION, getServiceId(), args[0]);
-				}*/
 			case MrimServiceResponse.RES_ACCOUNTUPDATED:
-				//return serviceResponse.respond(IAccountServiceResponse.RES_ACCOUNTUPDATED, getServiceId(), MrimEntityAdapter.icqOnlineInfo2OnlineInfo((MrimOnlineInfo) args[0]));
-			case MrimServiceResponse.RES_USERINFO:
-				//return serviceResponse.respond(IAccountServiceResponse.RES_USERINFO, getServiceId(), MrimEntityAdapter.icqPersonalInfo2PersonalInfo((MrimPersonalInfo) args[0], context));
+				getCoreService().accountStateChanged(MrimEntityAdapter.mrimOnlineInfo2OnlineInfo((MrimOnlineInfo) args[0], getServiceId()));
+				break;
 			case MrimServiceResponse.RES_AUTHREQUEST:
 				getCoreService().message(MrimEntityAdapter.authRequestToServiceMessage(getServiceId(), (String) args[0], (String) args[1], getContext()));
 				break;
-			/*case MrimServiceResponse.RES_SEARCHRESULT:
-				return serviceResponse.respond(IAccountServiceResponse.RES_SEARCHRESULT, getServiceId(), MrimEntityAdapter.icqPersonalInfos2PersonalInfos((List<MrimPersonalInfo>) args[0], context));
-			case MrimServiceResponse.RES_GROUPADDED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_GROUPADDED, getServiceId(), MrimEntityAdapter.MrimBuddyGroup2BuddyGroup((MrimBuddyGroup) args[0], internal.getMrid(), getServiceId()));
-			case MrimServiceResponse.RES_BUDDYADDED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_BUDDYADDED, getServiceId(), MrimEntityAdapter.MrimBuddy2Buddy((MrimBuddy) args[0], internal.getMrid(), getServiceId()));
-			case MrimServiceResponse.RES_BUDDYDELETED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_BUDDYDELETED, getServiceId(), MrimEntityAdapter.MrimBuddy2Buddy((MrimBuddy) args[0], internal.getMrid(), getServiceId()));
-			case MrimServiceResponse.RES_GROUPDELETED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_GROUPDELETED, getServiceId(), MrimEntityAdapter.MrimBuddyGroup2BuddyGroup((MrimBuddyGroup) args[0], internal.getMrid(), getServiceId()));
-			case MrimServiceResponse.RES_BUDDYMODIFIED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_BUDDYMODIFIED, getServiceId(), MrimEntityAdapter.MrimBuddy2Buddy((MrimBuddy) args[0], internal.getMrid(), getServiceId()));
-			case MrimServiceResponse.RES_GROUPMODIFIED:
-				return serviceResponse.respond(IAccountServiceResponse.RES_GROUPMODIFIED, getServiceId(), MrimEntityAdapter.MrimBuddyGroup2BuddyGroup((MrimBuddyGroup) args[0], internal.getMrid(), getServiceId()));
-			*/
 			case MrimServiceResponse.RES_FILEPROGRESS:
 				FileProgress fp = new FileProgress(getServiceId(), ProtocolUtils.bytes2LongBE((byte[]) args[0], 0), (String) args[1], (Long) args[2], (Long) args[3], (Boolean) args[4], (String) args[6], (String) args[5]);
 				getCoreService().fileProgress(fp);
 				break;
-				//return serviceResponse.respond(IAccountServiceResponse.RES_FILEPROGRESS, getServiceId(), args[0], args[1], args[2], args[3], args[4], args[5], (args.length > 6)?args[6] : null);
 			case MrimServiceResponse.RES_MESSAGEACK:
 				getCoreService().messageAck((String) args[0], (Long) args[1], MrimEntityAdapter.mrimMessageAck2MessageAck((Byte) args[2]));
 				break;

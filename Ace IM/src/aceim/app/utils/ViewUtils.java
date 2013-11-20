@@ -435,12 +435,12 @@ public final class ViewUtils {
 				byte value = buddy.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
 
 				if (value > -1) {
-					aq.id(extraImageIDs[imagesIndex]).image(res.getDrawable(lf.getDrawables()[value]));
+					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
 					imagesIndex++;
 				}
 			} else {
 				if (feature.getIconId() != 0){
-					aq.id(extraImageIDs[imagesIndex]).image(res.getDrawable(feature.getIconId()));
+					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
 					imagesIndex++;
 				}
 			}
@@ -478,21 +478,21 @@ public final class ViewUtils {
 				continue;
 			}
 
-			if (!feature.isShowInIconList()) {
+			if (!feature.isShowInIconList() ||  feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
 				continue;
 			}
 			
-			if (feature instanceof ListFeature && !feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
+			if (feature instanceof ListFeature) {
 				ListFeature lf = (ListFeature) feature;
 				byte value = account.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
 
 				if (value > -1) {
-					aq.id(extraImageIDs[imagesIndex]).image(res.getDrawable(lf.getDrawables()[value]));
+					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
 					imagesIndex++;
 				}
 			} else {
 				if (feature.getIconId() != 0){
-					aq.id(extraImageIDs[imagesIndex]).image(res.getDrawable(feature.getIconId()));
+					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
 					imagesIndex++;
 				}
 			}
@@ -620,7 +620,7 @@ public final class ViewUtils {
 				//.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
 				.file(file)
 				.url(file.getAbsolutePath());
-		aq.id(R.id.image_icon).image(callback);		
+		aq.id(imageIcon).image(callback);		
 	}
 
 	public static List<ChatMessageHolder> wrapMessages(Buddy buddy, Account account, List<Message> messages) {

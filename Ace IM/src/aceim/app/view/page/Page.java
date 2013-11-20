@@ -10,6 +10,7 @@ import aceim.api.dataentity.OnlineInfo;
 import aceim.api.dataentity.PersonalInfo;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.MainActivity;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ProtocolResources;
@@ -136,6 +137,9 @@ public abstract class Page extends Fragment {
 	
 	public static void remove(Screen screen, Page page) {
 		screen.removePage(page);
+		if (page instanceof IHasAccount) {
+			getContactListPage(screen.getActivity(), ((IHasAccount)page).getAccount());
+		}
 	}
 	
 	public static void addMessagePage(Screen screen, String title, Drawable icon, int textId, List<BottomBarButtonInfo> buttons) {
@@ -225,6 +229,8 @@ public abstract class Page extends Fragment {
 	
 	@SuppressWarnings("unchecked")
 	public static void recoverPageById(List<Account> accounts, String pageId, Bundle savedState, MainActivity mainActivity) {
+		Logger.log("Recovering page " + pageId, LoggerLevel.VERBOSE);
+		
 		String[] pageIdParts = pageId.split(Character.toString(ApiConstants.GENERAL_DIVIDER));
 		
 		Class<? extends Page> pageClass = ViewUtils.getPageClassByPageId(pageIdParts[0]);
