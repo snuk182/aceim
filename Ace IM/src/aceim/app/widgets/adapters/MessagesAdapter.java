@@ -1,9 +1,13 @@
 package aceim.app.widgets.adapters;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import aceim.api.dataentity.FileInfo;
 import aceim.api.dataentity.FileMessage;
@@ -12,13 +16,14 @@ import aceim.api.dataentity.MessageAckState;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.utils.Logger;
+import aceim.app.MainActivity;
 import aceim.app.R;
+import aceim.app.dataentity.SmileyResources;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.chat.ChatMessageTimeFormat;
-import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
@@ -37,9 +42,12 @@ import com.androidquery.AQuery;
 
 public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
-	private final DateFormat mDateFormat;
-	private final DateFormat mTimeFormat;
-	private final ChatMessageTimeFormat mTimeDisplayFormat;
+	private static Map<String, Drawable> sSmileys;
+	private static int sSmileyBound; 
+	
+	private DateFormat mDateFormat;
+	private DateFormat mTimeFormat;
+	private ChatMessageTimeFormat mTimeDisplayFormat;
 	
 	private boolean mDontDrawSmilies = false;
 	
@@ -53,25 +61,49 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		}
 	};
 	
-	public MessagesAdapter(Context context, int resource, ChatMessageTimeFormat timeDisplayFormat) {
-		super(context, resource, R.id.sender);
-		mDateFormat = android.text.format.DateFormat.getMediumDateFormat(context);
-		mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
-		mTimeDisplayFormat = timeDisplayFormat;
+	public MessagesAdapter(MainActivity activity, int resource, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, resource, R.id.sender);		
+		init(activity, timeDisplayFormat);
 	}
 
-	public MessagesAdapter(Context context, int resource, ChatMessageHolder[] objects, ChatMessageTimeFormat timeDisplayFormat) {
-		super(context, resource, R.id.sender, objects);
-		mDateFormat = android.text.format.DateFormat.getMediumDateFormat(context);
-		mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
-		mTimeDisplayFormat = timeDisplayFormat;
+	public MessagesAdapter(MainActivity activity, int resource, ChatMessageHolder[] objects, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, resource, R.id.sender, objects);
+		init(activity, timeDisplayFormat);
 	}
 
-	public MessagesAdapter(Context context, int resource, List<ChatMessageHolder> objects, ChatMessageTimeFormat timeDisplayFormat) {
-		super(context, resource, R.id.sender, objects);
-		mDateFormat = android.text.format.DateFormat.getMediumDateFormat(context);
-		mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+	public MessagesAdapter(MainActivity activity, int resource, List<ChatMessageHolder> objects, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, resource, R.id.sender, objects);
+		init(activity, timeDisplayFormat);
+	}
+	
+	private void init(MainActivity activity, ChatMessageTimeFormat timeDisplayFormat){
+		mDateFormat = android.text.format.DateFormat.getMediumDateFormat(activity);
+		mTimeFormat = android.text.format.DateFormat.getTimeFormat(activity);
 		mTimeDisplayFormat = timeDisplayFormat;
+		
+		if (sSmileys == null) {
+			sSmileys = Collections.synchronizedMap(new HashMap<String, Drawable>());
+			
+			List<SmileyResources> smileys = new ArrayList<SmileyResources>(activity.getAdditionalSmileys());
+			
+			for (int ii = smileys.size()-1; ii>=0; ii--) {
+				SmileyResources r = smileys.get(ii);
+				try {
+					Resources nr = r.getNativeResourcesForProtocol(activity.getPackageManager());
+					
+					for (int i=0; i<r.getNames().length; i++) {
+						if (!sSmileys.containsKey(r.getNames()[i])) {
+							Drawable d = nr.getDrawable(r.getDrawableIDs()[i]);
+							sSmileys.put(r.getNames()[i], d);
+						}
+					}
+				} catch (Exception e) {
+					Logger.log(e);
+				}
+			}
+			
+			sSmileyBound = (int) (activity.getResources().getDisplayMetrics().density * 4);
+		}
 	}
 
 	@Override
@@ -116,7 +148,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		TextView message = (TextView) v.findViewById(R.id.message);
 		
 		time.setText(getFormattedMessageTime(holder));
-		setTextAndFormat(getContext(), message, holder, mDontDrawSmilies);
+		setTextAndFormat(getMainActivity(), message, holder, mDontDrawSmilies);
 		
 		return v;
 	}
@@ -173,7 +205,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		return resId;
 	}
 
-	private static final void setTextAndFormat(Context context, TextView view, ChatMessageHolder holder, boolean dontDrawSmileys) {
+	private static final void setTextAndFormat(MainActivity activity, TextView view, ChatMessageHolder holder, boolean dontDrawSmileys) {
 		
 		MovementMethod mm = view.getMovementMethod();
         if (!(mm instanceof LinkMovementMethod))
@@ -184,10 +216,10 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
         String text;
         if (holder.getMessage() instanceof FileMessage) {
         	StringBuilder b = new StringBuilder();
-        	b.append(context.getString(R.string.buddy_sends_files, holder.getSenderName()));
+        	b.append(activity.getString(R.string.buddy_sends_files, holder.getSenderName()));
         	for (FileInfo i : ((FileMessage)holder.getMessage()).getFiles()) {
         		b.append("\n");
-        		b.append(context.getString(R.string.file_transfer_request_format, i.getFilename(), ViewUtils.humanReadableByteCount(i.getSize(), true)));
+        		b.append(activity.getString(R.string.file_transfer_request_format, i.getFilename(), ViewUtils.humanReadableByteCount(i.getSize(), true)));
         	}
         	text = b.toString();
         } else {
@@ -211,43 +243,38 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			return;
 		}
 		
-		Resources r = context.getResources();
-
-		TypedArray smileyNames = r.obtainTypedArray(R.array.smiley_names);
-		TypedArray smileyValues = r.obtainTypedArray(R.array.smiley_values_18);
-
-		for (int i = 0; i < smileyNames.length(); i++) {
-			String name = smileyNames.getString(i);
-			int pos = text.indexOf(name);
+		for (String key : sSmileys.keySet()) {
+			int pos = text.indexOf(key);
 
 			if (pos < 0) {
 				continue;
 			}
-
-			int value = smileyValues.getResourceId(i, R.drawable.ic_launcher);
+			
+			Drawable value = sSmileys.get(key);
+			
+			int smileySize = (int) (view.getTextSize() + sSmileyBound);
+			int width = (int) ((value.getIntrinsicHeight() + 0.0f)/value.getIntrinsicWidth() * smileySize);			
+			value.setBounds(0, 0, smileySize, width);
 
 			while (pos < text.length()) {
 				if (pos > -1) {
 					try {
-						spannable.setSpan(new ImageSpan(context, value, ImageSpan.ALIGN_BASELINE), pos, pos + name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						spannable.setSpan(new ImageSpan(value, ImageSpan.ALIGN_BASELINE), pos, pos + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					} catch (Exception e) {
 						Logger.log(e);
 					}
-					pos = text.indexOf(name, pos + name.length());
+					pos = text.indexOf(key, pos + key.length());
 				} else {
 					break;
 				}
 			}
-			byte[] replace = new byte[name.length()];
+			byte[] replace = new byte[key.length()];
 			Arrays.fill(replace, (byte) '_');
-			text = text.replace(name, new String(replace));
+			text = text.replace(key, new String(replace));
 		}
 
-		smileyNames.recycle();
-		smileyValues.recycle();
-		
 		if (holder.getMessage() instanceof ServiceMessage) {
-			view.setTextAppearance(context, R.style.chat_message_sender_color_service);
+			view.setTextAppearance(activity, R.style.chat_message_sender_color_service);
 		}
 	}
 
@@ -329,5 +356,9 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			copyModeStarter = null;
 		}
 		notifyDataSetChanged();
+	}
+	
+	protected MainActivity getMainActivity() {
+		return (MainActivity) getContext();
 	}
 }

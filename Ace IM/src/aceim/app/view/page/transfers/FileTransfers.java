@@ -1,27 +1,37 @@
 package aceim.app.view.page.transfers;
 
 import java.util.ArrayList;
+import java.util.Locale;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileProgress;
 import aceim.api.dataentity.OnlineInfo;
+import aceim.api.utils.Logger;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.FileTransfer;
 import aceim.app.dataentity.listeners.IHasFileTransfer;
 import aceim.app.utils.DialogUtils;
+import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class FileTransfers extends Page implements IHasFileTransfer {
@@ -67,6 +77,61 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 		}
 	};
 
+	private OnItemClickListener mItemClickListener = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			final FileTransfer ft = (FileTransfer) parent.getItemAtPosition(position);
+			
+			if (ft == null || ft.getProgress() == null) {
+				return;
+			}
+			
+			if (TextUtils.isEmpty(ft.getProgress().getError())) {
+				
+				if (ft.getProgress().getTotalSizeBytes() > 0 && ft.getProgress().getSentBytes() >= ft.getProgress().getTotalSizeBytes()) {
+					if (ft.getProgress().isIncoming()) {
+						MimeTypeMap mimeMap = MimeTypeMap.getSingleton();
+						//String extension = filePath.substring(filePath.lastIndexOf(".")+1);
+						String extension = MimeTypeMap.getFileExtensionFromUrl(ft.getProgress().getFilePath());
+						String mime = mimeMap.getMimeTypeFromExtension(extension.toLowerCase(Locale.ENGLISH));
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setDataAndType(Uri.parse("file://" + ft.getProgress().getFilePath()), mime);
+						try {
+							getActivity().startActivity(intent);
+							mAdapter.remove(ft);
+						} catch (Exception e) {
+							Logger.log(e);
+						}
+					}
+				} else {
+					AlertDialog.Builder newBuilder = new AlertDialog.Builder(getMainActivity());
+					newBuilder.setMessage(getMainActivity().getString(R.string.are_you_sure_you_want_to_cancel, ViewUtils.getFileNameFromPath(ft.getProgress().getFilePath()))).setCancelable(false).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							try {
+								getMainActivity().getCoreService().cancelFileTransfer(ft.getProgress().getServiceId(), ft.getProgress().getMessageId());
+								mAdapter.remove(ft);
+							} catch (RemoteException e) {
+								getMainActivity().onRemoteException(e);
+							}
+						}
+
+					}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+						}
+
+					});
+					DialogUtils.showBrandedDialog(newBuilder.create());
+				}
+			}
+		}
+	};
+
 	public FileTransfers(Account account) {
 		this.mAccount = account;
 	}
@@ -82,6 +147,7 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 		
 		mAdapter = new FileTransfersAdapter(group.getContext(), mTransfers);
 		mList.setAdapter(mAdapter);
+		mList.setOnItemClickListener(mItemClickListener);
 		
 		return view;
 	}

@@ -1,12 +1,15 @@
 package aceim.app.view.page.chat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import aceim.app.MainActivity;
+import aceim.app.dataentity.SmileyResources;
 import aceim.app.widgets.adapters.SingleViewAdapter;
 import android.content.Context;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -22,19 +25,14 @@ public class TextSmileyAdapter extends SingleViewAdapter<String, TextView> {
 		view.setGravity(Gravity.CENTER);
 	}
 
-	public static final TextSmileyAdapter fromTypedArray(Context context, int typedArrayId){
-		Resources r = context.getResources();
-		TypedArray objects = r.obtainTypedArray(typedArrayId);
+	public static final TextSmileyAdapter fromTypedArray(MainActivity activity){
+		Set<String> list = new HashSet<String>();
 		
-		List<String> list = new ArrayList<String>(objects.length());
-		for (int i=0; i<objects.length(); i++) {
-			String s = objects.getString(i);
-			list.add(s);
+		for (SmileyResources smr : activity.getAdditionalSmileys()) {
+			list.addAll(Arrays.asList(smr.getNames()));
 		}
 		
-		objects.recycle();
-		
-		return fromStringList(context, list);
+		return fromStringList(activity, new ArrayList<String>(list));
 	}
 	
 	public static final TextSmileyAdapter fromStringList(Context context, List<String> list){

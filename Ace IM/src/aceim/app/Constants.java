@@ -48,4 +48,6 @@ public final class Constants {
 	public static final String INTENT_EXTRA_CLASS_NAME = "ClassName";
 	public static final String INTENT_EXTRA_MESSAGE = "Message";
 
+	public static final String SMILEY_PLUGIN_PREFIX = "aceim.smileys.";
+
 }

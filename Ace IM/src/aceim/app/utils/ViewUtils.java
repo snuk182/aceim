@@ -43,6 +43,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Debug;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -418,34 +419,36 @@ public final class ViewUtils {
 
 		int imagesIndex = 0;
 
-		for (String featureId : buddy.getOnlineInfo().getFeatures().keySet()) {
-			ProtocolServiceFeature feature = protocolResources.getFeature(featureId);
+		Bundle features = buddy.getOnlineInfo().getFeatures();
+		synchronized (features) {
+			for (String featureId : features.keySet()) {
+				ProtocolServiceFeature feature = protocolResources.getFeature(featureId);
 
-			if (feature == null) {
-				Logger.log("Unknown protocol feature: " + featureId, LoggerLevel.INFO);
-				continue;
-			}
-
-			if (!feature.isShowInIconList()) {
-				continue;
-			}
-			
-			if (feature instanceof ListFeature && !feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
-				ListFeature lf = (ListFeature) feature;
-				byte value = buddy.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
-
-				if (value > -1) {
-					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
-					imagesIndex++;
+				if (feature == null) {
+					Logger.log("Unknown protocol feature: " + featureId, LoggerLevel.INFO);
+					continue;
 				}
-			} else {
-				if (feature.getIconId() != 0){
-					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
-					imagesIndex++;
+
+				if (!feature.isShowInIconList()) {
+					continue;
+				}
+
+				if (feature instanceof ListFeature && !feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
+					ListFeature lf = (ListFeature) feature;
+					byte value = buddy.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
+
+					if (value > -1) {
+						aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
+						imagesIndex++;
+					}
+				} else {
+					if (feature.getIconId() != 0) {
+						aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
+						imagesIndex++;
+					}
 				}
 			}
 		}
-
 		for (int i = imagesIndex; i < extraImageIDs.length; i++) {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}
@@ -470,34 +473,36 @@ public final class ViewUtils {
 
 		int imagesIndex = 0;
 
-		for (String featureId : account.getOnlineInfo().getFeatures().keySet()) {
-			ProtocolServiceFeature feature = protocolResources.getFeature(featureId);
+		Bundle features = account.getOnlineInfo().getFeatures();
+		synchronized (features) {
+			for (String featureId : features.keySet()) {
+				ProtocolServiceFeature feature = protocolResources.getFeature(featureId);
 
-			if (feature == null) {
-				Logger.log("Unknown protocol feature: " + featureId, LoggerLevel.INFO);
-				continue;
-			}
-
-			if (!feature.isShowInIconList() ||  feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
-				continue;
-			}
-			
-			if (feature instanceof ListFeature) {
-				ListFeature lf = (ListFeature) feature;
-				byte value = account.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
-
-				if (value > -1) {
-					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
-					imagesIndex++;
+				if (feature == null) {
+					Logger.log("Unknown protocol feature: " + featureId, LoggerLevel.INFO);
+					continue;
 				}
-			} else {
-				if (feature.getIconId() != 0){
-					aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
-					imagesIndex++;
+
+				if (!feature.isShowInIconList() || feature.getFeatureId().equals(ApiConstants.FEATURE_STATUS)) {
+					continue;
+				}
+
+				if (feature instanceof ListFeature) {
+					ListFeature lf = (ListFeature) feature;
+					byte value = account.getOnlineInfo().getFeatures().getByte(featureId, (byte) -1);
+
+					if (value > -1) {
+						aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(lf.getDrawables()[value]));
+						imagesIndex++;
+					}
+				} else {
+					if (feature.getIconId() != 0) {
+						aq.id(extraImageIDs[imagesIndex]).visibility(View.VISIBLE).image(res.getDrawable(feature.getIconId()));
+						imagesIndex++;
+					}
 				}
 			}
 		}
-		
 		for (int i = imagesIndex; i < extraImageIDs.length; i++) {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}

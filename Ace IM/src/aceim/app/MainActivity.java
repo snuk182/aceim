@@ -2,6 +2,7 @@ package aceim.app;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ActivityResult;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.dataentity.SmileyResources;
 import aceim.app.dataentity.listeners.IHasAccount;
 import aceim.app.dataentity.listeners.IHasAccountList;
 import aceim.app.dataentity.listeners.IHasBuddy;
@@ -70,6 +72,7 @@ import com.androidquery.util.AQUtility;
 public class MainActivity extends FragmentActivity {
 
 	private final Map<String, ProtocolResources> mProtocolResources = new HashMap<String, ProtocolResources>();
+	private SmileysManager mSmileysManager;
 
 	private ICoreService mCoreService;
 
@@ -90,6 +93,8 @@ public class MainActivity extends FragmentActivity {
 		setContentView(mScreen);
 		Page.addSplash(mScreen);
 
+		mSmileysManager = new SmileysManager(this);
+		
 		initCoreService();
 	}
 
@@ -814,5 +819,12 @@ public class MainActivity extends FragmentActivity {
 		} catch (RemoteException e) {
 			onRemoteException(e);
 		}
+	}
+
+	/**
+	 * @return the mSmileysManager
+	 */
+	public Collection<SmileyResources> getAdditionalSmileys() {
+		return mSmileysManager.getResources().values();
 	}
 }

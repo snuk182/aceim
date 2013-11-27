@@ -151,7 +151,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		}
 		mMessages.setAdapter(mMessageAdapter);
 		if (sTextSmileyAdapter == null) {
-			sTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity(), R.array.smiley_pick_names);
+			sTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity());
 		}
 		
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
@@ -279,7 +279,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 					.getBoolean(GlobalOptionKeys.TEXT_SMILEYS.name(), 
 							Boolean.parseBoolean(activity.getString(R.string.default_text_smilies)));
 			
-			sSmileyAdapter = isTextSmileys ? sTextSmileyAdapter : ImageSmileyAdapter.fromTypedArray(activity, R.array.smiley_pick_values);
+			sSmileyAdapter = isTextSmileys ? sTextSmileyAdapter : ImageSmileyAdapter.fromActivity(activity);
 		}
 	}
 

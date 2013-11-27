@@ -63,7 +63,7 @@
     <ProgressBar 
         android:id="@+id/progress"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/contact_list_grid_item_icons_size"
         android:indeterminateOnly="false" 
 		android:progressDrawable="@android:drawable/progress_horizontal"
 		android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal" 

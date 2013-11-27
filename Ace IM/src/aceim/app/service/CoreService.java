@@ -150,7 +150,7 @@ public class CoreService extends Service {
 		@Override
 		public void run() {
 			Logger.log("Init protocols", LoggerLevel.VERBOSE);
-			mProtocolServiceManager.initProtocolServices(null);
+			mProtocolServiceManager.initProtocolServices();
 			mProtocolServiceManager.addProtocolListener(mProtocolListener);
 			mProtocolsReady = true;
 		}

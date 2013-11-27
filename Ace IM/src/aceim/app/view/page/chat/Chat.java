@@ -102,7 +102,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	
 	private ArrayAdapter<?> mSmileyAdapter;
 	private TextSmileyAdapter mTextSmileyAdapter;
-	private Dialog sSmileyDialog;
+	private Dialog mSmileyDialog;
 	
 	private CharSequence mEditorUnsavedContent = null;
 	private Uri mAwaitingUri;
@@ -247,12 +247,14 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			String smiley = mTextSmileyAdapter.getItem(position);
+			if (parent.getAdapter() == mTextSmileyAdapter) {
+				insertToEditor(mTextSmileyAdapter.getItem(position));				
+			} else {
+				insertToEditor(((ImageSmileyAdapter)parent.getAdapter()).getItemName(position));
+			}
 			
-			insertToEditor(smiley);
-			
-			if (sSmileyDialog != null) {
-				sSmileyDialog.dismiss();
+			if (mSmileyDialog != null) {
+				mSmileyDialog.dismiss();
 			}
 		}
 	};
@@ -309,19 +311,19 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	}
 
 	private void showSmileysDialogWindow() {
-		if (sSmileyDialog == null) {
-			sSmileyDialog = new Dialog(getMainActivity());
-			sSmileyDialog.setTitle(R.string.smileys);
-			sSmileyDialog.setContentView(R.layout.grid_dialog);
-			final GridView grid = (GridView) sSmileyDialog.findViewById(R.id.grid);
-			grid.setOnItemClickListener(mSmileyClicklistener);
-			
+		if (mSmileyDialog == null) {
+			mSmileyDialog = new Dialog(getMainActivity());
+			mSmileyDialog.setTitle(R.string.smileys);
+			mSmileyDialog.setContentView(R.layout.grid_dialog);
+			final GridView grid = (GridView) mSmileyDialog.findViewById(R.id.grid);
 			grid.setColumnWidth(getMainActivity().getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
 			
 			grid.setAdapter(mSmileyAdapter);
+			grid.setOnItemClickListener(mSmileyClicklistener);
+			
 			mSmileyAdapter.notifyDataSetInvalidated();
 		}
-		DialogUtils.showBrandedDialog(sSmileyDialog);
+		DialogUtils.showBrandedDialog(mSmileyDialog);
 	}
 	
 	private void sendMessage(final String text) {
@@ -403,7 +405,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
 		
 		if (mTextSmileyAdapter == null) {
-			mTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity(), R.array.smiley_pick_names);
+			mTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity());
 		}
 		
 		mXStatusText.setOnClickListener(mXStatusTextClickListener);
@@ -491,7 +493,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 					.getBoolean(GlobalOptionKeys.TEXT_SMILEYS.name(), 
 							Boolean.parseBoolean(activity.getString(R.string.default_text_smilies)));
 			
-			mSmileyAdapter = isTextSmileys ? mTextSmileyAdapter : ImageSmileyAdapter.fromTypedArray(activity, R.array.smiley_pick_values);
+			mSmileyAdapter = isTextSmileys ? mTextSmileyAdapter : ImageSmileyAdapter.fromActivity(activity);
 			((SingleViewAdapter<?, ?>)mSmileyAdapter).setOnItemClickListener(mSmileyClicklistener);
 			mMessageAdapter.setDontDrawSmilies(isTextSmileys);
 		}

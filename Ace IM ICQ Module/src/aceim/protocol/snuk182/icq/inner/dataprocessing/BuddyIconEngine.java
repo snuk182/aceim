@@ -36,6 +36,7 @@ public class BuddyIconEngine {
 	private static final byte CONNSTATE_DISCONNECTED = 0;
 	private static final byte CONNSTATE_CONNECTING = 1;
 	private static final byte CONNSTATE_CONNECTED = 2;
+	
 	private volatile byte connectState = CONNSTATE_DISCONNECTED;
 	
 	public short getFlapSeqNumber() {
@@ -45,7 +46,7 @@ public class BuddyIconEngine {
 		return flapSeqNumber++;
 	}
 	
-	private final List<Flap> packets = new LinkedList<Flap>();
+	private final List<Flap> packets = Collections.synchronizedList(new LinkedList<Flap>());
 	//public Flap buffer = null;
 	
 	
@@ -176,8 +177,8 @@ public class BuddyIconEngine {
 	}
 
 	private void forceIconRequests(){
-		synchronized (requests) {
-			while (requests.size() > 0) {
+		while (requests.size() > 0) {
+			synchronized (requests) {
 				Iterator<String> i = requests.iterator();
 				while (i.hasNext()) {
 					String uin = i.next();
@@ -234,17 +235,11 @@ public class BuddyIconEngine {
 		if (service.getCurrentState() == ICQServiceInternal.STATE_DISCONNECTED) {
 			service.log("Service disconnected - cancel icon request");
 			requests.clear();
-			return;
-		}
-		
-		if (connectState == CONNSTATE_DISCONNECTED){
+		} else if (connectState == CONNSTATE_DISCONNECTED){
 			service.log("icon service get server");
-			requestServiceServerUrl();
 			connectState = CONNSTATE_CONNECTING;
-			return;
-		}
-		
-		if (connectState == CONNSTATE_CONNECTED){
+			requestServiceServerUrl();
+		} else if (connectState == CONNSTATE_CONNECTED){
 			forceIconRequests();
 		}
 	}
@@ -438,13 +433,9 @@ public class BuddyIconEngine {
 				}
 			} catch (IOException e) {
 				service.log(e);
+				socket = null;
 				disconnect();
-				//buffer = flap;
-				try {
-					requestServiceServerUrl();
-				} catch (Exception e1) {
-					service.log(e1.toString());
-				}
+				proceed();
 			} catch (ICQException e) {
 				service.log(e.getLocalizedMessage());
 			}
@@ -454,5 +445,6 @@ public class BuddyIconEngine {
 
 	public void disconnect() {
 		connectState = CONNSTATE_DISCONNECTED;	
+		packets.clear();
 	}
 }

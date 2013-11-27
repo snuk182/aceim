@@ -8,6 +8,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -19,27 +21,27 @@ public class ProtocolService implements ServiceConnection {
 
 	//private final List<Account> mAccounts = new ArrayList<Account>();
 	
-	private final ServiceInfo serviceInfo;
+	private final String packageName;
+	private final String className;
 	private ProtocolResources resources;
 	private final ICoreProtocolCallback callback;
 	
 	private IProtocolService protocol;
 	
-	public ProtocolService(Context context, ServiceInfo serviceInfo, ICoreProtocolCallback callback) {
-		this.serviceInfo = serviceInfo;
+	private ProtocolService(Context context, String packageName, String className, ICoreProtocolCallback callback) {
+		this.packageName = packageName;
+		this.className = className;
 		this.callback = callback;
 		this.mContext = context;
-		
-		bind();
 	}
 
 	private void bind() {
 		Intent intent = new Intent();
-		intent.setClassName(serviceInfo.packageName, serviceInfo.name);
+		intent.setClassName(packageName, className);
         Logger.log("binding: "+intent );
         mContext.startService(intent);
-		boolean d = mContext.bindService(intent, this, 0);
-		Logger.log(Boolean.toString(d));
+		boolean d = mContext.getApplicationContext().bindService(intent, this, 0);
+		Logger.log(d ? "Binded" : "Not binded");
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class ProtocolService implements ServiceConnection {
 	}
 
 	public String getProtocolServicePackageName() {
-		return serviceInfo.packageName;
+		return packageName;
 	}
 
 	public ProtocolResources getResources() {
@@ -84,12 +86,10 @@ public class ProtocolService implements ServiceConnection {
 		return protocol;
 	}
 
-	public ServiceInfo getServiceInfo() {
-		return serviceInfo;
-	}
-
-	public static ProtocolService create(Context context, ServiceInfo sinfo, Stub protocolCallback) {
-		ProtocolService ps = new ProtocolService(context, sinfo, protocolCallback);
+	public static ProtocolService create(Context context, String packageName, String className, Stub protocolCallback) {
+		ProtocolService ps = new ProtocolService(context, packageName, className, protocolCallback);
+		ps.bind();
+		
 		while (ps.getProtocol() == null) {
 			try {
 				Thread.sleep(250);
@@ -97,5 +97,21 @@ public class ProtocolService implements ServiceConnection {
 		}
 		
 		return ps;
+	}
+
+	public ServiceInfo getServiceInfo() {
+		try {
+			return mContext.getPackageManager().getServiceInfo(new ComponentName(packageName, className), PackageManager.GET_RESOLVED_FILTER);
+		} catch (NameNotFoundException e) {
+			Logger.log(e);
+			return null;
+		}
+	}
+
+	/**
+	 * @return the className
+	 */
+	public String getServiceClassName() {
+		return className;
 	}
 }

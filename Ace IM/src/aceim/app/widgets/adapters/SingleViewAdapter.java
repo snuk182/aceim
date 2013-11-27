@@ -12,6 +12,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.AbsListView.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
@@ -33,7 +34,7 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, final ViewGroup parent) {
 		V view;
 		
 		if (convertView != null) {
@@ -69,7 +70,7 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 			
 			@Override
 			public void onClick(View v) {
-				performItemClick(v, position, 0);
+				performItemClick((AdapterView<SingleViewAdapter<I,V>>)parent, v, position, 0);
 			}
 		});
 		
@@ -78,14 +79,14 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 
 	protected abstract void fillView(I item, V view);
 	
-	private void performItemClick(View view, int position, long id) {
+	private void performItemClick(AdapterView<SingleViewAdapter<I,V>> parent, View view, int position, long id) {
         if (mOnItemClickListener == null) {
             return;
         }
 
         view.playSoundEffect(SoundEffectConstants.CLICK);
         view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
-        mOnItemClickListener.onItemClick(null, view, position, id);
+        mOnItemClickListener.onItemClick(parent, view, position, id);
     }
 
 	public void setOnItemClickListener(OnItemClickListener mOnItemClickListener) {

@@ -1,28 +1,17 @@
 package aceim.app.view.page.transfers;
 
 import java.util.List;
-import java.util.Locale;
 
 import aceim.api.dataentity.FileProgress;
-import aceim.api.utils.Logger;
-import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.FileTransfer;
-import aceim.app.utils.DialogUtils;
 import aceim.app.utils.ViewUtils;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.RemoteException;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -125,24 +114,6 @@ public class FileTransfersAdapter extends ArrayAdapter<FileTransfer> {
 		} else if (p.getTotalSizeBytes() > 0 && p.getSentBytes() >= p.getTotalSizeBytes()) {
 			title.setBackgroundResource(R.drawable.criteria_good);
 			info.setText(R.string.press_to_open);
-			view.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					MimeTypeMap mimeMap = MimeTypeMap.getSingleton();
-					//String extension = filePath.substring(filePath.lastIndexOf(".")+1);
-					String extension = MimeTypeMap.getFileExtensionFromUrl(p.getFilePath());
-					String mime = mimeMap.getMimeTypeFromExtension(extension.toLowerCase(Locale.ENGLISH));
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					intent.setDataAndType(Uri.parse("file://" + p.getFilePath()), mime);
-					try {
-						getContext().startActivity(intent);
-						remove(t);
-					} catch (Exception e) {
-						Logger.log(e);
-					}
-				}
-			});
 		} else {
 			view.setBackgroundColor(Color.TRANSPARENT);
 			if (p.getTotalSizeBytes() < 1) {
@@ -153,35 +124,6 @@ public class FileTransfersAdapter extends ArrayAdapter<FileTransfer> {
 				progress.setProgress((int) (MAX_PROGRESS * p.getSentBytes() / p.getTotalSizeBytes()));
 				info.setText(getContext().getString(R.string.file_transfer_progress_format, p.getSentBytes(), p.getTotalSizeBytes()));
 			}
-			
-			view.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					AlertDialog.Builder newBuilder = new AlertDialog.Builder(getContext());
-					newBuilder.setMessage(getContext().getString(R.string.are_you_sure_you_want_to_cancel, filename)).setCancelable(false).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							try {
-								((MainActivity)getContext()).getCoreService().cancelFileTransfer(t.getProgress().getServiceId(), t.getMessageId());
-								remove(t);
-							} catch (RemoteException e) {
-								((MainActivity)getContext()).onRemoteException(e);
-							}
-						}
-
-					}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-						}
-
-					});
-					DialogUtils.showBrandedDialog(newBuilder.create());
-				}
-			});
 		}
 
 	}

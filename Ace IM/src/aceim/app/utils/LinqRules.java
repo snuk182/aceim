@@ -11,6 +11,7 @@ import aceim.app.dataentity.listeners.IHasMessages;
 import aceim.app.utils.linq.KindaLinqRule;
 import aceim.app.view.page.Page;
 import aceim.app.view.page.chat.Chat;
+import aceim.app.view.page.history.History;
 import aceim.app.view.page.personalinfo.PersonalInfoPage;
 import aceim.app.view.page.transfers.FileTransfers;
 
@@ -201,6 +202,15 @@ public class LinqRules {
 			return (t instanceof PersonalInfoPage)
 						&& ((PersonalInfoPage) t).getInfo().getServiceId() == info.getServiceId() 
 						&& ((PersonalInfoPage) t).getInfo().getProtocolUid().equals(info.getProtocolUid());
+		}
+		
+	}
+	
+	public static final class PageWithSmileysLinqRule implements KindaLinqRule<Page> {
+
+		@Override
+		public boolean match(Page t) {
+			return t instanceof Chat || t instanceof History;
 		}
 		
 	}
