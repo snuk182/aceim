@@ -102,7 +102,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 				}
 			}
 			
-			sSmileyBound = (int) (activity.getResources().getDisplayMetrics().density * 4);
+			sSmileyBound = (int) (activity.getResources().getDisplayMetrics().density * 10);
 		}
 	}
 

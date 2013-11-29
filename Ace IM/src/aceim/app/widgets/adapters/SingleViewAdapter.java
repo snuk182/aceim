@@ -24,7 +24,7 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 	
 	private final Class<V> mViewClass;
 
-	private OnItemClickListener mOnItemClickListener;
+	private OnSingleViewAdapterItemClickListener mOnItemClickListener;
 	
 	@SuppressWarnings("unchecked")
 	public SingleViewAdapter(Context context, List<I> objects) {
@@ -70,7 +70,7 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 			
 			@Override
 			public void onClick(View v) {
-				performItemClick((AdapterView<SingleViewAdapter<I,V>>)parent, v, position, 0);
+				performItemClick(v, position, 0);
 			}
 		});
 		
@@ -79,17 +79,27 @@ public abstract class SingleViewAdapter<I,V extends View> extends ArrayAdapter<I
 
 	protected abstract void fillView(I item, V view);
 	
-	private void performItemClick(AdapterView<SingleViewAdapter<I,V>> parent, View view, int position, long id) {
+	private void performItemClick(View view, int position, long id) {
         if (mOnItemClickListener == null) {
             return;
         }
 
         view.playSoundEffect(SoundEffectConstants.CLICK);
         view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
-        mOnItemClickListener.onItemClick(parent, view, position, id);
+        mOnItemClickListener.onItemClick(this, position);
     }
 
-	public void setOnItemClickListener(OnItemClickListener mOnItemClickListener) {
-		this.mOnItemClickListener = mOnItemClickListener;
+	public void setOnItemClickListener(OnSingleViewAdapterItemClickListener onItemClickListener) {
+		this.mOnItemClickListener = onItemClickListener;
+	}
+	
+	public static abstract class OnSingleViewAdapterItemClickListener implements OnItemClickListener {
+		
+		public abstract void onItemClick(SingleViewAdapter<?,?> adapter, int position);
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			onItemClick((SingleViewAdapter<?, ?>) parent.getAdapter(), position);
+		}		
 	}
 }

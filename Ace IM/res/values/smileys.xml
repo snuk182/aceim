@@ -3,12 +3,9 @@
     <string-array name="smiley_names">
         <item>O:-)</item>
 		<item>:)</item>
-		<item>:-)</item>
 		<item>=)</item>
 		<item>;)</item>
-		<item>;-)</item>
 		<item>":'("</item>
-		<item>:-(</item>
 		<item>:(</item>
 		<item>:-P</item>
 		<item>8-)</item>
@@ -58,12 +55,9 @@
 	<array name="smiley_values">
 		<item>@drawable/angel</item>
 		<item>@drawable/smile</item>
-		<item>@drawable/smile</item>
 		<item>@drawable/smile2</item>
 		<item>@drawable/wink</item>
-		<item>@drawable/wink</item>
 		<item>@drawable/cray2</item>
-		<item>@drawable/sad</item>
 		<item>@drawable/sad</item>
 		<item>@drawable/blum</item>
 		<item>@drawable/dirol</item>

@@ -150,6 +150,7 @@
     <string name="disconnected">"Отключился"</string>
     <string name="buddy_details">"Инфо контакта"</string>
     <string name="close">"Закрыть"</string>
+    <string name="close_chat">Закрыть чат</string>
     <string name="return_to_buddylist">"Вернуться к списку контактов"</string>
     <string name="edit">"Править "</string>
     <string name="remove">"Удалить "</string>

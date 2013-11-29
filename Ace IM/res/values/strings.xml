@@ -195,6 +195,7 @@
     <string name="yes">"Yes"</string>
     <string name="no">"No"</string>
     <string name="close">"Close"</string>
+    <string name="close_chat">Close chat</string>
     <string name="add_new_account">"Add new account"</string>
     <string name="account_type">"Account type:"</string>
     <string name="account_id">"Account ID:"</string>

@@ -45,6 +45,7 @@ import aceim.app.widgets.ResizeableRelativeLayout;
 import aceim.app.widgets.ResizeableRelativeLayout.OnResizeListener;
 import aceim.app.widgets.adapters.MessagesAdapter;
 import aceim.app.widgets.adapters.SingleViewAdapter;
+import aceim.app.widgets.adapters.SingleViewAdapter.OnSingleViewAdapterItemClickListener;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import android.app.Activity;
 import android.app.Dialog;
@@ -73,7 +74,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -243,14 +243,14 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 	};
 	
-	private final OnItemClickListener mSmileyClicklistener = new OnItemClickListener() {
+	private final OnSingleViewAdapterItemClickListener mSmileyClicklistener = new OnSingleViewAdapterItemClickListener() {
 
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			if (parent.getAdapter() == mTextSmileyAdapter) {
+		public void onItemClick(SingleViewAdapter<?, ?> adapter, int position) {
+			if (adapter == mTextSmileyAdapter) {
 				insertToEditor(mTextSmileyAdapter.getItem(position));				
 			} else {
-				insertToEditor(((ImageSmileyAdapter)parent.getAdapter()).getItemName(position));
+				insertToEditor(((ImageSmileyAdapter)adapter).getItemName(position));
 			}
 			
 			if (mSmileyDialog != null) {

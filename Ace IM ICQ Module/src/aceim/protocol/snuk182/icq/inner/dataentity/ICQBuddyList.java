@@ -33,9 +33,11 @@ public class ICQBuddyList implements Serializable {
 	public List<ICQBuddy> notAuthList = new ArrayList<ICQBuddy>();
 	
 	public ICQOnlineInfo getByUin(String uin){
-		for (ICQOnlineInfo info:buddyInfos){
-			if (info.uin.equals(uin)){
-				return info;
+		synchronized (buddyInfos) {
+			for (ICQOnlineInfo info : buddyInfos) {
+				if (info.uin.equals(uin)) {
+					return info;
+				}
 			}
 		}
 		return null;
