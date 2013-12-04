@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="version_X" formatted="false">Версія: %s</string>
+    <string name="api_version_X" formatted="false">Версія API: %s</string>
+    
     <string name="all_transfers">Всі передавання</string>
     <string name="unsaved_data">Є незбережена інформація</string>
     <string name="accept">Прийняти</string>
@@ -94,12 +97,9 @@
     <string name="dont_draw_smileys">Не малювати смайли</string>
     <string name="account_activity_log">Журнал активності</string>
     <string name="sound_volume">Гучність повідомлень</string>
-	<string name="enable_pgp">Ввімкнути шифрування PGP</string>
-	<string name="my_pgp_key">Ключ PGP</string>
-    <string name="my_pgp_key_pw">Пароль ключа PGP</string>
-    <string name="securitize">Шифрувати</string>
-	<string name="desecuritize">Не шифрувати</string>
 	
+    <string name="about">Про програму</string>
+    
     <string name="add_group">"Створити групу</string>
     
     <string name="deny_messages_not_from_list">"Відхиляти повідомлення від контактів не зі списку"</string>
@@ -165,7 +165,7 @@
     <string name="show_icons">"Показувати іконки контактів"</string>
     <string name="send_my_location">"Послати моє місцезнаходження"</string>
     <string name="send_by_enter">"Відправляти Ентером"</string>
-    <string name="about_text">"\nАвтор: Сергій Плигун. \nMailto:snuk182@rambler.ru. \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Окрема подяка сайту OpenClipArt.org та його учасникам: Warszawianka (Tango project), nicubunu та іншим.\nФункціональність XMPP/Jabber за допомогою Smack (igniterealtime.org).\nФункциональность XMPP/Jabber с помощью библиотеки Smack (igniterealtime.org)\n Реализация PGP c помощью Spongycastle Android."</string>
+    <string name="about_text">"Автор: Сергій Плигун\nДомашня сторінка https://github.com/snuk182/aceim . \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Окрема подяка сайту OpenClipArt.org та його учасникам: Warszawianka (Tango project), nicubunu та іншим."</string>
     <string name="file_from">"Файл від "</string>
     <string name="files">" файлів"</string>
     <string name="error_fill_uid">Будь-ласка, вкажіть UID</string>

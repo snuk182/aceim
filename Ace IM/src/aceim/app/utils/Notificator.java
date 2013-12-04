@@ -196,7 +196,7 @@ public class Notificator {
 			builder.setAutoCancel(false);
 			builder.setOngoing(true);
 			builder.setContentTitle(account.getSafeName());
-			builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources()));
+			builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources(false)));
 			builder.setLargeIcon(ViewUtils.getIcon(mContext, account.getFilename()));
 
 			builder.setSmallIcon(unreads > 0 ? R.drawable.ic_message : ViewUtils.getAccountStatusIcon(mContext, account));

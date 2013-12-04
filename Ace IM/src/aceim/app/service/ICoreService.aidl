@@ -34,7 +34,7 @@ interface ICoreService {
 	void sendLocation(in Buddy buddy);
 	
 	List<Account> getAccounts(boolean disabledToo);
-	List<ProtocolResources> getAllProtocolResources();
+	List<ProtocolResources> getAllProtocolResources(boolean getProtocolInfo);
 	
 	Buddy getBuddy(byte serviceId, String buddyProtocolUid);
 	List<Buddy> getBuddies(byte serviceId, in List<String> buddyProtocolUid);

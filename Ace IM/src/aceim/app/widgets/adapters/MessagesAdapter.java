@@ -28,7 +28,6 @@ import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ImageSpan;
-import android.text.style.URLSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -233,11 +232,8 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		if (spannable == null) {
 			return;
 		}
-
-		spanUrl("ftp", spannable, text);
-		spanUrl("http", spannable, text);
-		spanUrl("https", spannable, text);
-		spanUrl("market", spannable, text);
+		
+		ViewUtils.spanKnownUrls(spannable, text);
 
 		if (dontDrawSmileys) {
 			return;
@@ -253,8 +249,8 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			Drawable value = sSmileys.get(key);
 			
 			int smileySize = (int) (view.getTextSize() + sSmileyBound);
-			int width = (int) ((value.getIntrinsicHeight() + 0.0f)/value.getIntrinsicWidth() * smileySize);			
-			value.setBounds(0, 0, smileySize, width);
+			int height = (int) ((value.getIntrinsicHeight() + 0.0f)/value.getIntrinsicWidth() * smileySize);			
+			value.setBounds(0, 0, smileySize, height);
 
 			while (pos < text.length()) {
 				if (pos > -1) {
@@ -275,37 +271,6 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 
 		if (holder.getMessage() instanceof ServiceMessage) {
 			view.setTextAppearance(activity, R.style.chat_message_sender_color_service);
-		}
-	}
-
-	private static final void spanUrl(String protocol, Spannable spannable, String text) {
-		if (text.indexOf(protocol + "://") > -1) {
-			int pos = 0;
-
-			while (pos > -1 && pos < text.length()) {
-				pos = text.indexOf(protocol + "://", pos);
-
-				if (pos > -1) {
-					int spaceEndPos = text.indexOf(" ", pos);
-					int endPos = spaceEndPos > -1 ? spaceEndPos : text.length();
-
-					int nlEndPos = text.indexOf("\n", pos);
-
-					if (nlEndPos > pos && nlEndPos < endPos) {
-						endPos = nlEndPos;
-					}
-
-					String url = text.substring(pos, endPos);
-					URLSpan urlSpan = new URLSpan(url);
-					spannable.setSpan(urlSpan, pos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					byte[] replace = new byte[endPos - pos];
-					Arrays.fill(replace, (byte) '_');
-					text = text.replace(url, new String(replace));
-					pos = ++endPos;
-				} else {
-					break;
-				}
-			}
 		}
 	}
 

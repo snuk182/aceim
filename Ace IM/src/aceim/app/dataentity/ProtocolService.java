@@ -4,6 +4,7 @@ import aceim.api.service.ICoreProtocolCallback;
 import aceim.api.service.ICoreProtocolCallback.Stub;
 import aceim.api.service.IProtocolService;
 import aceim.api.utils.Logger;
+import aceim.app.AceImException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ServiceInfo;
+import android.content.res.Resources;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -66,6 +68,34 @@ public class ProtocolService implements ServiceConnection {
 		
 	}
 	
+	private ProtocolResources getFullProtocolResources() {
+		ProtocolResources out = new ProtocolResources(this);
+		
+		out.setProtocolInfo(fillInfoField("info", packageName));
+		out.setProtocolVersion(fillInfoField("version", packageName));
+		out.setApiVersion(fillInfoField("api_version", packageName));
+		
+		return out;
+	}
+	
+	private String fillInfoField(String idName, String packageName){
+		Resources r;
+		try {
+			r = resources.getNativeResourcesForProtocol(null);
+		} catch (AceImException e) {
+			Logger.log(e);
+			return null;
+		}
+		
+		int id = r.getIdentifier(idName, "string", packageName);
+		
+		if (id != 0){
+			return r.getString(id);
+		} else {
+			return null;
+		}
+	}
+	
 	public Context getContext() {
 		return mContext;
 	}
@@ -74,7 +104,10 @@ public class ProtocolService implements ServiceConnection {
 		return packageName;
 	}
 
-	public ProtocolResources getResources() {
+	public ProtocolResources getResources(boolean getProtocolInfo) {
+		if (getProtocolInfo) {
+			return getFullProtocolResources();
+		}
 		return resources;
 	}
 

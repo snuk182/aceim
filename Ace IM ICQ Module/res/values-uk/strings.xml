@@ -37,4 +37,6 @@
     
     <string name="uin">UIN (номер)</string>
     <string name="screenname">Нік</string>
+    
+    <string name="info">Модуль ICQ для Ace IM. Домашня сторінка https://github.com/snuk182/aceim.</string>
 </resources>

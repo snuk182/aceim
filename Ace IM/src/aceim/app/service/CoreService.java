@@ -662,7 +662,7 @@ public class CoreService extends Service {
 		}
 
 		@Override
-		public List<ProtocolResources> getAllProtocolResources() throws RemoteException {
+		public List<ProtocolResources> getAllProtocolResources(boolean getProtocolInfo) throws RemoteException {
 			Logger.log("UI requests protocol resources", LoggerLevel.VERBOSE);
 			while (!mAccountsReady) {
 				try {
@@ -674,7 +674,7 @@ public class CoreService extends Service {
 			Map<String, ProtocolService> protocols = mProtocolServiceManager.getProtocols();
 			List<ProtocolResources> list = new ArrayList<ProtocolResources>(protocols.size());
 			for (ProtocolService p : protocols.values()) {
-				list.add(p.getResources());
+				list.add(p.getResources(getProtocolInfo));
 			}
 			return list;
 		}
@@ -1040,7 +1040,7 @@ public class CoreService extends Service {
 			
 			if (connState != ConnectionState.CONNECTED) {
 				for (Buddy b : account.getBuddyList()) {
-					ViewUtils.resetFeaturesForOffline(b.getOnlineInfo(), service.getProtocolService().getResources(), true);
+					ViewUtils.resetFeaturesForOffline(b.getOnlineInfo(), service.getProtocolService().getResources(false), true);
 				}
 			}
 

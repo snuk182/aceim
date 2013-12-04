@@ -14,16 +14,16 @@ import java.util.concurrent.Executors;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.Roster.SubscriptionMode;
+import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Privacy;
 import org.jivesoftware.smack.packet.PrivacyItem;
-import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.proxy.ProxyInfo;
@@ -39,11 +39,11 @@ import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
+import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.packet.LastActivity;
 import org.jivesoftware.smackx.packet.OfflineMessageInfo;
 import org.jivesoftware.smackx.packet.OfflineMessageRequest;
 import org.jivesoftware.smackx.packet.SharedGroupsInfo;
-import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.provider.AdHocCommandDataProvider;
 import org.jivesoftware.smackx.provider.DataFormProvider;
 import org.jivesoftware.smackx.provider.DelayInformationProvider;
@@ -213,6 +213,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 					connection.connect();
 					
 					mServiceDiscoveryManager = new ServiceDiscoveryManager(connection);
+					ServiceDiscoveryManager.setIdentityName(getService().getContext().getString(R.string.app_name));
 					
 					Roster roster = connection.getRoster();
 					roster.setSubscriptionMode(SubscriptionMode.manual);
@@ -422,7 +423,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 			pm.removeExtensionProvider("x", "jabber:x:encrypted");
 		}
 	}
-
+	
 	private boolean isGmail(String serviceName) {
 		return serviceName.equals("gmail.com") || serviceName.equals("googlemail.com");
 	}

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -46,7 +47,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.RemoteException;
+import android.text.Spannable;
 import android.text.TextUtils;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -651,5 +654,45 @@ public final class ViewUtils {
 		}
 		
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
+	}
+
+	public static void spanKnownUrls(Spannable spannable, String text) {
+		spanUrl("ftp", spannable, text);
+		spanUrl("http", spannable, text);
+		spanUrl("https", spannable, text);
+		spanUrl("market", spannable, text);		
+	}
+	
+	private static final void spanUrl(String protocol, Spannable spannable, String text) {
+		if (spannable == null || text.indexOf(protocol + "://") < 0) {
+			return;
+		}
+		
+		int pos = 0;
+
+		while (pos > -1 && pos < text.length()) {
+			pos = text.indexOf(protocol + "://", pos);
+
+			if (pos > -1) {
+				int spaceEndPos = text.indexOf(" ", pos);
+				int endPos = spaceEndPos > -1 ? spaceEndPos : text.length();
+
+				int nlEndPos = text.indexOf("\n", pos);
+
+				if (nlEndPos > pos && nlEndPos < endPos) {
+					endPos = nlEndPos;
+				}
+
+				String url = text.substring(pos, endPos);
+				URLSpan urlSpan = new URLSpan(url);
+				spannable.setSpan(urlSpan, pos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				byte[] replace = new byte[endPos - pos];
+				Arrays.fill(replace, (byte) '_');
+				text = text.replace(url, new String(replace));
+				pos = ++endPos;
+			} else {
+				break;
+			}
+		}
 	}
 }

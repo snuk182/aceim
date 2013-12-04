@@ -24,6 +24,7 @@ import aceim.app.utils.LinqRules.PersonalInfoLinqRule;
 import aceim.app.utils.ViewUtils;
 import aceim.app.utils.linq.KindaLinq;
 import aceim.app.utils.linq.KindaLinqRule;
+import aceim.app.view.page.about.About;
 import aceim.app.view.page.accounteditor.AccountEditor;
 import aceim.app.view.page.accounts.Accounts;
 import aceim.app.view.page.chat.Chat;
@@ -192,6 +193,15 @@ public abstract class Page extends Fragment {
 		}
 	}
 	
+	public static void getAboutPage(Screen screen) {
+		Page page = getPage(screen, new PageIdLinqRule(About.class.getSimpleName()));
+		if (page == null) {
+			screen.addPage(new About(), true);
+		} else {
+			screen.setSelectedPage(page.getPageId());
+		}
+	}
+	
 	public static void getFileTransfersPage(Screen screen, Account account) {
 		Page page = getPage(screen, new PageIdLinqRule(getPageIdForEntityWithId(FileTransfers.class, account)));
 		if (page == null) {
@@ -280,15 +290,6 @@ public abstract class Page extends Fragment {
 		}
 		
 		page.recoverFromStoredData(savedState);
-		
-		/*if (pageClass == Chat.class) {
-			Buddy b = a.getBuddyByProtocolUid(pageIdParts[3]);
-			if (b == null) return;
-			
-			page = new Chat(b, a, screen.getMainActivity().getProtocolResourcesForAccount(a));	
-		} else if (pageClass == History.class) {
-			
-		}*/
 		
 		mainActivity.getScreen().addPage(page, false);
 	}

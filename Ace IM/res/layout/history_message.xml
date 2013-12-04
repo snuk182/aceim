@@ -28,6 +28,7 @@
         android:text="12:34:45"/>
     
     <TextView android:id="@+id/message"
+        android:bufferType="editable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

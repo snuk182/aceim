@@ -54,4 +54,5 @@
     <string name="message">Сообщение</string>
     <string name="ask_authorization_message_default">Привет, добавь меня в свой список контактов</string>
     
+    <string name="info">Модуль Mail.ru для Ace IM. Домашняя страница https://github.com/snuk182/aceim</string>    
 </resources>

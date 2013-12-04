@@ -403,6 +403,9 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 			case R.id.menuitem_add_group:
 				DialogUtils.showAddOrRenameGroupDialog(null, mAccount, activity);
 				break;
+			case R.id.menuitem_about:
+				Page.getAboutPage(activity.getScreen());
+				break;
 			default:
 				ProtocolServiceFeature feature = mProtocolResources.getFeature(item.getItemId());
 				

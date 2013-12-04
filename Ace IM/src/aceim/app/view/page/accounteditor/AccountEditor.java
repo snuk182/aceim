@@ -183,7 +183,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
 		MainActivity activity = (MainActivity) getMainActivity();
 		Collection<ProtocolResources> resources = obtainResourcesForEditor();
-		this.mAdapter = new ArrayAdapter<ProtocolResources>(activity.getApplicationContext(), android.R.layout.simple_spinner_item, resources.toArray(new ProtocolResources[0]));
+		this.mAdapter = new ArrayAdapter<ProtocolResources>(activity.getApplicationContext(), android.R.layout.simple_spinner_item, resources.toArray(new ProtocolResources[resources.size()]));
 		this.mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		View view = inflater.inflate(R.layout.account_editor, group, false);

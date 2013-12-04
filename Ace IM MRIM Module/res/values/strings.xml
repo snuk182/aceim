@@ -52,4 +52,6 @@
     
     <string name="message">Message</string>
     <string name="ask_authorization_message_default">Hello, add me to your contact list</string>
+    
+    <string name="info">Mail.ru connectivity module for Ace IM. Homepage https://github.com/snuk182/aceim</string>
 </resources>

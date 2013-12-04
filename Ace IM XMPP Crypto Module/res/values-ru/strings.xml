@@ -1,7 +1,8 @@
 <resources>
 
     <string name="app_name">Модуль Ace IM XMPP с шифрованием</string>
-
+	<string name="info">Модуль XMPP (Jabber) с поддержкой шифрования для Ace IM. Домашняя страница https://github.com/snuk182/aceim</string>
+    
     <string name="jid">JID</string>
     <string name="password">Пароль</string>
     <string name="server_host">Сервер</string>

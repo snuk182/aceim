@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="version_X" formatted="false">Версия: %s</string>
+    <string name="api_version_X" formatted="false">Версия API: %s</string>
+    
     <string name="all_transfers">Все передачи</string>
     <string name="unsaved_data">Есть несохраненные данные</string>
     <string name="accept">Принять</string>
@@ -114,11 +117,7 @@
     <string name="blink_led">Мигать индикатором при новом сообщении</string>
 	<string name="sound_volume">Громкость уведомлений</string>
 	
-	<string name="enable_pgp">Включить шифрование PGP</string>
-	 <string name="my_pgp_key">Ключ PGP</string>
-    <string name="my_pgp_key_pw">Пароль ключа PGP</string>
-    <string name="securitize">Шифровать</string>
-	<string name="desecuritize">Не шифровать</string>
+	<string name="about">О программе</string>
 	
     <string name="dont_draw_smileys">Не отрисовывать смайлы</string>
     <string name="deny_messages_not_from_list">"Отклонять любые сообщения от контактов не из списка"</string>
@@ -188,7 +187,7 @@
     <string name="files">" файлов"</string>
     <string name="send_by_enter">"Отправлять Энтером"</string>
     <string name="send_my_location">"Отправить мое расположение"</string>
-    <string name="about_text">"\nАвтор: Сергей Плыгун. \nMailto:snuk182@rambler.ru. \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Отдельная благодарность сайту OpenClipArt.org и его участникам: Warszawianka (Tango project), nicubunu и другим.\nФункциональность XMPP/Jabber с помощью библиотеки Smack (igniterealtime.org)\n Реализация PGP c помощью Spongycastle Android."</string>
+    <string name="about_text">"\nАвтор: Сергей Плыгун.\nДомашняя страница https://github.com/snuk182/aceim \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Отдельная благодарность сайту OpenClipArt.org и его участникам: Warszawianka (Tango project), nicubunu и другим."</string>
     <string name="error_fill_uid">Пожалуйста, заполните поле UID</string>
     <string name="search_buddies">"Найти/Добавить..."</string>
     <string name="add_to_list">"Добавить"</string>

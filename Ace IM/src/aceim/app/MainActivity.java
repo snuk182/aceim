@@ -103,7 +103,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		public void run() {
 			try {
-				List<ProtocolResources> protocols = mCoreService.getAllProtocolResources();
+				List<ProtocolResources> protocols = mCoreService.getAllProtocolResources(false);
 				for (ProtocolResources r : protocols) {
 					mProtocolResources.put(r.getProtocolServicePackageName(), r);
 				}
@@ -220,6 +220,7 @@ public class MainActivity extends FragmentActivity {
 	protected void onDestroy() {
 		Logger.log("Destroy", LoggerLevel.VERBOSE);
 		super.onDestroy();
+		mSmileysManager.onExit();
 		saveInstanceState();
 		unbindService(mCoreServiceConnection);
 		AQUtility.cleanCacheAsync(this);
