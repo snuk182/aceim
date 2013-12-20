@@ -11,6 +11,7 @@ import aceim.api.dataentity.tkv.FileTKV;
 import aceim.api.dataentity.tkv.ListTKV;
 import aceim.api.dataentity.tkv.StringTKV;
 import aceim.api.dataentity.tkv.ToggleTKV;
+import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.AceImException;
@@ -123,7 +124,21 @@ public class AccountEditor extends Page implements IHasFilePicker {
 			final LinearLayout container = (LinearLayout) getView().findViewById(R.id.container);
 			boolean areMandatoryFieldsFilled = true;
 			
-			for (int i = 0; i < mOptions.size(); i++) {
+			ProtocolOption keyOption = mOptions.get(0);
+			
+			if (TextUtils.isEmpty(keyOption.getValue())) {
+				ViewUtils.showAlertToast(activity, android.R.drawable.ic_dialog_alert, R.string.unfilled_key_field, keyOption.getKey());
+				container.getChildAt(0).setBackgroundResource(R.drawable.criteria_bad);				
+				return;
+			}
+			
+			if (keyOption.getValue().indexOf(ApiConstants.GENERAL_DIVIDER) > -1) {
+				ViewUtils.showAlertToast(activity, android.R.drawable.ic_dialog_alert, R.string.key_field_contain_spaces, keyOption.getKey());
+				container.getChildAt(0).setBackgroundResource(R.drawable.criteria_bad);				
+				return;
+			}
+			
+			for (int i = 1; i < mOptions.size(); i++) {
 				ProtocolOption o = mOptions.get(i);
 				View v = container.getChildAt(i);
 				if (!checkValueMandatory(o, v)) {

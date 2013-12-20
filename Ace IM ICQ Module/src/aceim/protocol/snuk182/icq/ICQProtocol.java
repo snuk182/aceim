@@ -1,8 +1,5 @@
 package aceim.protocol.snuk182.icq;
 
-import java.util.Arrays;
-import java.util.List;
-
 import aceim.api.dataentity.ProtocolOption;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.service.ProtocolService;
@@ -26,8 +23,8 @@ public class ICQProtocol extends ProtocolService<ICQService> {
 	}
 
 	@Override
-	protected List<ProtocolOption> getProtocolOptions() {
-		return Arrays.asList(ResourceUtils.OPTIONS);
+	protected ProtocolOption[] getProtocolOptions() {
+		return ResourceUtils.OPTIONS;
 	}
 
 }

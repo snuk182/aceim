@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="mrim_status_icons">
-		<item>@drawable/mrim_online_big</item>
+		<item>@drawable/ic_online</item>
 		<item>@drawable/mrim_away_big</item>
 		<item>@drawable/mrim_undetermined_big</item>
 		<item>@drawable/mrim_free4chat_big</item>
 		<item>@drawable/mrim_invisible_big</item>
-		<item>@drawable/mrim_offline_big</item>
-		<item>@drawable/mrim_connecting_big</item>
 	</string-array>
 	
 	<string-array name="mrim_status_strings">

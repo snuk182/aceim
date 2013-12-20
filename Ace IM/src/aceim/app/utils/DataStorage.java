@@ -339,9 +339,14 @@ public final class DataStorage {
 			serializer.endTag(XML_NAMESPACE, TAG_GROUPS);
 			serializer.endTag(XML_NAMESPACE, TAG_ACCOUNT);
 			serializer.endDocument();
-
+			
 			if (saveHeaders) {
-				List<Account> accounts = getAccountHeaders();
+				List<Account> accounts;
+				try {
+					accounts = getAccountHeaders();
+				} catch (XmlPullParserException e) {
+					accounts = new ArrayList<Account>(1);
+				}
 
 				boolean found = false;
 				for (Account acco : accounts) {
@@ -357,7 +362,7 @@ public final class DataStorage {
 
 				saveAccountHeaders(accounts);
 			}
-			
+
 			Logger.log("Account saved " + account, LoggerLevel.VERBOSE);
 		} catch (Exception e) {
 			Logger.log(e);

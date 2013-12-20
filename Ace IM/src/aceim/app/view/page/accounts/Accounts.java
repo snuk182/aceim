@@ -28,7 +28,6 @@ public class Accounts extends Page implements IHasAccountList {
 	
 	public Accounts(List<Account> accounts) {
 		this.mAccounts = accounts;
-		this.setHasOptionsMenu(true);
 	}
 	
 	private final OnClickListener mGetAccountEditorClickListener = new OnClickListener() {

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="network_unavailable">Data network is unavailable, try to connect later</string>
+    <string name="unfilled_key_field">The key field (%s) cannot be empty</string>
+    <string name="key_field_contain_spaces">The key field (%s) cannot contain spaces</string>
+    
     <string name="version_X" formatted="false">Version: %s</string>
     <string name="api_version_X" formatted="false">API version: %s</string>
     

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="array_status_icons">
-        <item>@drawable/icq_online_big</item>
+        <item>@drawable/ic_online</item>
         <item>@drawable/icq_away_big</item>
         <item>@drawable/icq_na_big</item>
         <item>@drawable/icq_busy_big</item>
@@ -13,8 +13,6 @@
         <item>@drawable/icq_work_big</item>
         <item>@drawable/icq_home_big</item>
         <item>@drawable/icq_invisible_big</item>         
-        <item>@drawable/icq_offline_big</item>
-        <item>@drawable/icq_connecting_big</item>       
     </string-array>
     
     <string-array name="array_status_strings">

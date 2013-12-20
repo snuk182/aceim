@@ -1,8 +1,5 @@
 package aceim.protocol.snuk182.mrim;
 
-import java.util.Arrays;
-import java.util.List;
-
 import aceim.api.dataentity.ProtocolOption;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.service.ProtocolService;
@@ -27,8 +24,8 @@ public class MrimProtocol extends ProtocolService<MrimService> {
 	}
 
 	@Override
-	protected List<ProtocolOption> getProtocolOptions() {
-		return Arrays.asList(ResourceUtils.OPTIONS);
+	protected ProtocolOption[] getProtocolOptions() {
+		return ResourceUtils.OPTIONS;
 	}
 
 }

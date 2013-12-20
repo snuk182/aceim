@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.Buddy;
@@ -70,6 +71,7 @@ public final class ViewUtils {
 	private static final Class<? extends Page>[] ALLOWED_PAGES_FOR_STORING = new Class[] { Chat.class, History.class };
 
 	static final String BUDDYICON_FILEEXT = ".ico";
+	static final String BUDDYICONHASH_FILEEXT = ".hash";
 
 	@SuppressLint("DefaultLocale")
 	public static String humanReadableByteCount(long bytes, boolean si) {
@@ -182,19 +184,18 @@ public final class ViewUtils {
 	public static Drawable getAccountStatusIcon(Context context, Account account, ProtocolResources protocolResources) {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			int[] stIcons = ((ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)).getDrawables();
-
-			int ic;
+			
+			int ic = 0;
 			switch (account.getConnectionState()) {
 			case CONNECTED:
-				ic = stIcons[account.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS)];
-				break;
+				byte status = account.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1);
+				return getConnectedStatusIcon(protocolResources, status, context);
 			case CONNECTING:
 			case DISCONNECTING:
-				ic = stIcons[stIcons.length - 1];
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_CONNECTING, "drawable", protocolResources.getProtocolServicePackageName());				
 				break;
 			default:
-				ic = stIcons[stIcons.length - 2];
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());			
 				break;
 			}
 
@@ -204,16 +205,51 @@ public final class ViewUtils {
 			return null;
 		}
 	}
+	
+	private static Drawable getConnectedStatusIcon(ProtocolResources protocolResources, byte status, Context context) {
+		try {
+			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
+			
+			ListFeature statusFeature;
+			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null && status > -1) {
+				int[] stIcons = statusFeature.getDrawables();
+
+				return nRes.getDrawable(stIcons[status]);
+			} else {
+				int onlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_ONLINE, "drawable", protocolResources.getProtocolServicePackageName());
+				return nRes.getDrawable(onlineIcon);
+			}
+		} catch (Exception e) {
+			Logger.log(e);
+			return null;
+		}
+	}
+	
+	private static String getConnectedStatusName(ProtocolResources protocolResources, byte status, Context context) {
+		try {
+			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
+			
+			ListFeature statusFeature;
+			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null) {
+				int[] stNames = statusFeature.getNames();
+
+				return nRes.getString(stNames[status]);
+			} else {
+				return context.getString(R.string.online);
+			}
+		} catch (Exception e) {
+			Logger.log(e);
+			return null;
+		}
+	}
 
 	public static String getAccountStatusName(Context context, Account account, ProtocolResources protocolResources) {
 		try {
-			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			int[] stNames = ((ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)).getNames();
-
 			int ic;
 			switch (account.getConnectionState()) {
 			case CONNECTED:
-				return nRes.getString(stNames[account.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS)]);
+				byte status = account.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1);
+				return getConnectedStatusName(protocolResources, status, context);
 			case CONNECTING:
 				ic = R.string.connecting;
 				break;
@@ -251,14 +287,13 @@ public final class ViewUtils {
 	public static Drawable getBuddyStatusIcon(Context context, Buddy buddy, ProtocolResources protocolResources) {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			int[] stIcons = ((ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)).getDrawables();
-
 			byte status = buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1);
-
+			
 			if (status > -1) {
-				return nRes.getDrawable(stIcons[status]);
+				return getConnectedStatusIcon(protocolResources, status, context);
 			} else {
-				return nRes.getDrawable(stIcons[stIcons.length - 2]);
+				int offlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());
+				return nRes.getDrawable(offlineIcon);
 			}
 		} catch (Exception e) {
 			Logger.log(e);
@@ -307,13 +342,17 @@ public final class ViewUtils {
 			return res.getString(((ListFeature) resources.getFeature(ApiConstants.FEATURE_XSTATUS)).getNames()[value]);
 		} else {
 			value = info.getFeatures().getByte(ApiConstants.FEATURE_STATUS);
-			return res.getString(((ListFeature) resources.getFeature(ApiConstants.FEATURE_STATUS)).getNames()[value]);
+			return getConnectedStatusName(resources, value, context);
 		}
 	}
 
-	public static void storeImageFile(Context context, byte[] bytes, String filename, Runnable runOnFinish) {
-		FileAsyncSaver saver = new FileAsyncSaver(context, filename + BUDDYICON_FILEEXT, bytes, runOnFinish);
-		Executors.defaultThreadFactory().newThread(saver).start();
+	public static void storeImageFile(Context context, byte[] bytes, String filename, String hash, Runnable runOnFinish) {
+		FileAsyncSaver iconSaver = new FileAsyncSaver(context, filename + BUDDYICON_FILEEXT, bytes, runOnFinish);
+		Executors.defaultThreadFactory().newThread(iconSaver).start();
+		if (hash != null) {
+			FileAsyncSaver hashSaver = new FileAsyncSaver(context, filename + BUDDYICONHASH_FILEEXT, hash.getBytes(), runOnFinish);
+			Executors.defaultThreadFactory().newThread(hashSaver).start();
+		}
 	}
 
 	private static final class FileAsyncSaver implements Runnable {
@@ -554,6 +593,14 @@ public final class ViewUtils {
 	public static File getBitmapFile(Context context, String filename){
 		return new File(context.getFilesDir().getAbsolutePath() + File.separator + filename + BUDDYICON_FILEEXT);
 	}
+	
+	public static String getIconHash(Context context, String filename) {
+		try {
+			return new Scanner(new File(context.getFilesDir().getAbsolutePath() + File.separator + filename + BUDDYICONHASH_FILEEXT)).useDelimiter("\\A").next();
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	public static Bitmap getIcon(Context context, String filename) {
 		FileInputStream fis = null;
@@ -562,8 +609,7 @@ public final class ViewUtils {
 		} catch (Exception e) {
 		}
 
-		if (fis == null)
-			return null;
+		if (fis == null) return null;
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -625,7 +671,7 @@ public final class ViewUtils {
 				//.animation(android.R.anim.slide_in_left)
 				.memCache(true)
 				.fallback(R.drawable.dummy_icon)
-				//.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
+				.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
 				.file(file)
 				.url(file.getAbsolutePath());
 		aq.id(imageIcon).image(callback);		

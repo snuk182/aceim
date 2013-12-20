@@ -16,6 +16,7 @@ import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.AccountOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.utils.LinqRules.BuddyLinqRule;
 import aceim.app.utils.linq.KindaLinq;
 import aceim.app.utils.linq.KindaLinqRule;
 import android.content.SharedPreferences;
@@ -33,7 +34,7 @@ final class ContactListUpdater {
 	private final ContactListModelGroup chatsGroup;
 	private final ContactListModelGroup noGroup;
 
-	private final List<ContactListModelGroup> mContactListGroups = new ArrayList<ContactListModelGroup>();
+	private final List<ContactListModelGroup> mContactListGroups = Collections.synchronizedList(new ArrayList<ContactListModelGroup>());
 
 	private boolean showGroups = false;
 	private boolean showOffline = true;
@@ -72,7 +73,7 @@ final class ContactListUpdater {
 		return g;
 	}
 
-	public void onContactListUpdated(Account account, MainActivity activity) {
+	public synchronized void onContactListUpdated(Account account, MainActivity activity) {
 		SharedPreferences p = activity.getSharedPreferences(account.getAccountId(), 0);
 
 		showGroups = p.getBoolean(AccountOptionKeys.SHOW_GROUPS.name(), Boolean.parseBoolean(activity.getString(R.string.default_show_groups)));
@@ -191,13 +192,7 @@ final class ContactListUpdater {
 		// so create a spare group link for it
 		BuddyGroup idGroup = null;
 		for (BuddyGroup viewGroup : mContactListGroups) {
-			Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new KindaLinqRule<Buddy>() {
-
-				@Override
-				public boolean match(Buddy t) {
-					return buddy == t || buddy.getProtocolUid().equals(t.getProtocolUid());
-				}
-			}).first();
+			Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new BuddyLinqRule(buddy)).first();
 
 			if (old != null) {
 				

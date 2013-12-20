@@ -634,9 +634,9 @@ public class MainActivity extends FragmentActivity {
 					
 					switch (action) {
 					case MODIFIED:
-						for (Page page : pages) {
+						/*for (Page page : pages) {
 							mScreen.removePage(page);
-						}
+						}*/
 					case ADDED:
 						Page.getContactListPage(MainActivity.this, account);
 						break;

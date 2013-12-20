@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="network_unavailable">Нема доступу до інтернету, спробуйте пізніше</string>
+    <string name="unfilled_key_field">Поле ключа (%s) не може бути порожнім</string>
+    <string name="key_field_contain_spaces">Поле ключа (%s) не може містити пробіли</string>
+    
     <string name="version_X" formatted="false">Версія: %s</string>
     <string name="api_version_X" formatted="false">Версія API: %s</string>
     

@@ -36,6 +36,7 @@ import org.jivesoftware.smackx.bytestreams.ibb.provider.CloseIQProvider;
 import org.jivesoftware.smackx.bytestreams.ibb.provider.DataPacketProvider;
 import org.jivesoftware.smackx.bytestreams.ibb.provider.OpenIQProvider;
 import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
+import org.jivesoftware.smackx.entitycaps.EntityCapsManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
@@ -78,6 +79,7 @@ import aceim.api.utils.Logger.LoggerLevel;
 import aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils;
 import android.content.SharedPreferences.Editor;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 public class XMPPServiceInternal implements ConnectionListener {
 	
@@ -214,6 +216,9 @@ public class XMPPServiceInternal implements ConnectionListener {
 					
 					mServiceDiscoveryManager = new ServiceDiscoveryManager(connection);
 					ServiceDiscoveryManager.setIdentityName(getService().getContext().getString(R.string.app_name));
+					
+					EntityCapsManager capsManager = EntityCapsManager.getInstanceFor(connection);
+					capsManager.enableEntityCaps();
 					
 					Roster roster = connection.getRoster();
 					roster.setSubscriptionMode(SubscriptionMode.manual);
@@ -541,7 +546,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		case MODIFIED:
 			RosterEntry e = connection.getRoster().getEntry(buddy.getProtocolUid());
 			
-			if (!e.getName().equals(buddy.getName())) {
+			if (TextUtils.isEmpty(e.getName()) || !e.getName().equals(buddy.getName())) {
 				mRosterListener.renameBuddy(buddy);				
 			}
 			if (e.getGroups().size() < 1 || (e.getGroups().size() > 0 && !e.getGroups().iterator().next().getName().equals(buddy.getGroupId()))) {

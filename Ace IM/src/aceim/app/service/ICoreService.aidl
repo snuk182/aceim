@@ -73,13 +73,8 @@ interface ICoreService {
 	
 	void setFeature(String featureId, in OnlineInfo info);
 	void sendTyping(byte serviceId, String buddyUid);
-	void editBuddyVisibility(in Buddy buddy);
 	void editBuddy(in Buddy buddy);
-	void editMyVisibility(byte serviceId, byte visibility);
 	
-	void requestAvailableChatRooms(byte serviceId);
-	
-	void createChat(byte serviceId, String chatId, in List<Buddy> invitedBuddies);
 	void leaveChat(byte serviceId, String chatId);
 	void joinChat(byte serviceId, String chatId);
 	

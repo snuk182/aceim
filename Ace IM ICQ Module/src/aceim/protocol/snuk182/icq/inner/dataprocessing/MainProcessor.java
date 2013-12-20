@@ -90,7 +90,6 @@ public class MainProcessor extends AbstractFlapProcessor {
 			}
 			service.lastConnectionError = "multiple login";
 			service.getRunnableService().disconnect();
-			service.setOnlineInfo(null);
 			break;
 		}
 	}

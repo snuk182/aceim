@@ -53,7 +53,7 @@ public class PlainContactList extends ContactList {
 	public void onBuddyIcon(byte serviceId, String protocolUid){
 		Buddy b = mAccount.getBuddyByProtocolUid(protocolUid);
 		
-		if (b == null){
+		if (b == null || mListView == null){
 			return;
 		}
 		

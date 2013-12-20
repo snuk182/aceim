@@ -73,7 +73,7 @@ public final class JsonHistorySaver implements HistorySaver {
 					o = HistoryObject.fromMessage(message);
 				} catch (JSONException e) {
 					Logger.log(e);
-					o = new JSONObject();
+					return;
 				}
 				
 				byte[] buffer = getBytes(o.toString());
