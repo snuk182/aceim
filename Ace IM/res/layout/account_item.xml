@@ -16,7 +16,7 @@
 	    android:layout_alignBottom="@id/image_icon"
 	    android:padding="@dimen/default_padding"
 	    android:src="@android:drawable/ic_menu_delete"/>
-	<ToggleButton android:id="@+id/btn_disable"
+	<CheckBox android:id="@+id/btn_disable"
 	    android:layout_width="@dimen/top_bottom_bar_height"
         android:layout_height="@dimen/top_bottom_bar_height"
         android:layout_toLeftOf="@id/btn_delete"

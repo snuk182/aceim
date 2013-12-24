@@ -148,16 +148,35 @@ final class ContactListUpdater {
 			mContactListGroups.add(0, unreadGroup);
 		}
 
+		if (showOffline && mContactListGroups.size() > 0) {
+			int offlineGroupId = 0;
+			
+			for (;offlineGroupId < mContactListGroups.size(); offlineGroupId++) {
+				ContactListModelGroup g = mContactListGroups.get(offlineGroupId);
+				if (g == offlineGroup){
+					break;
+				}
+			}
+			
+			if (chatsGroup.getBuddyList().size() > 0) {
+				mContactListGroups.add(offlineGroupId, chatsGroup);
+			}
+
+			if (noGroup.getBuddyList().size() > 0) {
+				mContactListGroups.add(offlineGroupId, noGroup);
+			}
+		} else {
+			if (chatsGroup.getBuddyList().size() > 0) {
+				mContactListGroups.add(chatsGroup);
+			}
+
+			if (noGroup.getBuddyList().size() > 0) {
+				mContactListGroups.add(noGroup);
+			}
+		}
+		
 		if (notInListGroup.getBuddyList().size() > 0) {
 			mContactListGroups.add(notInListGroup);
-		}
-
-		if (chatsGroup.getBuddyList().size() > 0) {
-			mContactListGroups.add(chatsGroup);
-		}
-
-		if (noGroup.getBuddyList().size() > 0) {
-			mContactListGroups.add(noGroup);
 		}
 	}
 

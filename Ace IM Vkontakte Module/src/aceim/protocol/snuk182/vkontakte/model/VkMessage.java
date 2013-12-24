@@ -1,15 +1,16 @@
 package aceim.protocol.snuk182.vkontakte.model;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 import aceim.protocol.snuk182.vkontakte.model.LongPollResponse.LongPollResponseUpdate;
+import aceim.protocol.snuk182.vkontakte.model.VkMessageAttachment.VkMessageAttachmentType;
 
 
 public class VkMessage extends ApiObject {
@@ -28,29 +29,74 @@ public class VkMessage extends ApiObject {
 		long messageId = response.getId();
 		int flags = Integer.parseInt(response.getParams()[0]);
 		long partnerId = Long.parseLong(response.getParams()[1]);
-		long timestamp = Long.parseLong(response.getParams()[2]);
+		long timestamp = Long.parseLong(response.getParams()[2]) * 1000;
 		String subject = response.getParams()[3];
 		String text = response.getParams()[4];
 		
-		return new VkMessage(messageId, partnerId, flags, timestamp, subject, text, null);
+		if (text != null) {
+			text = text.replace("<br>", "\n");
+		}
+		
+		VkMessageAttachment[] attachments;
+		
+		try {
+			if (response.getParams().length > 5) {
+				String attachmentString = response.getParams()[5];
+				if (attachmentString.startsWith("[")) {
+					attachments = VkMessageAttachment.fromArray(new JSONArray(attachmentString));
+				} else if (attachmentString.startsWith("{")) {
+					attachments = new VkMessageAttachment[1];
+					attachments[0] = VkMessageAttachment.fromJSONObject(new JSONObject(attachmentString), 0);
+				} else {
+					Logger.log("Unknown attachment object: " + attachmentString, LoggerLevel.INFO);
+					attachments = new VkMessageAttachment[0];
+				}
+			} else {
+				attachments = new VkMessageAttachment[0];
+			}
+		} catch (JSONException e) {
+			Logger.log(e);
+			attachments = new VkMessageAttachment[0];
+		}
+		
+		return new VkMessage(messageId, partnerId, flags, timestamp, subject, text, attachments);
 	}
 
 	public VkMessage(long messageId, long partnerId, int flags, long timestamp, String subject, String text, VkMessageAttachment[] attachments) {
 		super();
 		this.messageId = messageId;
-		this.partnerId = partnerId;
 		this.flags = flags;
 		this.timestamp = timestamp;
 		this.subject = subject;
 		this.text = text;
 		this.attachments = attachments != null ? attachments : new VkMessageAttachment[0];
+		
+		for (VkMessageAttachment attachment: this.attachments) {
+			if (attachment.getType() == VkMessageAttachmentType.CHAT) {
+				partnerId -= 2000000000;
+			}
+		}
+		
+		this.partnerId = partnerId;		
+	}
+	
+	public VkMessage(JSONObject jo){
+		super(jo);
+		
+		this.messageId = jo.optLong("mid");
+		this.partnerId = jo.optLong("from_id");
+		this.flags = 0;
+		this.timestamp = jo.optLong("date") * 1000;
+		this.subject = null;
+		this.text = jo.optString("body");
+		this.attachments = new VkMessageAttachment[0];
 	}
 	
 	@Override
 	public String toString() {
 		JSONObject jo = new JSONObject();
 		try {
-			jo.put("message", text);
+			jo.put("message", text.replace("\n", "<br>"));
 			
 			if ((flags & 16) > 0) {
 				jo.put("chat_id", partnerId);

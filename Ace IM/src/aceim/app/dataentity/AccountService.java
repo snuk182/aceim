@@ -42,4 +42,8 @@ public class AccountService {
 		
 		connectionTimeoutAction = null;
 	}
+	
+	public boolean isUnderConnectionMonitoring() {
+		return connectionTimeoutAction != null;
+	}
 }

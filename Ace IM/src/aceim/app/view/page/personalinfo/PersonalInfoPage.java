@@ -11,6 +11,7 @@ import aceim.app.AceImException;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.service.ServiceUtils;
 import aceim.app.utils.DialogUtils;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
@@ -79,7 +80,10 @@ public class PersonalInfoPage extends Page {
 		
 		final String name = mInfo.getProperties().containsKey(PersonalInfo.INFO_NICK) ? mInfo.getProperties().getString(PersonalInfo.INFO_NICK) : mInfo.getProtocolUid();
 		
-		ViewUtils.fillIcon(R.id.icon, aq, buddy.getFilename(), getMainActivity());
+		if (buddy != null) {
+			ViewUtils.fillIcon(R.id.icon, aq, buddy.getFilename(), getMainActivity());
+		}
+		
 		aq.id(R.id.name).text(name);
 		aq.id(R.id.protocolUid).text(mInfo.getProtocolUid());
 		
@@ -88,8 +92,8 @@ public class PersonalInfoPage extends Page {
 		mRenameBtn.setVisibility(buddy == null ? View.GONE : View.VISIBLE);
 		mMoveBtn.setVisibility(mInfo.isMultichat() || buddy == null ? View.GONE : View.VISIBLE);
 		
-		mJoinBtn.setVisibility(!mInfo.isMultichat() || (buddy != null && buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1) ? View.GONE : View.VISIBLE);
-		mLeaveBtn.setVisibility(!mInfo.isMultichat() || buddy == null || (buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) ? View.GONE : View.VISIBLE);
+		mJoinBtn.setVisibility(mInfo.isMultichat() && (buddy == null || buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) ? View.VISIBLE : View.GONE);
+		mLeaveBtn.setVisibility(mInfo.isMultichat() && buddy != null && (buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1) ? View.VISIBLE : View.GONE);
 		
 		final Account a;
 		try {
@@ -161,6 +165,17 @@ public class PersonalInfoPage extends Page {
 			}
 		});
 		
+		mCopyAllBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String text = personalInfo2Text();
+				ServiceUtils.toClipboard(getMainActivity(), text, getTitle(getMainActivity()));
+				
+				ViewUtils.showInformationToast(getMainActivity(), android.R.drawable.ic_menu_agenda, R.string.copied_to_clipboard, null);
+			}
+		});
+		
 		/*MultiChatRoom chat = new MultiChatRoom(mInfo.getProtocolUid(), a.getProtocolUid(), a.getProtocolName(), mInfo.getServiceId());
 		chat.setName(mInfo.getProperties().getString(PersonalInfo.INFO_NICK));*/		
 		
@@ -218,6 +233,22 @@ public class PersonalInfoPage extends Page {
 		return view;
 	}
 	
+	private String personalInfo2Text() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(mInfo.getProtocolUid());
+		sb.append("\n\n");
+		
+		for (String property : mInfo.getProperties().keySet()) {
+			sb.append(property);
+			sb.append(": ");
+			sb.append(mInfo.getProperties().get(property));
+			sb.append("\n");
+		}
+		
+		return sb.toString();
+	}
+
 	/**
 	 * @return the mInfo
 	 */

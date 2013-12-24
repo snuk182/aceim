@@ -330,6 +330,10 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 					continue;
 				}
 				
+				if (!feature.isAvailableOffline() && mAccount.getConnectionState() != ConnectionState.CONNECTED) {
+					continue;
+				}
+				
 				int featureMenuId = feature.getFeatureId().hashCode();
 				MenuItem item = menu.add(0, featureMenuId, 1, feature.getFeatureName());
 				

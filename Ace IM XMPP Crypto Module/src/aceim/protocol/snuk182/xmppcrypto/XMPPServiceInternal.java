@@ -165,7 +165,9 @@ public class XMPPServiceInternal implements ConnectionListener {
 			}
 		}
 		
-		mMyOnlineInfo.merge(info);
+		if (info != null) {
+			mMyOnlineInfo.merge(info);
+		}
 		
 		Runnable r = new Runnable() {
 			

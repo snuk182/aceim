@@ -297,7 +297,7 @@ public final class DialogUtils {
 			}
 			
 			if (item.equals(mainActivity.getString(R.string.menu_value_delete_contact))) {
-				if (!buddyManagementAllowed) {
+				if (!(buddy instanceof MultiChatRoom) && !buddyManagementAllowed) {
 					continue;
 				}
 			}

@@ -63,12 +63,20 @@ public abstract class ApiObject {
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject jo = array.optJSONObject(i);
 				
-				if (jo != null) {
-					T object = cls.getConstructor(JSONObject.class).newInstance(jo);					
-					list.add(object);
-				} else {
-					Object o = array.get(i);
-					T object = cls.getConstructor(o.getClass()).newInstance(o);					
+				T object = null;
+				
+				try {
+					if (jo != null) {
+						object = cls.getConstructor(JSONObject.class).newInstance(jo);					
+					} else {
+						Object o = array.get(i);
+						object = cls.getConstructor(o.getClass()).newInstance(o);					
+					}
+				} catch (Exception e) {
+					Logger.log(e);
+				}
+				
+				if (object != null) {
 					list.add(object);
 				}
 			}

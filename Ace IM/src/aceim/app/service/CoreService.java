@@ -62,6 +62,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -332,6 +333,10 @@ public class CoreService extends Service {
 		for (Account account : accounts) {
 			if (account == null || account.getProtocolUid() == null) continue;
 			AccountService acs = initAccount(account);
+			
+			boolean disabled = getSharedPreferences(account.getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.DISABLED.name(), false);
+			account.setEnabled(!disabled);			
+			
 			mAccounts.add(acs);
 			// test(account);
 		}
@@ -367,7 +372,9 @@ public class CoreService extends Service {
 		mNotificator.setMessageSoundOnly(messageSoundOnly);
 
 		for (AccountService as : mAccounts) {
-			mNotificator.onAccountStateChanged(as);
+			if (as.getAccount().isEnabled()) {
+				mNotificator.onAccountStateChanged(as);
+			}
 		}
 	}
 
@@ -467,6 +474,12 @@ public class CoreService extends Service {
 				
 				mAccounts.set(account.getServiceId(), as);
 			}
+			
+			if (account.isEnabled()) {
+				mNotificator.onAccountStateChanged(mAccounts.get(account.getServiceId()));
+			} else {
+				mNotificator.removeAccountIcon(account);
+			}
 
 			mStorage.saveAccount(account, options, false);
 			
@@ -536,11 +549,7 @@ public class CoreService extends Service {
 		@Override
 		public void disconnect(byte serviceId) throws RemoteException {
 			Logger.log("UI requests disconnect " + serviceId, LoggerLevel.VERBOSE);
-			AccountService as = mAccounts.get(serviceId);
-			as.getAccount().setConnectionState(ConnectionState.DISCONNECTED);
-			as.getProtocolService().getProtocol().disconnect(serviceId);
-
-			mStorage.saveServiceState(mAccounts);
+			disconnectInternal(serviceId);
 		}
 
 		@Override
@@ -712,9 +721,7 @@ public class CoreService extends Service {
 			Account a = mAccounts.get(message.getServiceId()).getAccount();
 
 			Buddy b = a.getBuddyByBuddyId(buddy.getId());
-			// If we run CoreService in a different process, then buddy
-			// instances are different, so we need to update one within
-			// CoreService.
+			// If we run CoreService in a different process, then buddy instances are different, so we need to update one within CoreService.
 			if (b != buddy && b.getUnread() != buddy.getUnread()) {
 				b.setUnread(buddy.getUnread());
 			}
@@ -818,11 +825,6 @@ public class CoreService extends Service {
 				}
 			}
 		}
-
-		/*@Override
-		public void setUIVisible(boolean visible) throws RemoteException {
-			uiVisible = visible;
-		}*/
 	};
 
 	private ICoreProtocolCallback.Stub mProtocolCallback = new ICoreProtocolCallback.Stub() {
@@ -878,7 +880,7 @@ public class CoreService extends Service {
 		}
 
 		@Override
-		public void personalInfo(PersonalInfo info) throws RemoteException {
+		public void personalInfo(PersonalInfo info, boolean isShortInfo) throws RemoteException {
 			AccountService as = mAccounts.get(info.getServiceId());
 			
 			if (info.getProtocolUid().equals(as.getAccount().getProtocolUid())) {
@@ -891,19 +893,25 @@ public class CoreService extends Service {
 					}
 				}
 			} else {
+				//TODO use this somehow
+			}		
+			
+			if (!isShortInfo) {
 				if (mInterface != null) {
 					mInterface.onPersonalInfo(info);
 				}
-			}		
+			}
 		}
 
 		@Override
 		public void notification(byte serviceId, final String message) throws RemoteException {
+			Account a = mAccounts.get(serviceId).getAccount();
+			final Bitmap icon = ViewUtils.getIcon(getBaseContext(), a.getFilename());
 			mHandler.post(new Runnable() {
 				
 				@Override
 				public void run() {
-					ViewUtils.showInformationToast(getBaseContext(), null, R.string.simple_placeholder, message);
+					ViewUtils.showInformationToast(getBaseContext(), icon, R.string.simple_placeholder, message);
 				}
 			});
 		}
@@ -1053,6 +1061,10 @@ public class CoreService extends Service {
 				mStorage.saveServiceState(mAccounts);
 				
 				service.resetConnectionTimeout();
+			} else if (connState == ConnectionState.CONNECTING) {
+				if (!service.isUnderConnectionMonitoring()) {
+					service.setConnectionTimeoutAction(mScheduledExecutor.schedule(new ConnectionTimeoutTask(service), 120, TimeUnit.SECONDS));
+				}
 			}
 
 			if (mInterface != null) {
@@ -1112,33 +1124,62 @@ public class CoreService extends Service {
 			case ADDED:
 				textId = R.string.X_added;
 			case MODIFIED:
-			case JOINED:
-			case LEFT:
 				if (textId == 0) {
 					textId = R.string.X_modified;
 				}
-				
+			case JOINED:
 				if (oldBuddy != null) {
 					//account.removeBuddyByUid(newBuddy.getProtocolUid());
 					oldBuddy.merge(newBuddy);
 					newBuddy = oldBuddy;
 				} else {
 					account.addBuddyToList(newBuddy);
-					final int id = textId;
-					final String param1 = newBuddy.getSafeName();
-					mHandler.post(new Runnable() {
-						
-						@Override
-						public void run() {
-							ViewUtils.showInformationToast(getBaseContext(), ViewUtils.getIcon(getBaseContext(), account.getFilename()), id, param1);
+					if (textId != 0) {
+						final int id = textId;
+						final String param1 = newBuddy.getSafeName();
+						mHandler.post(new Runnable() {
+							
+							@Override
+							public void run() {
+								ViewUtils.showInformationToast(getBaseContext(), ViewUtils.getIcon(getBaseContext(), account.getFilename()), id, param1);
+							}
+						});
+					}
+				}
+				
+				if (newBuddy instanceof MultiChatRoom) {
+					MultiChatRoom mcr = (MultiChatRoom) newBuddy;
+					
+					for (BuddyGroup occupantsGroup : mcr.getOccupants()) {
+						for (Buddy occupant : occupantsGroup.getBuddyList()) {
+							if (occupant.getProtocolUid().equals(account.getProtocolUid())) {
+								occupant.getOnlineInfo().merge(account.getOnlineInfo());
+							} else {
+								Buddy b = account.getBuddyByProtocolUid(occupant.getProtocolUid());
+								if (b != null) {
+									occupant.merge(b);
+								}
+							}
 						}
-					});
+					}
 				}
 				
 				if (mInterface != null) {
 					mInterface.onBuddyStateChanged(newBuddy);
 				}
 				
+				break;
+			case LEFT:
+				if (oldBuddy != null) {
+					//account.removeBuddyByUid(newBuddy.getProtocolUid());
+					oldBuddy.merge(newBuddy);
+					newBuddy = oldBuddy;
+					newBuddy.getOnlineInfo().getFeatures().remove(ApiConstants.FEATURE_STATUS);
+					
+					if (mInterface != null) {
+						mInterface.onBuddyStateChanged(newBuddy);
+					}
+				}
 				break;
 			case DELETED:
 				if (oldBuddy != null) {
@@ -1225,6 +1266,27 @@ public class CoreService extends Service {
 		stopSelf();
 	}
 
+	private void disconnectInternal(byte serviceId) {
+		AccountService as = mAccounts.get(serviceId);
+		as.getAccount().setConnectionState(ConnectionState.DISCONNECTED);
+		
+		try {
+			as.getProtocolService().getProtocol().disconnect(serviceId);
+		} catch (Exception e) {
+			Logger.log(e);
+		}
+		
+		if (mInterface != null) {
+			try {
+				mInterface.onConnectionStateChanged(as.getAccount().getServiceId(), as.getAccount().getConnectionState(), -1);
+			} catch (RemoteException e) {
+				Logger.log(e);
+			}
+		}
+
+		mStorage.saveServiceState(mAccounts);
+	}
+
 	private void connectInternal(byte serviceId) {
 		AccountService as = mAccounts.get(serviceId);
 		
@@ -1234,7 +1296,13 @@ public class CoreService extends Service {
 		}
 		
 		if (!mConnectionListener.isNetworkAvailable()) {
-			ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_dialog_alert, R.string.network_unavailable, null);
+			mHandler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_dialog_alert, R.string.network_unavailable, null);					
+				}
+			});
 			return;
 		}
 
@@ -1256,17 +1324,9 @@ public class CoreService extends Service {
 	}
 
 	private void disconnectAllInternal(boolean doNotSave) {
-		for (AccountService as : mAccounts) {
-			Account a = as.getAccount();
-			a.setConnectionState(ConnectionState.DISCONNECTED);
-			
-			if (mInterface != null) {
-				try {
-					mInterface.onConnectionStateChanged(a.getServiceId(), a.getConnectionState(), -1);
-				} catch (RemoteException e) {
-					Logger.log(e);
-				}
-			}
+		
+		for (byte i=0; i<mAccounts.size(); i++) {
+			disconnectInternal(i);
 		}
 		
 		if (!doNotSave) {
@@ -1342,7 +1402,17 @@ public class CoreService extends Service {
 				mNotificator.onMessage(message, as.getAccount());
 			}
 		}
-
+		
+		if (buddy instanceof MultiChatRoom && buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
+			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
+			
+			try {
+				as.getProtocolService().getProtocol().joinChatRoom(message.getServiceId(), buddy.getProtocolUid(), loadIcons);
+			} catch (RemoteException e) {
+				Logger.log(e);
+			}
+		}
 	}
 
 	private Buddy buddyNotFromList(Message message, AccountService accountService) {

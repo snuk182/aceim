@@ -8,8 +8,8 @@
 		android:title="@string/account_options" android:orderInCategory="2"/>
 	<item android:id="@+id/menuitem_prefs" android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/general_options" android:orderInCategory="2"/>
-	<item android:id="@+id/menuitem_account_log" android:icon="@android:drawable/ic_menu_agenda"
-		android:title="@string/account_activity_log" android:orderInCategory="2"/>
+	<!-- <item android:id="@+id/menuitem_account_log" android:icon="@android:drawable/ic_menu_agenda"
+		android:title="@string/account_activity_log" android:orderInCategory="2"/> -->
 	<item android:id="@+id/menuitem_accounts" android:icon="@drawable/ic_menu_allfriends"
 		android:title="@string/manage_accounts" android:orderInCategory="2"/>
 	<item android:id="@+id/menuitem_about" android:icon="@android:drawable/ic_menu_info_details"

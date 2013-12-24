@@ -1,5 +1,6 @@
 <resources>
 
+    <string name="groupchats">Group chats</string>
     <string name="app_name">Ace IM Vkontakte Module</string>
     
 	<string name="username">Email or phone number</string>

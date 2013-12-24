@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileInfo;
 import aceim.api.dataentity.FileMessage;
@@ -582,6 +583,18 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		if (!hasMessagesOfBuddy(message.getServiceId(), message.getContactUid())) {
 			return;
 		}
+		
+		if (TextUtils.isEmpty(message.getContactDetail())) {
+			message.setContactDetail(mBuddy.getSafeName());
+		} else {
+			if (mBuddy instanceof MultiChatRoom) {
+				Buddy b = ((MultiChatRoom)mBuddy).findOccupantByUid(message.getContactDetail());
+				if (b != null) {
+					message.setContactDetail(b.getSafeName());
+				}
+			}
+		}
+		
 		mMessageAdapter.add(new ChatMessageHolder(message, message.getContactDetail() != null ? message.getContactDetail() : mBuddy.getSafeName()));
 		mScrollToEndRunnable.run();
 	}
@@ -645,21 +658,41 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 	@Override
 	public void onBuddyStateChanged(Buddy buddy) {
-		mBuddy.merge(buddy);
-		
-		//exit if UI is not yet initialized
-		if (mStatus == null) {
-			return;
+		if (mBuddy instanceof MultiChatRoom && !(buddy instanceof MultiChatRoom)) {
+			
+			boolean hasBuddy = false;
+			for (BuddyGroup occupantGroup : ((MultiChatRoom)mBuddy).getOccupants()) {
+				for (Buddy occupant : occupantGroup.getBuddyList()) {
+					occupant.merge(buddy);
+					hasBuddy = true;
+				}
+			}
+			
+			//exit if UI is not yet initialized
+			if (mStatus == null) {
+				return;
+			}
+			
+			if (hasBuddy) {
+				((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
+			}
+		} else if (buddy.getProtocolUid().equals(mBuddy.getProtocolUid())) {
+			mBuddy.merge(buddy);
+			
+			//exit if UI is not yet initialized
+			if (mStatus == null) {
+				return;
+			}
+			
+			ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, (View) mStatus.getParent(), mProtocolResources);
+			
+			if (mBuddy instanceof MultiChatRoom){
+				((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
+			}
+			
+			//If xstatus has changed to empty, we must ensure it won`t disappear with WRAP_CONTENT height
+			mXStatusText.getLayoutParams().height = getMainActivity().getResources().getDimensionPixelSize(R.dimen.chat_buddy_status_height);
 		}
-		
-		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, (View) mStatus.getParent(), mProtocolResources);
-		
-		if (mBuddy instanceof MultiChatRoom){
-			((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
-		}
-		
-		//If xstatus has changed to empty, we must ensure it won`t disappear with WRAP_CONTENT height
-		mXStatusText.getLayoutParams().height = getMainActivity().getResources().getDimensionPixelSize(R.dimen.chat_buddy_status_height);
 	}
 
 	@Override
@@ -799,7 +832,21 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 	@Override
 	public boolean hasThisBuddy(byte serviceId, String protocolUid) {
-		return serviceId == mBuddy.getServiceId() && protocolUid.equals(mBuddy.getProtocolUid());
+		boolean result = serviceId == mBuddy.getServiceId() && protocolUid.equals(mBuddy.getProtocolUid());
+		
+		exit:
+		if (!result && mBuddy instanceof MultiChatRoom) {
+			for (BuddyGroup occupantGroup : ((MultiChatRoom)mBuddy).getOccupants()) {
+				for (Buddy occupant : occupantGroup.getBuddyList()){
+					if (occupant.getServiceId() == serviceId && occupant.getProtocolUid().equals(protocolUid)) {
+						result = true;
+						break exit;
+					}
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 	@Override

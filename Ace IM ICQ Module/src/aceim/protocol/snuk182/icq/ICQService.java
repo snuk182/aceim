@@ -50,8 +50,13 @@ public class ICQService extends AccountService {
 	}
 
 	@Override
-	protected void timeoutDisconnect() {
+	protected void timeoutReconnect() {
 		internal.getRunnableService().disconnect();
+		try {
+			internal.connectInternal(true);
+		} catch (ICQException e) {
+			Logger.log(e);
+		}
 	}
 
 	@Override
@@ -373,20 +378,12 @@ public class ICQService extends AccountService {
 					break;
 				case ICQServiceResponse.RES_NOTIFICATION:
 					getCoreService().notification((String) args[0]);
-					/*
-					 * if (args.length > 1){ return
-					 * serviceResponse.respond(IAccountServiceResponse
-					 * .RES_NOTIFICATION, getServiceId(), args[0], args[1]); }
-					 * else { return
-					 * serviceResponse.respond(IAccountServiceResponse
-					 * .RES_NOTIFICATION, getServiceId(), args[0]); }
-					 */
 					break;
 				case ICQServiceResponse.RES_ACCOUNTUPDATED:
 					getCoreService().accountStateChanged(ICQEntityAdapter.icqOnlineInfo2OnlineInfo((ICQOnlineInfo) args[0], getProtocolUid(), getServiceId()));
 					break;
 				case ICQServiceResponse.RES_USERINFO:
-					getCoreService().personalInfo(ICQEntityAdapter.icqPersonalInfo2PersonalInfo((ICQPersonalInfo) args[0], getContext(), getServiceId()));
+					getCoreService().personalInfo(ICQEntityAdapter.icqPersonalInfo2PersonalInfo((ICQPersonalInfo) args[0], getContext(), getServiceId()), !((Boolean)args[1]));
 					break;
 				case ICQServiceResponse.RES_AUTHREQUEST:
 					getCoreService().message(ICQEntityAdapter.authRequestToServiceMessage(getServiceId(), (String) args[0], (String) args[1], getContext()));

@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class PersonalInfoEngine {
 	private static final String CODEPAGE_WIN1251 = "Cp1251";
 	private static final DateFormat dateformat = DateFormat.getDateInstance();
 
-	public final Map<Byte, String> metaInfoRequestMap = new HashMap<Byte, String>();
+	public final Map<Byte, String> metaInfoRequestMap = Collections.synchronizedMap(new HashMap<Byte, String>());
+	private final Map<String, Boolean> fullRequestMap = Collections.synchronizedMap(new HashMap<String, Boolean>());
 	
 	private ICQServiceInternal service;
 	
@@ -67,7 +69,8 @@ public class PersonalInfoEngine {
 			break;
 		}
 		if (last){
-			service.getServiceResponse().respond(ICQServiceResponse.RES_USERINFO, recentInfo);
+			boolean isFull = fullRequestMap.remove(recentInfo.uin);
+			service.getServiceResponse().respond(ICQServiceResponse.RES_USERINFO, recentInfo, isFull);
 		}
 	}
 
@@ -776,8 +779,13 @@ public class PersonalInfoEngine {
 	}
 	
 	public void getShortPersonalMetainfo(String uin) {
+		getPersonalMetaInfoInternal(uin, false);
+	}
+	
+	private void getPersonalMetaInfoInternal(String uin, boolean isFull) {
 		recentInfo = new ICQPersonalInfo();
-		service.getRunnableService().sendToSocket(getMetaInfoRequestFlap(uin, false));
+		fullRequestMap.put(uin, isFull);
+		service.getRunnableService().sendToSocket(getMetaInfoRequestFlap(uin, isFull));
 	}
 	
 	private Flap getMetaInfoRequestFlap(String uin, boolean isFull){
@@ -854,7 +862,6 @@ public class PersonalInfoEngine {
 	}
 
 	public void getFullPersonalMetainfo(String uin) {
-		recentInfo = new ICQPersonalInfo();
-		service.getRunnableService().sendToSocket(getMetaInfoRequestFlap(uin, true));
+		getPersonalMetaInfoInternal(uin, true);
 	}
 }

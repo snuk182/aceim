@@ -689,13 +689,7 @@ public class ICQServiceInternal {
 
 			onlineInfo = (ICQOnlineInfo) args[4];
 
-			processor = new AuthenticationProcessor();
-			processor.init(this);
-			((AuthenticationProcessor) processor).isSecureLogin = (Boolean) args[5];
-
-			setCurrentState(STATE_CONNECTING_LOGIN);
-			serviceResponse.respond(ICQServiceResponse.RES_CONNECTING, 1);
-			runService(loginHost, loginPort);
+			connectInternal((Boolean)args[5]);
 			break;
 		case REQ_GETCONTACTLIST:
 			break;
@@ -822,6 +816,16 @@ public class ICQServiceInternal {
 			break;
 		}
 		return null;
+	}
+
+	public void connectInternal(boolean isSecureLogin) throws ICQException {
+		processor = new AuthenticationProcessor();
+		processor.init(this);
+		((AuthenticationProcessor) processor).isSecureLogin = isSecureLogin;
+
+		setCurrentState(STATE_CONNECTING_LOGIN);
+		serviceResponse.respond(ICQServiceResponse.RES_CONNECTING, 1);
+		runService(loginHost, loginPort);
 	}
 
 	private void moveBuddy(ICQBuddy newBuddy) {

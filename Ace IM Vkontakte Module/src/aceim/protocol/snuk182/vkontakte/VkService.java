@@ -9,6 +9,7 @@ import aceim.api.dataentity.Message;
 import aceim.api.dataentity.OnlineInfo;
 import aceim.api.service.AccountService;
 import aceim.api.service.ICoreProtocolCallback;
+import aceim.protocol.snuk182.vkontakte.internal.VkApiConstants;
 import aceim.protocol.snuk182.vkontakte.internal.VkServiceInternal;
 import android.content.Context;
 import android.os.Bundle;
@@ -58,7 +59,7 @@ public class VkService extends AccountService {
 	protected void keepaliveRequest() {}
 
 	@Override
-	protected void timeoutDisconnect() {}
+	protected void timeoutReconnect() {}
 
 	private final IProtocol protocol = new IProtocol() {
 		
@@ -66,10 +67,16 @@ public class VkService extends AccountService {
 		public void uploadAccountPhoto(String arg0) {}
 		
 		@Override
-		public void setFeature(String arg0, OnlineInfo arg1) {}
+		public void setFeature(String featureId, OnlineInfo arg1) {
+			if (featureId.equals(VkApiConstants.FEATURE_GROUPCHATS)) {
+				internal.requestAvailableGroupchats();
+			}
+		}
 		
 		@Override
-		public void sendTypingNotification(String arg0) {}
+		public void sendTypingNotification(String arg0) {
+			internal.typingNotification(arg0);
+		}
 		
 		@Override
 		public long sendMessage(Message arg0) { 
@@ -91,10 +98,14 @@ public class VkService extends AccountService {
 		public void messageResponse(Message arg0, boolean arg1) {}
 		
 		@Override
-		public void leaveChatRoom(String arg0) {}
+		public void leaveChatRoom(String chatId) {
+			internal.leaveChat(chatId);
+		}
 		
 		@Override
-		public void joinChatRoom(String arg0, boolean arg1) {}
+		public void joinChatRoom(String chatId, boolean loadIcons) {
+			internal.joinChat(chatId, loadIcons);
+		}
 		
 		@Override
 		public void getChatRooms() {}

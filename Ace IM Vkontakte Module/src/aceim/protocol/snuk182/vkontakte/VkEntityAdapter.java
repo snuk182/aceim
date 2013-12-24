@@ -1,6 +1,7 @@
 package aceim.protocol.snuk182.vkontakte;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +13,18 @@ import org.apache.http.message.BasicNameValuePair;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.Message;
+import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.dataentity.OnlineInfo;
+import aceim.api.dataentity.PersonalInfo;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.service.ApiConstants;
 import aceim.protocol.snuk182.vkontakte.model.VkBuddy;
 import aceim.protocol.snuk182.vkontakte.model.VkBuddyGroup;
+import aceim.protocol.snuk182.vkontakte.model.VkChat;
 import aceim.protocol.snuk182.vkontakte.model.VkMessage;
 import aceim.protocol.snuk182.vkontakte.model.VkMessageAttachment;
 import aceim.protocol.snuk182.vkontakte.model.VkOnlineInfo;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 public final class VkEntityAdapter {
@@ -38,7 +43,7 @@ public final class VkEntityAdapter {
 		return pairs;
 	}
 
-	public static List<BuddyGroup> vkBuddiesAndGroups2BuddyList(List<VkBuddy> buddies, List<VkBuddyGroup> groups, List<VkOnlineInfo> onlineInfos, String ownerUid, Byte serviceId) {
+	public static List<BuddyGroup> vkBuddiesAndGroups2BuddyList(List<VkBuddy> buddies, List<VkBuddyGroup> groups, List<VkOnlineInfo> onlineInfos, long myId, String ownerUid, Byte serviceId) {
 		if (buddies == null) {
 			return null;
 		}
@@ -52,7 +57,7 @@ public final class VkEntityAdapter {
 		}
 		
 		for (VkBuddy vkb : buddies) {
-			Buddy b = vkBuddy2Buddy(vkb, ownerUid, serviceId);
+			Buddy b = vkBuddy2Buddy(vkb, myId, ownerUid, serviceId);
 			
 			for (VkOnlineInfo vki : onlineInfos) {
 				if (vki.getUid() == vkb.getUid()) {
@@ -75,28 +80,32 @@ public final class VkEntityAdapter {
 		return Collections.unmodifiableList(new ArrayList<BuddyGroup>(result.values()));
 	}
 
-	public static Buddy vkBuddy2Buddy(VkBuddy vkb, String ownerUid, Byte serviceId) {
+	public static Buddy vkBuddy2Buddy(VkBuddy vkb, long myId, String ownerUid, Byte serviceId) {
 		if (vkb == null) {
 			return null;
 		}
 		
-		Buddy b = new Buddy(Long.toString(vkb.getUid()), ownerUid, VkConstants.PROTOCOL_NAME, serviceId);
+		Buddy b = new Buddy(vkb.getUid() != myId ? Long.toString(vkb.getUid()) : ownerUid, ownerUid, VkConstants.PROTOCOL_NAME, serviceId);
 		
 		long groupId = vkb.getGroupId();
 		b.setGroupId(groupId != 0 ? Long.toString(groupId) : ApiConstants.NO_GROUP_ID);
 		
+		b.setName(getNickOfVkBuddy(vkb));
+		
+		return b;
+	}
+
+	private static String getNickOfVkBuddy(VkBuddy vkb) {
 		String nick = vkb.getNickName();
 		
 		if (TextUtils.isEmpty(nick)) {
 			String fn = vkb.getFirstName();
 			String ln = vkb.getLastName();
 			
-			b.setName((TextUtils.isEmpty(fn) ? "" : fn) + " " + (TextUtils.isEmpty(ln) ? "" : ln));
+			return (TextUtils.isEmpty(fn) ? "" : fn) + " " + (TextUtils.isEmpty(ln) ? "" : ln);
 		} else {
-			b.setName(nick);
+			return nick;
 		}
-		
-		return b;
 	}
 
 	public static BuddyGroup vkBuddyGroup2BuddyGroup(VkBuddyGroup vkb, String ownerUid, Byte serviceId) {
@@ -141,5 +150,94 @@ public final class VkEntityAdapter {
 	public static VkMessage textMessage2VkMessage(TextMessage message, boolean isChat) {		
 		VkMessage vkm = new VkMessage(0, Long.parseLong(message.getContactUid()), isChat ? 16 : 0, System.currentTimeMillis(), null, message.getText(), null);
 		return vkm;
+	}
+
+	public static PersonalInfo vkBuddy2PersonalInfo(VkBuddy vkb, byte serviceId, String ownerUid) {
+		if (vkb == null) return null;
+		
+		PersonalInfo info = new PersonalInfo(serviceId);
+		info.setProtocolUid(ownerUid != null ? ownerUid : Long.toString(vkb.getUid()));
+
+		Bundle bundle = new Bundle();
+		bundle.putString(PersonalInfo.INFO_NICK, getNickOfVkBuddy(vkb));
+		bundle.putString(PersonalInfo.INFO_FIRST_NAME, vkb.getFirstName());
+		bundle.putString(PersonalInfo.INFO_LAST_NAME, vkb.getLastName());
+		info.setProperties(bundle);
+		
+		return info;
+	}
+
+	public static List<PersonalInfo> vkChats2PersonalInfoList(List<VkChat> chats, byte serviceId) {
+		if (chats == null) return null;
+		
+		List<PersonalInfo> pinfoList = new ArrayList<PersonalInfo>(chats.size());
+		for (VkChat vkChat : chats) {
+			PersonalInfo pinfo = vkChat2PersonalInfo(vkChat, serviceId);
+			if (pinfo != null) {
+				pinfoList.add(pinfo);
+			}
+		}
+		
+		return pinfoList;
+	}
+
+	private static PersonalInfo vkChat2PersonalInfo(VkChat vkChat, byte serviceId) {
+		if (vkChat == null) return null;
+		
+		PersonalInfo pinfo = new PersonalInfo(serviceId);
+		pinfo.setProtocolUid(Long.toString(vkChat.getId()));
+		pinfo.setMultichat(true);
+		pinfo.getProperties().putString(PersonalInfo.INFO_NICK, vkChat.getTitle());
+		
+		return pinfo;
+	}
+
+	public static MultiChatRoom vkChat2MultiChatRoom(VkChat vkChat, String ownerUid, byte serviceId) {
+		if (vkChat == null) return null;
+		
+		MultiChatRoom chat = new MultiChatRoom(Long.toString(vkChat.getId()), ownerUid, VkConstants.PROTOCOL_NAME, serviceId);
+		chat.setName(vkChat.getTitle());
+		
+		return chat;
+	}
+
+	public static List<BuddyGroup> vkChatOccupants2ChatOccupants(VkChat vkChat, List<VkBuddy> occupants, long myId, String ownerUid, Byte serviceId) {
+		if (occupants == null) return null;
+		
+		BuddyGroup moderators = new BuddyGroup(Integer.toString(1), ownerUid, serviceId);
+		BuddyGroup all = new BuddyGroup(Integer.toString(0), ownerUid, serviceId);
+		moderators.setName("Moderators");
+		all.setName("All");
+		
+		for (VkBuddy vkBuddy : occupants) {
+			Buddy buddy = vkBuddy2Buddy(vkBuddy, myId, ownerUid, serviceId);
+			if (vkBuddy.getUid() == vkChat.getAdminId()) {
+				moderators.getBuddyList().add(buddy);
+			} else {
+				all.getBuddyList().add(buddy);
+			}
+		}		
+		
+		return Arrays.asList(moderators, all);
+	}
+
+	public static Message vkChatMessage2Message(long chatId, VkMessage vkm, byte serviceId) {
+		if (vkm == null) return null;
+		
+		//TODO support for other message types
+		TextMessage tm = new TextMessage(serviceId, Long.toString(chatId));
+		tm.setContactDetail(Long.toString(vkm.getPartnerId()));
+		tm.setTime(vkm.getTimestamp());
+		tm.setIncoming(true);
+		tm.setMessageId(vkm.getMessageId());
+		tm.setText(vkm.getText());
+		
+		for (VkMessageAttachment attachment : vkm.getAttachments()) {
+			if (attachment.getAuthorId() != 0) {
+				tm.setContactDetail(Long.toString(attachment.getAuthorId()));
+			}			
+		}
+		
+		return tm;
 	}
 }

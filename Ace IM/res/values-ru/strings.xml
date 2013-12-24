@@ -101,8 +101,8 @@
     
     <string name="notinlist_save">"Сохранять группу 'Не в списке'"</string>
     <string name="name">Имя</string>
-    <string name="this_account_to_be_enabled" formatted="false">"Включить учетную запись %s?"</string>
-    <string name="this_account_to_be_disabled" formatted="false">"Выключить учетную запись %s?"</string>
+    <string name="this_account_to_be_enabled" formatted="false">"Включить учетную запись '%s'?"</string>
+    <string name="this_account_to_be_disabled" formatted="false">"Выключить учетную запись '%s'?"</string>
     <string name="copy_all">Копировать всё</string>
     <string name="personal_info_X">Персональные данные - %s</string>
     <string name="male">Мужской</string>

@@ -13,6 +13,7 @@ public class BottomBarButton extends ImageButton {
 		int padding = context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_items_spacing);
 		setPadding(0, 0, 0, padding);
 		setScaleType(ScaleType.CENTER);
+		setBackgroundResource(android.R.drawable.menuitem_background);
 		//setAdjustViewBounds(true);
 	}
 

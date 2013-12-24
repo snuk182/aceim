@@ -126,7 +126,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 			
 			ProtocolOption keyOption = mOptions.get(0);
 			
-			if (TextUtils.isEmpty(keyOption.getValue())) {
+			if (TextUtils.isEmpty(keyOption.getValue()) || keyOption.getValue().trim().length() < 1) {
 				ViewUtils.showAlertToast(activity, android.R.drawable.ic_dialog_alert, R.string.unfilled_key_field, keyOption.getKey());
 				container.getChildAt(0).setBackgroundResource(R.drawable.criteria_bad);				
 				return;

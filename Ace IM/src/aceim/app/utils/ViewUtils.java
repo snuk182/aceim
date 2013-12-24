@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.ListFeature;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.OnlineInfo;
@@ -230,7 +231,7 @@ public final class ViewUtils {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
 			
 			ListFeature statusFeature;
-			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null) {
+			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null && status > -1) {
 				int[] stNames = statusFeature.getNames();
 
 				return nRes.getString(stNames[status]);
@@ -320,7 +321,7 @@ public final class ViewUtils {
 		return intent;
 	}
 
-	public static String getFormattedXStatus(OnlineInfo info, Context context, ProtocolResources resources) {
+	public static String getFormattedXStatus(OnlineInfo info, ConnectionState connectionState, Context context, ProtocolResources resources) {
 		Resources res;
 		try {
 			res = resources.getNativeResourcesForProtocol(context.getPackageManager());
@@ -331,7 +332,11 @@ public final class ViewUtils {
 
 		byte value = -1;
 		if (info.getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
-			return context.getString(R.string.offline);
+			if (connectionState != null && connectionState == ConnectionState.CONNECTED) {
+				return context.getString(R.string.online);
+			} else {
+				return context.getString(R.string.offline);
+			}
 		} else if (!TextUtils.isEmpty(info.getXstatusName()) || !TextUtils.isEmpty(info.getXstatusDescription())) {
 			if (!TextUtils.isEmpty(info.getXstatusName()) && !TextUtils.isEmpty(info.getXstatusDescription())) {
 				return context.getResources().getString(R.string.xstatus_text_format, info.getXstatusName(), info.getXstatusDescription());
@@ -449,7 +454,7 @@ public final class ViewUtils {
 		
 		fillIcon(R.id.image_icon, aq, buddy.getFilename(), context);
 		aq.id(R.id.image_status).image(getBuddyStatusIcon(context, buddy, protocolResources));
-		aq.id(R.id.label_xstatus).text(getFormattedXStatus(buddy.getOnlineInfo(), context, protocolResources));
+		aq.id(R.id.label_xstatus).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
 		
 		Resources res;
 		try {
@@ -503,7 +508,7 @@ public final class ViewUtils {
 		
 		fillIcon(R.id.image_icon, aq, account.getFilename(), context);
 		aq.id(R.id.image_status).image(getAccountStatusIcon(context, account, protocolResources));
-		aq.id(R.id.label_xstatus).text(getFormattedXStatus(account.getOnlineInfo(), context, protocolResources));		
+		aq.id(R.id.label_xstatus).text(getFormattedXStatus(account.getOnlineInfo(), account.getConnectionState(), context, protocolResources));		
 
 		Resources res;
 		try {
@@ -550,6 +555,7 @@ public final class ViewUtils {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void setWallpaperMode(Activity activity, View target) {
 		boolean forceDrawWallpaper = activity.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0).getBoolean(GlobalOptionKeys.FORCE_DRAW_WALLPAPER.name(),
 				Boolean.parseBoolean(activity.getString(R.string.default_force_draw_wallpaper)));
@@ -665,16 +671,20 @@ public final class ViewUtils {
 	}
 
 	public static void fillIcon(int imageIcon, AQuery aq, String filename, Context context) {
-		BitmapAjaxCallback callback = new BitmapAjaxCallback();
-		File file = getBitmapFile(context, filename);
-		callback
-				//.animation(android.R.anim.slide_in_left)
-				.memCache(true)
-				.fallback(R.drawable.dummy_icon)
-				.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
-				.file(file)
-				.url(file.getAbsolutePath());
-		aq.id(imageIcon).image(callback);		
+		String hash = getIconHash(context, filename);
+		
+		if (TextUtils.isEmpty(hash) || !hash.equals(aq.id(imageIcon).getTag())) {
+			BitmapAjaxCallback callback = new BitmapAjaxCallback();
+			File file = getBitmapFile(context, filename);
+			callback
+					//.animation(android.R.anim.slide_in_left)
+					.memCache(true)
+					.fallback(R.drawable.dummy_icon)
+					.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
+					.file(file)
+					.url(file.getAbsolutePath());
+			aq.id(imageIcon).image(callback).tag(hash);		
+		}
 	}
 
 	public static List<ChatMessageHolder> wrapMessages(Buddy buddy, Account account, List<Message> messages) {

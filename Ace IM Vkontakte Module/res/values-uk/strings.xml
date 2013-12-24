@@ -1,5 +1,6 @@
 <resources>
 
+    <string name="groupchats">Чати</string>
     <string name="app_name">Модуль ВКонтакте для Ace IM</string>
 	<string name="username">ID користувача</string>
 	<string name="auth_server_url">Сервер OAuth</string>

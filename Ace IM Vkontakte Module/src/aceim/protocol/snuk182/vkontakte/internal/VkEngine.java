@@ -27,6 +27,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,9 +42,11 @@ import aceim.protocol.snuk182.vkontakte.model.LongPollResponse.LongPollResponseU
 import aceim.protocol.snuk182.vkontakte.model.LongPollServer;
 import aceim.protocol.snuk182.vkontakte.model.VkBuddy;
 import aceim.protocol.snuk182.vkontakte.model.VkBuddyGroup;
+import aceim.protocol.snuk182.vkontakte.model.VkChat;
 import aceim.protocol.snuk182.vkontakte.model.VkMessage;
 import aceim.protocol.snuk182.vkontakte.model.VkOnlineInfo;
 import android.net.Uri;
+import android.text.TextUtils;
 
 final class VkEngine {
 
@@ -66,6 +69,58 @@ final class VkEngine {
 		this.accessToken = accessToken;
 		this.internalUserId = internalUserId;
 	}
+	
+
+	void sendTypingNotifications(String uid, boolean isChat) throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(isChat ? "chat_id" : "uid", uid);
+		params.put("type", "typing");
+
+		doGetRequest("messages.setActivity", accessToken, params);		
+	}
+	
+	List<VkChat> getGroupChats() throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("count", "200");
+
+		String result = doGetRequest("messages.getDialogs", accessToken, params);
+		
+		try {
+			JSONArray array = new JSONObject(result).getJSONArray("response");
+			
+			List<String> chats = new ArrayList<String>();
+			for (int i=0; i<array.length(); i++) {
+				JSONObject jo = array.optJSONObject(i);
+				
+				String chatId = null;
+				if (jo != null && !TextUtils.isEmpty((chatId = jo.optString("chat_id")))) {
+					chats.add(chatId);
+				}
+			}
+			
+			List<VkChat> vkchats = new ArrayList<VkChat>(chats.size());
+			for (String chatId : chats) {
+				params.clear();
+				params.put("chat_id", chatId);
+				
+				result = doGetRequest("messages.getChat", accessToken, params);
+				
+				try {
+					VkChat chat = new VkChat(new JSONObject(result));
+					
+					if (chat.getUsers().length > 2) {
+						vkchats.add(chat);
+					}
+				} catch (JSONException e) {
+					Logger.log(e);
+				}
+			}
+			
+			return vkchats;
+		} catch (JSONException e) {
+			throw new RequestFailedException(e);
+		}
+	}
 
 	List<VkOnlineInfo> getOnlineBuddies() throws RequestFailedException {
 		String result = doGetRequest("friends.getOnline", accessToken, null);
@@ -80,11 +135,21 @@ final class VkEngine {
 
 	List<VkBuddy> getBuddyList() throws RequestFailedException {
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("fields", "first_name,last_name,nickname,photo,lid");
+		params.put("fields", "first_name,last_name,nickname,photo_big,lid");
 
 		String result = doGetRequest("friends.get", accessToken, params);
 
 		return ApiObject.parseArray(result, VkBuddy.class);
+	}
+	
+	VkBuddy getMyInfo() throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("uids", internalUserId);
+		params.put("fields", "first_name,last_name,nickname,photo_big");
+
+		String result = doGetRequest("users.get", accessToken, params);
+		
+		return ApiObject.parseArray(result, VkBuddy.class).get(0);
 	}
 
 	void connectLongPoll(int pollWaitTime, LongPollCallback callback) throws RequestFailedException {
@@ -96,6 +161,47 @@ final class VkEngine {
 		} catch (JSONException e) {
 			Logger.log(e);
 		}
+	}
+	
+
+	List<VkBuddy> getUsersByIdList(long[] users) throws RequestFailedException {
+		if (users == null) return null;
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i=0; i<users.length; i++) {
+			long userId = users[i];
+			sb.append(userId);
+			if (i < (users.length - 1)) {
+				sb.append(",");
+			}
+		}
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("uids", sb.toString());
+		params.put("fields", "first_name,last_name,nickname,photo_big");
+
+		String result = doGetRequest("users.get", accessToken, params);
+		
+		return ApiObject.parseArray(result, VkBuddy.class);
+	}
+	
+	VkChat getChatById(String chatId) throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("chat_id", chatId);
+		
+		String result = doGetRequest("messages.getChat", accessToken, params);
+		return new VkChat(result);
+	}	
+
+	List<VkMessage> getLastChatMessages(String id, boolean isChat) throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(isChat ? "chat_id" : "uid", id);
+		params.put("count", "3");
+		params.put("rev", "1");		
+		
+		String result = doGetRequest("messages.getHistory", accessToken, params);
+		return ApiObject.parseArray(result, VkMessage.class);
 	}
 
 	private LongPollServer getLongPollServer() throws JSONException, RequestFailedException {

@@ -365,9 +365,7 @@ public final class MrimServiceInternal {
 			onlineInfo.xstatusName = (String) args[6]!=null ? (String) args[6] : "";
 			onlineInfo.xstatusText = (String) args[7]!=null ? (String) args[7] : "";
 			
-			setCurrentState(STATE_CONNECTING_LOGIN);
-			serviceResponse.respond(MrimServiceResponse.RES_CONNECTING, 1);
-			runService(loginHost, loginPort);			
+			connectInternal();		
 			break;
 		case REQ_DISCONNECT:
 			log("disconnect direct request");
@@ -415,6 +413,12 @@ public final class MrimServiceInternal {
 			break;
 		}
 		return null;
+	}
+
+	public void connectInternal() {
+		setCurrentState(STATE_CONNECTING_LOGIN);
+		serviceResponse.respond(MrimServiceResponse.RES_CONNECTING, 1);
+		runService(loginHost, loginPort);	
 	}
 
 	public FileTransferEngine getFileTransferEngine() {

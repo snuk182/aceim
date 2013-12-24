@@ -1,5 +1,6 @@
 package aceim.protocol.snuk182.vkontakte;
 
+import aceim.api.dataentity.ActionFeature;
 import aceim.api.dataentity.ListFeature;
 import aceim.api.dataentity.ProtocolOption;
 import aceim.api.dataentity.ProtocolOption.ProtocolOptionType;
@@ -10,6 +11,7 @@ import aceim.api.service.ProtocolService;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.api.utils.Utils;
+import aceim.protocol.snuk182.vkontakte.internal.VkApiConstants;
 import android.content.Intent;
 
 
@@ -34,6 +36,12 @@ public class VkProtocol extends ProtocolService<VkService> {
 						Utils.fillResources(getBaseContext().getResources(), R.array.status_icons),
 						false,
 						new ProtocolServiceFeatureTarget[]{ProtocolServiceFeatureTarget.ACCOUNT}),
+				new ActionFeature(VkApiConstants.FEATURE_GROUPCHATS,
+						getBaseContext().getString(R.string.groupchats),
+						R.drawable.ic_menu_allfriends,
+						false,
+						false,
+						new ProtocolServiceFeatureTarget[]{ProtocolServiceFeatureTarget.ACCOUNT})
 				
 		};
 	}

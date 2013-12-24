@@ -248,9 +248,9 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			
 			Drawable value = sSmileys.get(key);
 			
-			int smileySize = (int) (view.getTextSize() + sSmileyBound);
-			int height = (int) ((value.getIntrinsicHeight() + 0.0f)/value.getIntrinsicWidth() * smileySize);			
-			value.setBounds(0, 0, smileySize, height);
+			int height = (int) (view.getTextSize() + sSmileyBound);
+			int width = (int) ((value.getIntrinsicWidth() + 0.0f)/value.getIntrinsicHeight() * height);			
+			value.setBounds(0, 0, width, height);
 
 			while (pos < text.length()) {
 				if (pos > -1) {

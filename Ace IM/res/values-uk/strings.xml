@@ -88,8 +88,8 @@
     <string name="female">Жінка</string>
     <string name="autoconnect">Автопідключення</string>
     <string name="message_sound_only">Звук лише для повідомлень</string>
-    <string name="this_account_to_be_enabled" formatted="false">"Ввімкнути обліковий запис %s?"</string>
-    <string name="this_account_to_be_disabled" formatted="false">"Вимкнути обліковий запис %s?"</string>
+    <string name="this_account_to_be_enabled" formatted="false">"Ввімкнути обліковий запис '%s'?"</string>
+    <string name="this_account_to_be_disabled" formatted="false">"Вимкнути обліковий запис '%s'?"</string>
     <string name="manage_visibility">Видимість</string>
     <string name="send_typing">Сповіщати про набір</string>
     <string name="fullscreen_landscape_kb">Повноекранна горизонтальна клавіатура</string>

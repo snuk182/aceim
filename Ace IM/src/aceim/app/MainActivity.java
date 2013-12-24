@@ -438,7 +438,6 @@ public class MainActivity extends FragmentActivity {
 				public void run() {
 					for (Page p : mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()))) {
 						((IHasAccount) p).onContactListUpdated(account);
-						// mScreen.updateTabWidget(p);
 					}
 				}
 			});
@@ -630,13 +629,25 @@ public class MainActivity extends FragmentActivity {
 				
 				@Override
 				public void run() {
-					List<Page> pages = mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()));
-					
 					switch (action) {
 					case MODIFIED:
-						/*for (Page page : pages) {
-							mScreen.removePage(page);
-						}*/
+						List<Page> pages = mScreen.findPagesByRule(new AccountPageLinqRule(account.getServiceId()));
+						
+						if (account.isEnabled()) {
+							if (pages.size() > 0) {
+								for (Page page : pages) {
+									IHasAccount accountPage = (IHasAccount) page;
+									accountPage.onOnlineInfoChanged(account.getOnlineInfo());
+								}
+							} else {
+								Page.getContactListPage(MainActivity.this, account);
+							}
+						} else {
+							for (Page page : pages) {
+								mScreen.removePage(page);
+							}
+						}
+						break;
 					case ADDED:
 						Page.getContactListPage(MainActivity.this, account);
 						break;

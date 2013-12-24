@@ -56,9 +56,14 @@ public class XMPPService extends AccountService {
 	
 
 	@Override
-	protected void timeoutDisconnect() {
+	protected void timeoutReconnect() {
 		closeKeepaliveThread();
 		internal.disconnect();
+		try {
+			internal.connect(null);
+		} catch (ProtocolException e) {
+			Logger.log(e);
+		}
 	}
 	
 	private final IProtocol mProtocol = new IProtocol() {

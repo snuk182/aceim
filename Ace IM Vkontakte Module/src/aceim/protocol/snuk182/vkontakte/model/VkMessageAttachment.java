@@ -1,6 +1,8 @@
 package aceim.protocol.snuk182.vkontakte.model;
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -34,11 +36,21 @@ public class VkMessageAttachment extends ApiObject {
 		if (jo == null) return null;
 		
 		String typeString = jo.optString(String.format("attach%d_type", i));
-		VkMessageAttachmentType type = VkMessageAttachmentType.valueOf(typeString.toUpperCase());
 		
 		String id = jo.optString(String.format("attach%d", i));
 		String fwd = jo.optString("fwd");
 		long authorUid = jo.optLong("from");
+		
+		VkMessageAttachmentType type;
+		if (TextUtils.isEmpty(typeString)) {
+			if (authorUid != 0) {
+				type = VkMessageAttachmentType.CHAT;
+			} else {
+				type = VkMessageAttachmentType.UNKNOWN;
+			}
+		} else {
+			type = VkMessageAttachmentType.valueOf(typeString.toUpperCase());
+		}
 		
 		return new VkMessageAttachment(type, id, fwd, authorUid);
 	}
@@ -47,7 +59,9 @@ public class VkMessageAttachment extends ApiObject {
 		AUDIO,
 		VIDEO,
 		PHOTO,
-		DOC
+		DOC,
+		CHAT,
+		UNKNOWN
 	}
 
 	/**

@@ -111,8 +111,8 @@
     <string name="hide_participants">Hide participants</string>
     <string name="show_participants">Show participants</string>
     <string name="chat_enter_manually">Enter manually</string>
-    <string name="this_account_to_be_enabled" formatted="false">"%s is to be enabled, proceed?"</string>
-    <string name="this_account_to_be_disabled" formatted="false">"$s is to be disabled, proceed?"</string>
+    <string name="this_account_to_be_enabled" formatted="false">"'%s' is to be enabled, proceed?"</string>
+    <string name="this_account_to_be_disabled" formatted="false">"'%s' is to be disabled, proceed?"</string>
     <string name="name">Name</string>
     <string name="account_activity_log">Account activity log</string>
     <string name="copy_all">Copy all</string>
@@ -163,8 +163,6 @@
     <string name="statusbar_type">"Status bar notifications"</string>
     <string name="contact_menu" formatted="false">Menu for %s</string>
     <string name="im_here" formatted="false">I\'m here - %s</string>
-    <string name="auth_request">"Authorization request"</string>
-    <string name="auth_request_from">"Authorization request from "</string>
     <string name="deny">"Deny"</string>
     <string name="allow">"Allow"</string>
     <string name="ignore">"Ignore"</string>

@@ -114,7 +114,7 @@ public class SearchResult extends Page {
 				xstatusLabel.setText(item.getProtocolUid());
 			} 
 			
-			username.setText(item.getProperties().getString(PersonalInfo.INFO_NICK, item.getProtocolUid()));
+			username.setText(item.getProperties().getString(PersonalInfo.INFO_NICK));
 			
 			if (item.getProperties().containsKey(PersonalInfo.INFO_ICON)) {
 				byte[] bytes = item.getProperties().getByteArray(PersonalInfo.INFO_ICON);
@@ -129,7 +129,7 @@ public class SearchResult extends Page {
 			
 			//TODO generalize
 			if (item.getProperties().containsKey(PersonalInfo.INFO_GENDER)) {
-				String gender = item.getProperties().getString(PersonalInfo.INFO_GENDER, "");
+				String gender = item.getProperties().getString(PersonalInfo.INFO_GENDER);
 				
 				if (gender.equalsIgnoreCase("male")) {
 					extraImage1.setImageResource(R.drawable.male);

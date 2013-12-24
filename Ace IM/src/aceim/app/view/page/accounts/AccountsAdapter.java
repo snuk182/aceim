@@ -21,15 +21,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.RemoteException;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ToggleButton;
 
 import com.androidquery.AQuery;
 
@@ -63,7 +63,7 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
 		
 		AQuery aq = new AQuery(v);
 
-		ToggleButton disableBtn = (ToggleButton) v.findViewById(R.id.btn_disable);
+		CheckBox disableBtn = (CheckBox) v.findViewById(R.id.btn_disable);
 		ImageButton deleteBtn = (ImageButton) v.findViewById(R.id.btn_delete);
 		
 		final Account a = getItem(position);
@@ -98,14 +98,14 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
 		ViewUtils.fillIcon(R.id.image_icon, aq, a.getFilename(), getContext());
 		
 		disableBtn.setChecked(a.isEnabled());
-		disableBtn.setOnCheckedChangeListener(l);
+		disableBtn.setOnClickListener(l);
 		deleteBtn.setOnClickListener(l);
 		v.setOnClickListener(l);
 
 		return v;
 	}
 
-	private class AccountClickListener implements OnCheckedChangeListener, OnClickListener {
+	private class AccountClickListener implements OnClickListener {
 
 		final Account mAccount;
 		final ProtocolResources mResources;
@@ -113,31 +113,6 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
 		public AccountClickListener(Account acc, ProtocolResources resources) {
 			this.mAccount = acc;
 			this.mResources = resources;
-		}
-
-		@Override
-		public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-			int askId = isChecked ? R.string.this_account_to_be_enabled : R.string.this_account_to_be_disabled;
-			builder.setMessage(String.format(getContext().getResources().getString(askId), mAccount.getSafeName())).setCancelable(false)
-					.setPositiveButton(getContext().getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							mAccount.setEnabled(isChecked);
-							getContext()
-								.getSharedPreferences(mAccount.getAccountId(), 0)
-								.edit()
-								.putBoolean(AccountOptionKeys.DISABLED.name(), !mAccount.isEnabled())
-								.commit();
-						}
-					}).setNegativeButton(getContext().getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
-							buttonView.setChecked(!isChecked);
-						}
-					});
-			AlertDialog dialog = builder.create();
-			dialog.show();
 		}
 
 		@Override
@@ -160,6 +135,34 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
 					AlertDialog dialog = builder.create();
 					DialogUtils.showBrandedDialog(dialog);		
 				}
+			} else if (v instanceof CompoundButton) {
+				final CompoundButton buttonView = (CompoundButton) v;
+				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+				int askId = buttonView.isChecked() ? R.string.this_account_to_be_enabled : R.string.this_account_to_be_disabled;
+				builder.setMessage(String.format(getContext().getResources().getString(askId), mAccount.getSafeName())).setCancelable(false)
+						.setPositiveButton(getContext().getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								mAccount.setEnabled(buttonView.isChecked());
+								getContext()
+									.getSharedPreferences(mAccount.getAccountId(), 0)
+									.edit()
+									.putBoolean(AccountOptionKeys.DISABLED.name(), !mAccount.isEnabled())
+									.commit();
+								try {
+									activity.getCoreService().editAccount(mAccount, null, mAccount.getProtocolServicePackageName());
+								} catch (RemoteException e) {
+									activity.onRemoteException(e);
+								}
+							}
+						}).setNegativeButton(getContext().getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+								buttonView.setChecked(!buttonView.isChecked());
+							}
+						});
+				AlertDialog dialog = builder.create();
+				dialog.show();
 			} else {
 				Page.addAccountEditorPage(activity.getScreen(), mAccount);
 			}

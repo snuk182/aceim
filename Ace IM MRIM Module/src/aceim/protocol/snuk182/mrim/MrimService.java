@@ -52,8 +52,9 @@ public class MrimService extends AccountService {
 	}
 
 	@Override
-	protected void timeoutDisconnect() {
-		internal.getRunnableService().disconnect();		
+	protected void timeoutReconnect() {
+		internal.getRunnableService().disconnect();	
+		internal.connectInternal();
 	}
 
 	@Override

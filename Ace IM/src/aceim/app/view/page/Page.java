@@ -133,7 +133,10 @@ public abstract class Page extends Fragment {
 	}
 
 	public static void removeSplash(Screen screen) {
-		screen.removePage(screen.findPage(Splash.class.getSimpleName()));		
+		Page splash = screen.findPage(Splash.class.getSimpleName());
+		if (splash != null) {
+			screen.removePage(splash);	
+		}	
 	}
 	
 	public static void remove(Screen screen, Page page) {

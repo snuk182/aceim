@@ -350,7 +350,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 					info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_OCCUPANTS, room.getOccupantsCount() + "");
 					info.getProperties().putCharSequence(PersonalInfo.INFO_CHAT_SUBJECT, room.getSubject());
 					
-					getInternalService().getService().getCoreService().personalInfo(info);
+					getInternalService().getService().getCoreService().personalInfo(info, false);
 					return;
 				} catch (XMPPException e) {
 					Logger.log(e.getLocalizedMessage(), LoggerLevel.DEBUG);
@@ -371,7 +371,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 					if (fn != null) {
 						info.getProperties().putString(PersonalInfo.INFO_NICK, fn);
 					}
-					getInternalService().getService().getCoreService().personalInfo(info);
+					getInternalService().getService().getCoreService().personalInfo(info, true);
 				case ICON:
 					if (card.getAvatar() != null) {
 						getInternalService().getService().getCoreService().iconBitmap( uid, card.getAvatar(), card.getAvatarHash());

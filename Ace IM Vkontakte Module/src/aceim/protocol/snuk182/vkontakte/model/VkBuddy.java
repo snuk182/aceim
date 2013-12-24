@@ -25,7 +25,7 @@ public class VkBuddy extends ApiObject {
 	}
 	
 	public String getPhotoPath() {
-		return super.getString("photo");
+		return super.getString("photo_big");
 	}
 	
 	public long getGroupId() {
