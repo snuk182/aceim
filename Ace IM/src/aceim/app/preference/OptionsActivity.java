@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 
 public class OptionsActivity extends FragmentActivity {
@@ -35,7 +36,9 @@ public class OptionsActivity extends FragmentActivity {
         setTitle(preferences.getTitle(getBaseContext()));        
         getWindow().setFeatureDrawable(Window.FEATURE_LEFT_ICON, preferences.getIcon(getBaseContext()));
         
-        ViewUtils.setWallpaperMode(this, findViewById(android.R.id.content));
+        View content = findViewById(android.R.id.content);
+        ViewUtils.setWallpaperMode(this, content);
+        content.setBackgroundResource(R.color.transparent);
     }
 	
 	@Override

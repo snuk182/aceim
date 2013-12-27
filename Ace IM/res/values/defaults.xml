@@ -22,4 +22,5 @@
     <string name="default_load_icons">true</string>
     <string name="default_save_not_in_list">false</string>
     <string name="default_decline_messages_from_aliens">false</string>    
+    <string name="default_reconnection_attempts">5</string>
 </resources>

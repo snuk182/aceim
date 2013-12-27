@@ -1,7 +1,6 @@
 package aceim.app.screen;
 
 import java.util.List;
-
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
@@ -12,6 +11,7 @@ import aceim.app.screen.tablet.TabletScreen;
 import aceim.app.utils.ViewUtils;
 import aceim.app.utils.linq.KindaLinqRule;
 import aceim.app.view.page.Page;
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
+@SuppressLint("InlinedApi")
 public abstract class Screen extends FrameLayout {
 	
 	private final boolean requireDirtyMenuButtonHack;
@@ -51,12 +52,12 @@ public abstract class Screen extends FrameLayout {
 		}
 		
 		//TODO support 3rd party screens?
-		if (screenName.equals(SimpleScreen.class.getName())) {
-			return new SimpleScreen(activity);
+		if (screenName.equals(PanoScreen.class.getName())) {
+			return new PanoScreen(activity);
 		} else if (screenName.equals(TabletScreen.class.getName())) {
 			return new TabletScreen(activity);
-		} else /*if (screenName.equals(PanoScreen.class.getName()))*/ {
-			return new PanoScreen(activity);
+		} else {
+			return new SimpleScreen(activity);
 		}		
 	}
 	

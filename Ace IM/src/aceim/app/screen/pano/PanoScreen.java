@@ -16,6 +16,7 @@ import aceim.app.view.page.other.Splash;
 import aceim.app.widgets.HorizontalListView;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import aceim.app.widgets.pageselector.PanoPageAdapter;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -74,12 +75,9 @@ public class PanoScreen extends Screen {
 		if (setAsCurrent) {
 			setSelectedPage(page);
 		}
-		
-		if (!(page instanceof Splash)) {
-			setMenuButtonAvailability();
-		}
 	}
 
+	@SuppressLint("NewApi")
 	private void setMenuButtonAvailability() {
 		mMenuButton.setVisibility(
 				Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(getContext()).hasPermanentMenuKey()) ? 
@@ -103,7 +101,15 @@ public class PanoScreen extends Screen {
 
 	@Override
 	public void setSelectedPage(String pageId) {
-		setSelectedPage(findPage(pageId));
+		Page page = findPage(pageId);
+		
+		setSelectedPage(page);
+		
+		if (!(page instanceof Splash) && page.hasMenu()) {
+			setMenuButtonAvailability();
+		} else {
+			mMenuButton.setVisibility(View.GONE);
+		}
 	}
 
 	@Override

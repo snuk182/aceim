@@ -17,7 +17,7 @@ interface IUserInterface {
 	void onConnectionStateChanged(byte serviceId, in ConnectionState connState, int extraParameter);
 	void onAccountStateChanged(in OnlineInfo info);
 	void onContactListUpdated(in Account account);
-	void onBuddyStateChanged(in Buddy buddy);
+	void onBuddyStateChanged(in List<Buddy> buddies);
 	void onAccountUpdated(in Account account, in ItemAction action);
 	
 	void onMessage(in Message message);

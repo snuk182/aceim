@@ -206,37 +206,41 @@ final class ContactListUpdater {
 		} 	
 	}
 
-	public synchronized void onBuddyStateChanged(final Buddy buddy) {
-		// We may need the actual protocol group for a view with "show groups",
-		// so create a spare group link for it
-		BuddyGroup idGroup = null;
-		for (BuddyGroup viewGroup : mContactListGroups) {
-			Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new BuddyLinqRule(buddy)).first();
+	public synchronized void onBuddyStateChanged(List<Buddy> buddies) {
+		if (buddies == null || buddies.size() < 1) return;
+		
+		for (final Buddy buddy : buddies) {
+			// We may need the actual protocol group for a view with "show groups",
+			// so create a spare group link for it
+			BuddyGroup idGroup = null;
+			for (BuddyGroup viewGroup : mContactListGroups) {
+				Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new BuddyLinqRule(buddy)).first();
 
-			if (old != null) {
-				
-				viewGroup.getBuddyList().remove(old);
+				if (old != null) {
+					
+					viewGroup.getBuddyList().remove(old);
 
-				if (showGroups && buddy.getGroupId().equals(viewGroup.getId())) {
-					idGroup = viewGroup;
+					if (showGroups && buddy.getGroupId().equals(viewGroup.getId())) {
+						idGroup = viewGroup;
+					}
 				}
 			}
-		}
 
-		if (showGroups && idGroup == null) {
-			idGroup = KindaLinq.from(mContactListGroups).where(new KindaLinqRule<ContactListModelGroup>() {
+			if (showGroups && idGroup == null) {
+				idGroup = KindaLinq.from(mContactListGroups).where(new KindaLinqRule<ContactListModelGroup>() {
 
-				@Override
-				public boolean match(ContactListModelGroup t) {
-					return t.getId().equals(buddy.getGroupId());
-				}
-			}).first();
-		}
+					@Override
+					public boolean match(ContactListModelGroup t) {
+						return t.getId().equals(buddy.getGroupId());
+					}
+				}).first();
+			}
 
-		BuddyGroup target = getTargetGroup(buddy, idGroup);
-		if (target != null) {
-			target.getBuddyList().add(buddy);
-			Collections.sort(target.getBuddyList());
+			BuddyGroup target = getTargetGroup(buddy, idGroup);
+			if (target != null) {
+				target.getBuddyList().add(buddy);
+				Collections.sort(target.getBuddyList());
+			}
 		}
 
 		mContactListGroups.remove(unreadGroup);

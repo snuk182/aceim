@@ -12,6 +12,7 @@ import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.MainActivity;
+import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.dataentity.listeners.IHasAccount;
@@ -50,7 +51,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-//TODO distinguish Page logic from Fragment logic
 public abstract class Page extends Fragment {
 	private MainActivity mActivity;
 		
@@ -102,6 +102,7 @@ public abstract class Page extends Fragment {
 	}
 	
 	protected void removeMe() {
+		onLeaveMe();
 		this.cachedView = null;
 		remove(getMainActivity().getScreen(), this);
 	}
@@ -197,6 +198,9 @@ public abstract class Page extends Fragment {
 	}
 	
 	public static void getAboutPage(Screen screen) {
+		
+		ViewUtils.showInformationToast(screen.getContext(), android.R.drawable.ic_menu_always_landscape_portrait, R.string.simple_placeholder, "BOOO!!!");
+		
 		Page page = getPage(screen, new PageIdLinqRule(About.class.getSimpleName()));
 		if (page == null) {
 			screen.addPage(new About(), true);
@@ -319,10 +323,15 @@ public abstract class Page extends Fragment {
 		return false;
 	}
 	
+	public boolean hasMenu() {
+		return false;
+	}
+	
 	public Bundle getPageDataForStorage() {
 		return null;
 	}
-	public void recoverFromStoredData(Bundle bundle) {}
 	
-	protected void onSetMeSelected() {}
+	public void recoverFromStoredData(Bundle bundle) {}	
+	public void onSetMeSelected() {}
+	public void onLeaveMe() {}
 }

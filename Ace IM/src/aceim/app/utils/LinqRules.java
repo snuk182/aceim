@@ -1,5 +1,10 @@
 package aceim.app.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.PersonalInfo;
 import aceim.app.dataentity.Account;
@@ -93,21 +98,40 @@ public class LinqRules {
 	public static final class BuddyPageLinqRule implements KindaLinqRule<Page> {
 		
 		private final byte serviceId;
-		private final String protocolUid;
+		private final List<String> protocolUids;
 
 		public BuddyPageLinqRule(Buddy b) {
 			this.serviceId = b.getServiceId();
-			this.protocolUid = b.getProtocolUid();
+			this.protocolUids = Arrays.asList(b.getProtocolUid());
+		}
+		
+		public BuddyPageLinqRule(List<Buddy> b) {
+			if (b == null || b.size() < 1) {
+				this.serviceId = -1;
+				this.protocolUids = Collections.emptyList();
+			} else {
+				this.serviceId = b.get(0).getServiceId();
+				this.protocolUids = new ArrayList<String>(b.size());
+				
+				for (Buddy bb : b) {
+					this.protocolUids.add(bb.getProtocolUid());
+				}
+			}
 		}
 
 		public BuddyPageLinqRule(byte serviceId, String buddyProtocolUid) {
 			this.serviceId = serviceId;
-			this.protocolUid = buddyProtocolUid;
+			this.protocolUids = Arrays.asList(buddyProtocolUid);
 		}
 
 		@Override
 		public boolean match(Page t) {
-			return (t instanceof IHasBuddy) && ((IHasBuddy)t).hasThisBuddy(serviceId, protocolUid);
+			boolean found = false;
+			
+			for (String protocolUid : protocolUids) {
+				found |= (t instanceof IHasBuddy) && ((IHasBuddy)t).hasThisBuddy(serviceId, protocolUid);
+			}
+			return found;
 		}				
 	}
 	

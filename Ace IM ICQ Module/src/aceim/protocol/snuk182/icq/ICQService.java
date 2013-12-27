@@ -1,5 +1,6 @@
 package aceim.protocol.snuk182.icq;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import aceim.protocol.snuk182.icq.utils.ProtocolUtils;
 import aceim.protocol.snuk182.icq.utils.ResourceUtils;
 import android.content.Context;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 public class ICQService extends AccountService {
 
@@ -315,7 +317,7 @@ public class ICQService extends AccountService {
 	};
 
 	private final ICQServiceResponse icqResponse = new ICQServiceResponse() {
-
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object respond(short action, Object... args) {
@@ -331,12 +333,11 @@ public class ICQService extends AccountService {
 					break;
 				case ICQServiceResponse.RES_DISCONNECTED:
 					closeKeepaliveThread();
-					if (args.length > 0) {
-						// TODO fix reasons
-						getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, Cause.CONNECTION_ERROR.ordinal());
-					} else {
-						getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, -1);
-					}
+					if (args.length > 0 && !TextUtils.isEmpty((CharSequence) args[0])) {
+						getCoreService().notification(args[0].toString());
+					} 
+					
+					getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, -1);					
 					break;
 				case ICQServiceResponse.RES_SAVEIMAGEFILE:
 					getCoreService().iconBitmap((String) args[1], (byte[]) args[0], Base64.encodeBytes((byte[]) args[2]));
@@ -363,12 +364,13 @@ public class ICQService extends AccountService {
 					break;
 				case ICQServiceResponse.RES_BUDDYSTATECHANGED:
 					OnlineInfo buddiOnlineInfo = ICQEntityAdapter.icqOnlineInfo2OnlineInfo((ICQOnlineInfo) args[0], getProtocolUid(), getServiceId());
-					getCoreService().buddyStateChanged(buddiOnlineInfo);
-
+					
+					getCoreService().buddyStateChanged(Arrays.asList(buddiOnlineInfo));
+					
 					if (buddiOnlineInfo.getFeatures().getByte(ApiConstants.FEATURE_XSTATUS, (byte) -1) > -1 && args.length < 2) {
 						internal.getMessagingEngine().askForXStatus(buddiOnlineInfo.getProtocolUid());
 					}
-
+					
 					break;
 				case ICQServiceResponse.RES_CONNECTING:
 					getCoreService().connectionStateChanged(ConnectionState.CONNECTING, (Integer) args[0]);
@@ -430,7 +432,6 @@ public class ICQService extends AccountService {
 			}
 			return null;
 		}
-
 	};
 	
 	private void connectInternal(OnlineInfo info) throws ProtocolException {
@@ -458,5 +459,5 @@ public class ICQService extends AccountService {
 		}		
 	}
 
-	ICQServiceInternal internal = new ICQServiceInternal(icqResponse);
+	private ICQServiceInternal internal = new ICQServiceInternal(icqResponse);
 }

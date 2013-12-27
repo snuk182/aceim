@@ -16,6 +16,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
+	
+	private static final int[] ATTR_SET = new int[]{android.R.attr.max, android.R.attr.stepSize, android.R.attr.defaultValue};
 
 	public int maximum = 100;
 	public int stepSize = 5;
@@ -39,9 +41,11 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	}
 
 	private void init(AttributeSet attrs) {
-		maximum = attrs.getAttributeIntValue(android.R.attr.max, 100);
-		stepSize = attrs.getAttributeIntValue(android.R.attr.stepSize, 5);
-		oldValue = attrs.getAttributeIntValue(android.R.attr.defaultValue, 50);
+		TypedArray ta = getContext().obtainStyledAttributes(attrs, ATTR_SET);
+		maximum = ta.getInt(0, 100);
+		stepSize = (int) ta.getFloat(1, 5);
+		oldValue = ta.getInt(2, 50);
+		ta.recycle();
 	}
 
 	@Override

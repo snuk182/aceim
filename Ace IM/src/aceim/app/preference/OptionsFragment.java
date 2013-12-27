@@ -236,7 +236,7 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
             m.setAccessible(true);
             PreferenceScreen prefScreen = (PreferenceScreen) m.invoke(mPreferenceManager, getActivity(), preferencesResId, getPreferenceScreen());
             setPreferenceScreen(prefScreen);
-        }catch(Exception e){
+        } catch(Exception e){
             Logger.log(e);
         }
     }

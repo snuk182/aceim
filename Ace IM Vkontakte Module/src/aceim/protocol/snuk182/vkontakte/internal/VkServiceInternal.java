@@ -1,5 +1,7 @@
 package aceim.protocol.snuk182.vkontakte.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.BuddyGroup;
@@ -49,7 +52,8 @@ public class VkServiceInternal {
 
 	private final IconDownloader iconDownloader = new IconDownloader();
 
-	private final Set<Long> chats = Collections.synchronizedSet(new HashSet<Long>());
+	private final Set<Long> connectedChats = new CopyOnWriteArraySet<Long>();
+	private final Set<VkChat> chats = new CopyOnWriteArraySet<VkChat>();
 
 	private final Map<Long, String> iconPaths = Collections.synchronizedMap(new HashMap<Long, String>());
 	private final LongPollCallback callback = new LongPollCallback() {
@@ -57,7 +61,7 @@ public class VkServiceInternal {
 		@Override
 		public void onlineInfo(VkOnlineInfo vi) {
 			OnlineInfo info = VkEntityAdapter.vkOnlineInfo2OnlineInfo(vi, service.getServiceId());
-			service.getCoreService().buddyStateChanged(info);
+			service.getCoreService().buddyStateChanged(Arrays.asList(info));
 		}
 
 		@Override
@@ -97,30 +101,11 @@ public class VkServiceInternal {
 
 				proceedLogin();
 			} else {
-				// TODO
+				onLogout("Empty access token");
 			}
 		}
 	};
 	
-	private final Runnable getGroupchatsRunnable = new Runnable() {
-		
-		@Override
-		public void run() {
-			try {
-				List<VkChat> vkchats = engine.getGroupChats();
-				
-				for (VkChat chat : vkchats) {
-					chats.add(chat.getId());
-				}
-				
-				service.getCoreService().searchResult(VkEntityAdapter.vkChats2PersonalInfoList(vkchats, service.getServiceId()));
-			} catch (RequestFailedException e) {
-				Logger.log(e);
-				service.getCoreService().notification(e.getLocalizedMessage());
-			}
-		}
-	};
-
 	private final Runnable loginRunnable = new Runnable() {
 
 		@Override
@@ -186,22 +171,22 @@ public class VkServiceInternal {
 			
 			engine.connectLongPoll(pollWaitTime, callback);
 			
+			getAvailableGroupchats();
 			getMyPersonalInfo();
 		} catch (RequestFailedException e) {
-			Logger.log(e);
-			onLogout(e.getCause().getLocalizedMessage());
+			onRequestFailed(e);
 		}
-	}
-	
+	}	
 
 	public void leaveChat(final String chatId) {
 		Executors.defaultThreadFactory().newThread(new Runnable() {
 			
 			@Override
 			public void run() {
+				connectedChats.remove(Long.parseLong(chatId));
 				service.getCoreService().buddyAction(ItemAction.LEFT, new MultiChatRoom(chatId, service.getProtocolUid(), VkConstants.PROTOCOL_NAME, service.getServiceId()));
 			}
-		});
+		}).start();
 	}
 	
 	public void joinChat(final String chatId, boolean loadIcons) {
@@ -210,6 +195,10 @@ public class VkServiceInternal {
 			@Override
 			public void run() {
 				try {
+					if (engine == null) {
+						onLogout(null);
+					}
+					
 					VkChat vkChat = engine.getChatById(chatId);
 					
 					List<VkBuddy> occupants = engine.getUsersByIdList(vkChat.getUsers());
@@ -218,10 +207,11 @@ public class VkServiceInternal {
 					chat.getOccupants().addAll(VkEntityAdapter.vkChatOccupants2ChatOccupants(vkChat, occupants, accessToken.getUserID(), service.getProtocolUid(), service.getServiceId()));
 					chat.getOnlineInfo().getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
 					
-					chats.add(vkChat.getId());
+					chats.add(vkChat);
+					connectedChats.add(vkChat.getId());
 					
 					service.getCoreService().buddyAction(ItemAction.JOINED, chat);
-					service.getCoreService().buddyStateChanged(chat.getOnlineInfo());
+					service.getCoreService().buddyStateChanged(Arrays.asList(chat.getOnlineInfo()));
 					
 					/*List<VkMessage> vkMessages = engine.getLastChatMessages(chat.getProtocolUid(), true);
 					
@@ -229,7 +219,7 @@ public class VkServiceInternal {
 						service.getCoreService().message(VkEntityAdapter.vkChatMessage2Message(vkChat.getId(), vkm, service.getServiceId()));
 					}*/
 				} catch (RequestFailedException e) {
-					Logger.log(e);
+					onRequestFailed(e);
 				}
 			}
 		}).start();
@@ -240,10 +230,16 @@ public class VkServiceInternal {
 			
 			@Override
 			public void run() {
+				if (engine == null) {
+					onLogout(null);
+				}
+				
 				try {
 					engine.sendTypingNotifications(uid, isChatUid(Long.parseLong(uid)));
-				} catch (Exception e) {
+				} catch (NumberFormatException e) {
 					Logger.log(e);
+				} catch (RequestFailedException e) {
+					onRequestFailed(e);
 				}
 			}
 		}).start();
@@ -254,16 +250,20 @@ public class VkServiceInternal {
 			
 			@Override
 			public void run() {
+				if (engine == null) {
+					onLogout(null);
+				}
+				
 				try {
 					VkBuddy myInfo = engine.getMyInfo();			
 					OnlineInfo info = new OnlineInfo(service.getServiceId(), service.getProtocolUid());
 					info.getFeatures().putBoolean(VkApiConstants.FEATURE_GROUPCHATS, true);
-					
+					info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
 					service.getCoreService().accountStateChanged(info);
 					service.getCoreService().personalInfo(VkEntityAdapter.vkBuddy2PersonalInfo(myInfo, service.getServiceId(), service.getProtocolUid()), true);
 					service.getCoreService().iconBitmap(service.getProtocolUid(), engine.getIcon(myInfo.getPhotoPath()), myInfo.getPhotoPath());
 				} catch (RequestFailedException e) {
-					Logger.log(e);
+					onRequestFailed(e);
 				}
 			}
 		}).start();
@@ -319,11 +319,11 @@ public class VkServiceInternal {
 
 	public void loginResult(String code) {
 		try {
-			accessToken = engine.getAccessToken(code);
+			accessToken = VkEngine.getAccessToken(code);
 			checkTokenAndLogin();
 		} catch (RequestFailedException e) {
 			Logger.log(e);
-			service.getCoreService().notification(e.getLocalizedMessage());
+			onLogout(e.getLocalizedMessage());
 		}
 	}
 
@@ -338,6 +338,20 @@ public class VkServiceInternal {
 		}
 		onLogout(null);
 	}
+	
+	public void requestAvailableGroupchats() {
+		if (engine == null) {
+			onLogout(null);
+		}
+		
+		Executors.defaultThreadFactory().newThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				service.getCoreService().searchResult(VkEntityAdapter.vkChats2PersonalInfoList(new ArrayList<VkChat>(chats), service.getServiceId()));
+			}
+		}).start();
+	}
 
 	private void onLogout(String reason) {
 		connectionState = ConnectionState.DISCONNECTED;
@@ -348,8 +362,25 @@ public class VkServiceInternal {
 		}
 	}
 	
-	public void requestAvailableGroupchats() {
-		Executors.defaultThreadFactory().newThread(getGroupchatsRunnable).start();
+	private void getAvailableGroupchats() {
+		if (engine == null) {
+			onLogout(null);
+		}
+		
+		Executors.defaultThreadFactory().newThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					List<VkChat> vkchats = engine.getGroupChats();
+					
+					chats.clear();
+					chats.addAll(vkchats);
+				} catch (RequestFailedException e) {
+					onRequestFailed(e);
+				}
+			}
+		}).start();
 	}
 
 	public void requestIcon(final String uid) {
@@ -359,6 +390,10 @@ public class VkServiceInternal {
 	}
 
 	private void requestIconInternal(String uid) {
+		if (engine == null) {
+			onLogout(null);
+		}
+		
 		try {
 			long id;
 			if (uid.equals(service.getProtocolUid())) {
@@ -384,29 +419,52 @@ public class VkServiceInternal {
 			if (icon != null) {
 				service.getCoreService().iconBitmap(uid, icon, path);
 			}
-		} catch (Exception e) {
-			Logger.log(e);
+		} catch (RequestFailedException e) {
+			onRequestFailed(e);
 		}
 	}
 
 	private boolean isChatUid(long uid) {
 		return chats.contains(uid);
 	}
+	
+	private boolean isChatJoined(long uid) {
+		return isChatUid(uid) && connectedChats.contains(uid);
+	}
 
 	public long sendMessage(Message message) {
-
+		if (engine == null) {
+			onLogout(null);
+		}
+		
+		long id = Long.parseLong(message.getContactUid());
+		boolean isChat = isChatUid(id);
+		
 		try {
+			if (isChat) {
+				if (!isChatJoined(id)) {
+					Logger.log("Cannot send message, chat is not connected: " + message.getContactUid(), LoggerLevel.INFO);
+					return 0;
+				}
+			}
+
 			if (message instanceof TextMessage) {
-				return engine.sendMessage(VkEntityAdapter.textMessage2VkMessage((TextMessage) message, isChatUid(Long.parseLong(message.getContactUid()))));
+				return engine.sendMessage(VkEntityAdapter.textMessage2VkMessage((TextMessage) message, isChat));
 			}
 		} catch (NumberFormatException e) {
 			Logger.log(e);
 		} catch (RequestFailedException e) {
-			Logger.log(e);
-			onLogout(e.getCause().getLocalizedMessage());
+			onRequestFailed(e);
 		}
 
 		return 0;
+	}
+	
+	private void onRequestFailed(RequestFailedException e) {
+		if (e != null) {
+			Logger.log(e);
+			onLogout(e.getLocalizedMessage());
+		}
 	}
 
 	private final class IconDownloader implements Runnable {

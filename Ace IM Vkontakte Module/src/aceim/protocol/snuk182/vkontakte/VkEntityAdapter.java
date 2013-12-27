@@ -79,6 +79,19 @@ public final class VkEntityAdapter {
 		
 		return Collections.unmodifiableList(new ArrayList<BuddyGroup>(result.values()));
 	}
+	
+	public static List<OnlineInfo> vkOnlineInfos2OnlineInfos(List<VkOnlineInfo> vkOnlineInfos, long myId, String ownerUid, Byte serviceId) {
+		if (vkOnlineInfos == null) return null;
+		
+		List<OnlineInfo> infos = new ArrayList<OnlineInfo>(vkOnlineInfos.size());
+		for (VkOnlineInfo vko : vkOnlineInfos) {
+			OnlineInfo info = new OnlineInfo(serviceId, vko.getUid() == myId ? ownerUid : Long.toString(vko.getUid()));
+			info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
+			infos.add(info);
+		}
+		
+		return infos;
+	}
 
 	public static Buddy vkBuddy2Buddy(VkBuddy vkb, long myId, String ownerUid, Byte serviceId) {
 		if (vkb == null) {

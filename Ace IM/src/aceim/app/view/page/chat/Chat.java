@@ -2,6 +2,7 @@ package aceim.app.view.page.chat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -331,8 +332,9 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		if (text == null || text.length() < 1)
 			return;
 
-		if (mAccount.getConnectionState() != ConnectionState.CONNECTED) {
-			//Toast.makeText(getEntryPoint(), "Please enter network first", Toast.LENGTH_SHORT).show();
+		if (mAccount.getConnectionState() != ConnectionState.CONNECTED 
+				|| (mBuddy instanceof MultiChatRoom && ((MultiChatRoom)mBuddy).getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0)) {
+			ViewUtils.showAlertToast(getMainActivity(), R.drawable.ic_menu_login, R.string.connect_first, null);
 			return;
 		}
 		
@@ -357,6 +359,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 							prohibitTypingNotificationSending();
 							mMessageAdapter.add(new ChatMessageHolder(message, mAccount.getSafeName()));
 							mEditor.setText(null);
+							//mEditor.setEnabled(true);
 						}
 					});
 					getMainActivity().runOnUiThread(mScrollToEndRunnable);
@@ -429,7 +432,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		((ResizeableRelativeLayout)view).setResizeListener(mResizeListener);
 		
 		initPreferences();		
-		onBuddyStateChanged(mBuddy);
+		onBuddyStateChanged(Arrays.asList(mBuddy));
 		onAccountIcon(mAccount.getServiceId());
 		initMessages(saved);
 		
@@ -437,7 +440,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	}
 	
 	@Override
-	protected void onSetMeSelected() {
+	public void onSetMeSelected() {
 		resetUnread();
 		mScrollToEndRunnable.run();
 		mEditor.requestFocus();
@@ -476,14 +479,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	}
 
 	private void resetUnread() {
-		mBuddy.setUnread((byte) 0);
-		if (getMainActivity().getCoreService() != null) {
-			try {
-				getMainActivity().getCoreService().resetUnread(mBuddy);
-			} catch (RemoteException e) {
-				getMainActivity().onRemoteException(e);
-			}
-		}
+		getMainActivity().resetUnread(mBuddy);
 	}
 
 	private void initPreferences() {
@@ -641,7 +637,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 		
 		if (connState != ConnectionState.CONNECTED) {
-			onBuddyStateChanged(mBuddy);
+			onBuddyStateChanged(Arrays.asList(mBuddy));
 		}
 	}
 
@@ -657,42 +653,37 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	}
 
 	@Override
-	public void onBuddyStateChanged(Buddy buddy) {
-		if (mBuddy instanceof MultiChatRoom && !(buddy instanceof MultiChatRoom)) {
-			
-			boolean hasBuddy = false;
-			for (BuddyGroup occupantGroup : ((MultiChatRoom)mBuddy).getOccupants()) {
-				for (Buddy occupant : occupantGroup.getBuddyList()) {
-					occupant.merge(buddy);
-					hasBuddy = true;
+	public void onBuddyStateChanged(List<Buddy> buddies) {
+		if (buddies == null || buddies.size() < 1) return;
+		
+		for (Buddy buddy : buddies) {
+			if (mBuddy instanceof MultiChatRoom && !(buddy instanceof MultiChatRoom)) {
+				
+				for (BuddyGroup occupantGroup : ((MultiChatRoom)mBuddy).getOccupants()) {
+					for (Buddy occupant : occupantGroup.getBuddyList()) {
+						if (occupant.getProtocolUid().equals(buddy.getProtocolUid())) {
+							occupant.merge(buddy);
+						}
+					}
 				}
+			} else if (buddy.getProtocolUid().equals(mBuddy.getProtocolUid())) {
+				mBuddy.merge(buddy);			
 			}
-			
-			//exit if UI is not yet initialized
-			if (mStatus == null) {
-				return;
-			}
-			
-			if (hasBuddy) {
-				((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
-			}
-		} else if (buddy.getProtocolUid().equals(mBuddy.getProtocolUid())) {
-			mBuddy.merge(buddy);
-			
-			//exit if UI is not yet initialized
-			if (mStatus == null) {
-				return;
-			}
-			
-			ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, (View) mStatus.getParent(), mProtocolResources);
-			
-			if (mBuddy instanceof MultiChatRoom){
-				((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
-			}
-			
-			//If xstatus has changed to empty, we must ensure it won`t disappear with WRAP_CONTENT height
-			mXStatusText.getLayoutParams().height = getMainActivity().getResources().getDimensionPixelSize(R.dimen.chat_buddy_status_height);
 		}
+		
+		//exit if UI is not yet initialized
+		if (mStatus == null) {
+			return;
+		}
+		
+		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, (View) mStatus.getParent(), mProtocolResources);
+		
+		if (mBuddy instanceof MultiChatRoom){
+			((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
+		}
+		
+		//If xstatus has changed to empty, we must ensure it won`t disappear with WRAP_CONTENT height
+		mXStatusText.getLayoutParams().height = getMainActivity().getResources().getDimensionPixelSize(R.dimen.chat_buddy_status_height);
 	}
 
 	@Override
@@ -745,7 +736,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		MainActivity a = getMainActivity();
 		switch(item.getItemId()) {
 		case R.id.menuitem_close:
-			onLeaveMe();
 			removeMe();
 			break;
 		case R.id.menuitem_history:
@@ -814,7 +804,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		Bitmap bicon = ViewUtils.getAccountIcon(getMainActivity(), mAccount);
+		Bitmap bicon = ViewUtils.getIcon(getMainActivity(), mAccount.getFilename());
 		if (bicon != null) {
 			mSendBtn.setImageBitmap(bicon);
 		} else {
@@ -854,21 +844,17 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		if (i == KeyEvent.KEYCODE_BACK) {
 			onLeaveMe();
+			Page.getContactListPage(getMainActivity(), mAccount);
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private void onLeaveMe() {
+	@Override
+	public void onLeaveMe() {
 		sInputMethodManager.hideSoftInputFromWindow(mEditor.getWindowToken(), 0);
-		Page.getContactListPage(getMainActivity(), mAccount);		
 	}
-
-	/*@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Logger.log("bu");
-    }*/
 
 	@Override
 	public void onFilePicked(ActivityResult result, MainActivity activity) {
@@ -944,5 +930,12 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		mQuoteBtn.setVisibility(View.GONE);
 		mCopyBtn.setVisibility(View.GONE);
 		mCancelBtn.setVisibility(View.GONE);
+		
+		mEditor.requestFocus();
+	}
+	
+	@Override
+	public boolean hasMenu(){
+		return true;
 	}
 }

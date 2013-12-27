@@ -2,10 +2,14 @@ package aceim.app.dataentity;
 
 import java.util.concurrent.ScheduledFuture;
 
+import aceim.app.service.ProtocolService;
+
 public class AccountService {
 
 	private final Account account;
 	private final ProtocolService protocolService;
+	
+	private byte connectionAttempts;
 	
 	private ScheduledFuture<?> connectionTimeoutAction;
 	
@@ -32,6 +36,7 @@ public class AccountService {
 	 * @param connectionTimeoutAction the connectionTimeoutAction to set
 	 */
 	public void setConnectionTimeoutAction(ScheduledFuture<?> connectionTimeoutAction) {
+		resetConnectionTimeout();
 		this.connectionTimeoutAction = connectionTimeoutAction;
 	}
 
@@ -45,5 +50,19 @@ public class AccountService {
 	
 	public boolean isUnderConnectionMonitoring() {
 		return connectionTimeoutAction != null;
+	}
+
+	/**
+	 * @return the connectionAttempts
+	 */
+	public byte getConnectionAttempts() {
+		return connectionAttempts;
+	}
+
+	/**
+	 * @param connectionAttempts the connectionAttempts to set
+	 */
+	public void setConnectionAttempts(byte connectionAttempts) {
+		this.connectionAttempts = connectionAttempts;
 	}
 }

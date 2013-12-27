@@ -290,7 +290,7 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 			break;
 		case ICQConstants.TLV_ERRORSUBCODE:
 			if (tlv.value != null && tlv.value.length > 1 && tlv.value[1] == 0x18) {
-				service.lastConnectionError = "rate limit exceeded";
+				service.lastConnectionError = "Rate limit exceeded";
 			}
 			break;
 		default:

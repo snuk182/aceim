@@ -115,24 +115,7 @@ public final class ViewUtils {
 	}
 
 	public static void showAlertToast(Context context, int iconId, int textId, String params) {
-		Logger.log("Show alert toast", LoggerLevel.VERBOSE);
-		View v = LayoutInflater.from(context).inflate(R.layout.alert_toast, null);
-		
-		ImageView icon = (ImageView) v.findViewById(R.id.icon);
-		TextView text = (TextView) v.findViewById(R.id.text);
-		
-		icon.setImageResource(iconId);
-
-		if (params != null) {
-			String contentText = context.getString(textId, params);
-			text.setText(contentText);
-		} else {
-			text.setText(textId);
-		}
-
-		Toast t = createToast(context, v);
-		t.setDuration(Toast.LENGTH_LONG);
-		t.show();
+		showInformationToast(context, iconId, textId, params);
 	}
 
 	public static void showInformationToast(Context context, Object icon, int textId, String params) {
@@ -637,6 +620,55 @@ public final class ViewUtils {
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
 
 		return BitmapFactory.decodeStream(fis, null, options);
+	}
+	
+	public static Bitmap getIcon(Context context, String filename, int width, int height) {
+		FileInputStream fis = null;
+		try {
+			fis = context.openFileInput(filename + BUDDYICON_FILEEXT);
+		} catch (Exception e) {
+		}
+
+		if (fis == null) return null;
+
+		BitmapFactory.Options options = new BitmapFactory.Options();
+
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(fis, null, options);
+
+		if (!checkAvailableRamForBitmap(options.outHeight, options.outWidth))
+			return null;
+
+		try {
+			fis = context.openFileInput(filename + BUDDYICON_FILEEXT);
+		} catch (Exception e) {
+		}
+
+		options.inJustDecodeBounds = false;
+		options.inDither = true;
+		options.inScaled = false;
+		options.inPurgeable = true;
+		options.inPreferredConfig = Bitmap.Config.RGB_565;
+
+		Bitmap b = BitmapFactory.decodeStream(fis, null, options);
+		if (width < 1 && height < 1) {
+			return b;
+		} else {
+			if (width < 1 || height < 1) {
+				if (width < 1) {
+					width = height * options.outWidth / options.outHeight;
+				}
+				
+				if (height < 1) {
+					height = width * options.outHeight / options.outWidth;
+				}
+			}
+			
+			Bitmap scaled = Bitmap.createScaledBitmap(b, width, height, false);
+			b.recycle();
+			
+			return scaled;
+		}
 	}
 	
 	private static synchronized final boolean checkAvailableRamForBitmap(int h, int w) {

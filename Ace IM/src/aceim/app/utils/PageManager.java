@@ -48,6 +48,7 @@ public final class PageManager {
 		FragmentTransaction ft = fm.beginTransaction().disallowAddToBackStack();
 		
 		if (mSelectedPage != null) {
+			mSelectedPage.onLeaveMe();
 			ft.detach(mSelectedPage);
 		}
 		

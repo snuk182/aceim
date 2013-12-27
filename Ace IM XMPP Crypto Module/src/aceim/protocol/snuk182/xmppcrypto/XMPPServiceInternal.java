@@ -676,7 +676,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		
 		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
 		
-		getService().getCoreService().buddyStateChanged(info);
+		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 	}
 
 	public void encryptionOff(OnlineInfo info) {
@@ -689,7 +689,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		
 		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
 		
-		getService().getCoreService().buddyStateChanged(info);
+		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 	}
 
 	public void addBuddyPGPKey(OnlineInfo info, String pgp) {
@@ -703,7 +703,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		
 		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
 		
-		getService().getCoreService().buddyStateChanged(info);
+		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 	}
 
 	public void removeBuddyPGPKey(OnlineInfo info) {
@@ -718,7 +718,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		
 		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
 		
-		getService().getCoreService().buddyStateChanged(mMyOnlineInfo);
+		getService().getCoreService().buddyStateChanged(Arrays.asList(mMyOnlineInfo));
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package aceim.protocol.snuk182.mrim;
 
+import java.util.Arrays;
 import java.util.List;
 
 import aceim.api.IProtocol;
@@ -266,7 +267,8 @@ public class MrimService extends AccountService {
 				getCoreService().message(txtmessage);
 				break;
 			case MrimServiceResponse.RES_BUDDYSTATECHANGED:	
-				getCoreService().buddyStateChanged(MrimEntityAdapter.mrimOnlineInfo2OnlineInfo((MrimOnlineInfo) args[0], getServiceId()));
+				OnlineInfo oi = MrimEntityAdapter.mrimOnlineInfo2OnlineInfo((MrimOnlineInfo) args[0], getServiceId());
+				getCoreService().buddyStateChanged(Arrays.asList(oi));
 				break;
 			case MrimServiceResponse.RES_CONNECTING:
 				getCoreService().connectionStateChanged(ConnectionState.CONNECTING, (Integer) args[0]);

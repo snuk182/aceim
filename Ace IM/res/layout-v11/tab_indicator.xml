@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@drawable/tab_indicator"
-    android:orientation="horizontal" >
+    android:orientation="horizontal" 
+    android:paddingRight="1dp">
 
     <ImageView
         android:id="@android:id/icon"
@@ -12,6 +13,9 @@
         android:layout_alignParentLeft="true"
         android:layout_gravity="center_vertical"
         android:adjustViewBounds="true"
+        android:paddingTop="@dimen/top_bottom_padding"
+        android:paddingLeft="@dimen/top_bottom_padding"
+        android:paddingBottom="@dimen/top_bottom_padding"
         android:paddingRight="20dp"
         android:src="@drawable/dummy_icon" />
 
@@ -25,7 +29,6 @@
         android:focusable="false"
         android:gravity="right|bottom"
         android:maxWidth="180dp"
-        android:padding="1dp"
         android:paddingBottom="5dp"
         android:paddingLeft="20dp"
         android:shadowColor="#ef000000"

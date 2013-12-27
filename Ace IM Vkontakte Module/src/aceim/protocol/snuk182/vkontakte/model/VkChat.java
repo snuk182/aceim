@@ -43,4 +43,14 @@ public class VkChat extends ApiObject {
 		
 		return result;
 	}
+	
+	@Override 
+	public boolean equals(Object object) {
+		return (object instanceof VkChat) && (((VkChat)object).getId() == getId());
+	} 
+	
+	@Override
+	public int hashCode() {
+		return (int) getId();
+	}
 }

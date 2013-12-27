@@ -1,9 +1,10 @@
 package aceim.protocol.snuk182.xmppcrypto;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -97,17 +98,14 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 		presenceCache.put(info.getProtocolUid(), info);
 		
 		if (isContactListReady) {
-			getInternalService().getService().getCoreService().buddyStateChanged(info);
+			getInternalService().getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 		} 
 	}
 
 	void checkCachedInfos() {
 		while (presenceCache.size() > 0) {
-			for (Iterator<String> i = presenceCache.keySet().iterator(); i.hasNext();) {
-				OnlineInfo info = presenceCache.remove(i.next());
-				i.remove();
-				getInternalService().getService().getCoreService().buddyStateChanged(info);
-			}
+			getInternalService().getService().getCoreService().buddyStateChanged(new ArrayList<OnlineInfo>(presenceCache.values()));
+			presenceCache.clear();
 		}
 	}
 	

@@ -1,7 +1,8 @@
 package aceim.app.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,6 @@ import aceim.api.service.ApiConstants;
 import aceim.api.service.ICoreProtocolCallback;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import aceim.app.dataentity.ProtocolService;
 import aceim.app.utils.PluginsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -21,13 +21,14 @@ import android.content.pm.ServiceInfo;
 
 class ProtocolServicesManager extends PluginsManager {
 
-	private final List<ProtocolListener> mListeners = new LinkedList<ProtocolListener>();
+	private final ProtocolListener mListener;
 	private final Map<String, ProtocolService> mProtocols = new HashMap<String, ProtocolService>();
 	private final ICoreProtocolCallback.Stub mProtocolCallback;
 	
-	ProtocolServicesManager(Context context, ICoreProtocolCallback.Stub protocolCallback) {
+	ProtocolServicesManager(Context context, ICoreProtocolCallback.Stub protocolCallback, ProtocolListener listener) {
 		super(context, ApiConstants.ACTION_PLUGIN);
 		this.mProtocolCallback = protocolCallback;	
+		this.mListener = listener;
 	}
 	
 	void initProtocolServices() {
@@ -48,16 +49,12 @@ class ProtocolServicesManager extends PluginsManager {
 		}
 	}	
 	
-	void addProtocolListener(ProtocolListener listener){
-		this.mListeners.add(listener);
+	List<ProtocolService> getProtocolsList() {
+		return Collections.unmodifiableList(new ArrayList<ProtocolService>(mProtocols.values()));
 	}
 	
-	void removeProtocolListener(ProtocolListener listener){
-		this.mListeners.remove(listener);
-	}
-	
-	Map<String, ProtocolService> getProtocols() {
-		return mProtocols;
+	ProtocolService getProtocolServiceByName(String protocolServiceClassName) {
+		return mProtocols.get(protocolServiceClassName);
 	}
 
 	private void removeProtocolService(String intentSource) {
@@ -68,21 +65,25 @@ class ProtocolServicesManager extends PluginsManager {
 			Logger.log("No protocol to fire 'onRemove' for "+intentSource, LoggerLevel.INFO);
 			return;
 		} else {
-			for (ProtocolListener l : mListeners) {
-				l.onAction(ps, ItemAction.DELETED);
-			}
+			mListener.onAction(ps, ItemAction.DELETED);
 		}		
 	}
 	
-	interface ProtocolListener {
-		void onAction(ProtocolService protocol, ItemAction action);
+	@Override
+	public void onExit(){
+		super.onExit();
+		for (ProtocolService ps : mProtocols.values()) {
+			ps.onExit();
+		}
 	}
-
+	
 	@Override
 	protected void onPackageAdded(String packageName) {
-		if (mProtocols.containsKey(packageName)) {
+		Logger.log("Package added: " + packageName, LoggerLevel.VERBOSE);
+		
+		/*if (mProtocols.containsKey(packageName)) {
 			removeProtocolService(packageName);
-		}	
+		}	*/
 		
 		PackageManager packageManager = mContext.getPackageManager();
 		
@@ -106,22 +107,25 @@ class ProtocolServicesManager extends PluginsManager {
 			return;
 		}
 		
-		initProtocolService(sinfo);
+		boolean newPackage = !mProtocols.containsKey(sinfo.packageName);
+		
+		mListener.onAction(initProtocolService(sinfo), newPackage ? ItemAction.ADDED : ItemAction.MODIFIED);
 	}
 
 	@Override
 	protected void onPackageRemoved(String packageName) {
+		Logger.log("Package removed: " + packageName, LoggerLevel.VERBOSE);
 		removeProtocolService(packageName);
 	}
 	
-	private void initProtocolService(ServiceInfo sinfo) {
-		boolean newPackage = mProtocols.containsKey(sinfo.packageName);
+	private ProtocolService initProtocolService(ServiceInfo sinfo) {
 		
-		ProtocolService ps = ProtocolService.create(mContext, sinfo.packageName, sinfo.name, mProtocolCallback);
+		ProtocolService ps = ProtocolService.create(mContext, sinfo.packageName, sinfo.name, mProtocolCallback, mListener);
 		mProtocols.put(sinfo.packageName, ps);
-		
-		for (ProtocolListener l : mListeners){
-			l.onAction(ps, newPackage ? ItemAction.ADDED : ItemAction.MODIFIED);
-		}	
+		return ps;
+	}
+	
+	interface ProtocolListener {
+		void onAction(ProtocolService protocol, ItemAction action);
 	}
 }

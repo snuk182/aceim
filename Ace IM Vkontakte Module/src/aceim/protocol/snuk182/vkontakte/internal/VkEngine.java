@@ -247,7 +247,7 @@ final class VkEngine {
 		}
 	}
 	
-	private String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
+	private static String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
 		try {
 			byte[] resultBytes = requestRawStream(method, url, parameters, content, nameValuePairs);
 			String result = new String(resultBytes, "UTF-8");
@@ -255,12 +255,11 @@ final class VkEngine {
 			Logger.log("Got " + result, LoggerLevel.VERBOSE);
 			return result;
 		} catch (Exception e) {
-			disconnect(e.getLocalizedMessage());
 			throw new RequestFailedException(e);
 		}
 	}
 
-	private byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
+	private static byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
 		Uri.Builder b = new Uri.Builder();
 		b.encodedPath(url);
 
@@ -373,7 +372,7 @@ final class VkEngine {
 		}
 	}
 
-	AccessToken getAccessToken(String code) throws RequestFailedException {
+	static AccessToken getAccessToken(String code) throws RequestFailedException {
 		List<NameValuePair> params = new ArrayList<NameValuePair>(4);
 
 		params.add(new BasicNameValuePair("client_id", VkApiConstants.API_ID));

@@ -1,6 +1,7 @@
 package aceim.protocol.snuk182.xmppcrypto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public final class XMPPEntityAdapter {
 						info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_ON, true);
 						info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_OFF);
 						
-						service.getService().getCoreService().buddyStateChanged(info);
+						service.getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 					}
 				}
 			}

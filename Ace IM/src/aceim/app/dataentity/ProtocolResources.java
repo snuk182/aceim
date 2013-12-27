@@ -2,6 +2,7 @@ package aceim.app.dataentity;
 
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.utils.Logger;
+import aceim.app.service.ProtocolService;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;

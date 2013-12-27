@@ -1,10 +1,15 @@
-package aceim.app.dataentity;
+package aceim.app.service;
 
+import java.util.concurrent.Executors;
+
+import aceim.api.dataentity.ItemAction;
 import aceim.api.service.ICoreProtocolCallback;
 import aceim.api.service.ICoreProtocolCallback.Stub;
 import aceim.api.service.IProtocolService;
 import aceim.api.utils.Logger;
 import aceim.app.AceImException;
+import aceim.app.dataentity.ProtocolResources;
+import aceim.app.service.ProtocolServicesManager.ProtocolListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,28 +26,35 @@ public class ProtocolService implements ServiceConnection {
 	
 	private Context mContext;
 
-	//private final List<Account> mAccounts = new ArrayList<Account>();
+	private volatile boolean exiting = false;
 	
 	private final String packageName;
 	private final String className;
+	
 	private ProtocolResources resources;
+	
 	private final ICoreProtocolCallback callback;
+	private final ProtocolListener mProtocolListener;
 	
 	private IProtocolService protocol;
 	
-	private ProtocolService(Context context, String packageName, String className, ICoreProtocolCallback callback) {
+	private ProtocolService(Context context, String packageName, String className, ICoreProtocolCallback callback, ProtocolListener protocolListener) {
 		this.packageName = packageName;
 		this.className = className;
 		this.callback = callback;
 		this.mContext = context;
+		this.mProtocolListener = protocolListener;
 	}
 
 	private void bind() {
 		Intent intent = new Intent();
 		intent.setClassName(packageName, className);
+		
         Logger.log("binding: "+intent );
+        
         mContext.startService(intent);
 		boolean d = mContext.getApplicationContext().bindService(intent, this, 0);
+		
 		Logger.log(d ? "Binded" : "Not binded");
 	}
 
@@ -50,24 +62,27 @@ public class ProtocolService implements ServiceConnection {
 	public void onServiceConnected(ComponentName name, IBinder service) {
 		protocol = IProtocolService.Stub.asInterface(service);
 		try {
-			protocol.registerCallback(callback);
-			
+			protocol.registerCallback(callback);			
 			fillResources();
+			mProtocolListener.onAction(this, ItemAction.JOINED);
 		} catch (RemoteException e) {
 			Logger.log(e);
 		}
 	}
 
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		protocol = null;
+		if (!exiting) {
+			Executors.defaultThreadFactory().newThread(mRebindProtocolsRunnable).start();
+			mProtocolListener.onAction(this, ItemAction.LEFT);
+		}
+	}
+	
 	private void fillResources() throws RemoteException {
 		this.resources = new ProtocolResources(this);
 	}
 
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	private ProtocolResources getFullProtocolResources() {
 		ProtocolResources out = new ProtocolResources(this);
 		
@@ -119,8 +134,8 @@ public class ProtocolService implements ServiceConnection {
 		return protocol;
 	}
 
-	public static ProtocolService create(Context context, String packageName, String className, Stub protocolCallback) {
-		ProtocolService ps = new ProtocolService(context, packageName, className, protocolCallback);
+	public static ProtocolService create(Context context, String packageName, String className, Stub protocolCallback, ProtocolListener protocolListener) {
+		ProtocolService ps = new ProtocolService(context, packageName, className, protocolCallback, protocolListener);
 		ps.bind();
 		
 		while (ps.getProtocol() == null) {
@@ -147,4 +162,19 @@ public class ProtocolService implements ServiceConnection {
 	public String getServiceClassName() {
 		return className;
 	}
+
+	public void onExit() {
+		exiting = true;
+		try {
+			getProtocol().shutdown();
+		} catch (RemoteException e) {}
+	}
+	
+	private final Runnable mRebindProtocolsRunnable = new Runnable() {
+		
+		@Override
+		public void run() {
+			bind();
+		}
+	};
 }

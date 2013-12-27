@@ -16,6 +16,7 @@ import aceim.app.view.page.other.Splash;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import aceim.app.widgets.pageselector.PageAdapter;
 import aceim.app.widgets.pageselector.TabSelector;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -65,13 +66,10 @@ public class SimpleScreen extends Screen implements PageChangedListener {
 		if (setAsCurrent) {
 			setSelectedPage(pageId);
 		}
-		
-		if (!(page instanceof Splash)) {
-			setMenuButtonAvailability();
-		}
 	}
 
 	//TODO move to root Screen class
+	@SuppressLint("NewApi")
 	private void setMenuButtonAvailability() {
 		mMenuButton.setVisibility(
 				Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(getContext()).hasPermanentMenuKey()) ? 
@@ -90,15 +88,6 @@ public class SimpleScreen extends Screen implements PageChangedListener {
 		}).first();
 	}
 
-	/*@Override
-	public void removePage(String pageId) {
-		Page page = findPage(pageId);
-		
-		if (page != null) {
-			removePage(page);
-		}
-	}*/
-	
 	@Override
 	public void onPageChanged(String pageId) {
 		mPageManager.onPageChanged(findPage(pageId));
@@ -110,6 +99,12 @@ public class SimpleScreen extends Screen implements PageChangedListener {
 		
 		Page page = findPage(pageId);		
 		mTabHolder.setSelectedPage(page);
+		
+		if (!(page instanceof Splash) && page.hasMenu()) {
+			setMenuButtonAvailability();
+		} else {
+			mMenuButton.setVisibility(View.GONE);
+		}
 	}
 
 	@Override

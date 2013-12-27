@@ -284,7 +284,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 	}
 
 	@Override
-	public void onBuddyStateChanged(Buddy buddy) {}
+	public void onBuddyStateChanged(List<Buddy> buddy) {}
 	
 	@Override
 	public Buddy getBuddy() {

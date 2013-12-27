@@ -414,7 +414,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 					info.getFeatures().remove(XMPPApiConstants.FEATURE_CONFIGURE_CHAT_ROOM_RESULT);
 					
 					//getInternalService().getService().getCoreService().buddyAction(ItemAction.LEFT, buddy);
-					getInternalService().getService().getCoreService().buddyStateChanged(info);
+					getInternalService().getService().getCoreService().buddyStateChanged(Arrays.asList(info));
 				}
 			}
 		};
@@ -494,7 +494,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 					getInternalService().getRosterListener().getPresenceCache().put(chatJid, room.getOnlineInfo());
 					
 					getInternalService().getService().getCoreService().buddyAction(ItemAction.JOINED, room);
-					getInternalService().getService().getCoreService().buddyStateChanged(room.getOnlineInfo());
+					getInternalService().getService().getCoreService().buddyStateChanged(Arrays.asList(room.getOnlineInfo()));
 					
 					fillWithListeners(muc);
 				} catch (XMPPException e) {
@@ -591,7 +591,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 						room.getOnlineInfo().getFeatures().putBoolean(XMPPApiConstants.FEATURE_CONFIGURE_CHAT_ROOM_ACTION, true);
 						
 						getInternalService().getService().getCoreService().buddyAction(ItemAction.JOINED, room);
-						getInternalService().getService().getCoreService().buddyStateChanged(room.getOnlineInfo());
+						getInternalService().getService().getCoreService().buddyStateChanged(Arrays.asList(room.getOnlineInfo()));
 					} catch (XMPPException e) {
 						getInternalService().onXmppException(e);
 					}

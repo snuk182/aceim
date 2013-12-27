@@ -1,7 +1,5 @@
 package aceim.app.service;
 
-import java.util.Map;
-
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.utils.Logger;
@@ -9,7 +7,6 @@ import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.AccountService;
-import aceim.app.dataentity.ProtocolService;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
@@ -19,9 +16,9 @@ public final class ServiceUtils {
 	
 	private ServiceUtils(){}
 
-	public static AccountService makeAccount(Account account, Map<String, ProtocolService> protocols) {
+	public static AccountService makeAccount(Account account, ProtocolServicesManager protocolsManager) {
 		Logger.log("Make account service for " + account.getAccountId(), LoggerLevel.VERBOSE);
-		ProtocolService s = protocols.get(account.getProtocolServicePackageName());
+		ProtocolService s = protocolsManager.getProtocolServiceByName(account.getProtocolServicePackageName());
 		
 		if (s != null) {
 			try {

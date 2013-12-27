@@ -444,13 +444,13 @@ public class MainActivity extends FragmentActivity {
 		}
 
 		@Override
-		public void onBuddyStateChanged(final Buddy buddy) throws RemoteException {
+		public void onBuddyStateChanged(final List<Buddy> buddies) throws RemoteException {
 			runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
-					for (Page p : mScreen.findPagesByRule(new BuddyPageLinqRule(buddy))) {
-						((IHasBuddy) p).onBuddyStateChanged(buddy);
+					for (Page p : mScreen.findPagesByRule(new BuddyPageLinqRule(buddies))) {
+						((IHasBuddy) p).onBuddyStateChanged(buddies);
 					}
 				}
 			});
@@ -723,13 +723,25 @@ public class MainActivity extends FragmentActivity {
 			Account account = getCoreService().getAccount(buddy.getServiceId());
 			Page.getChatPage(mScreen, buddy, account);
 
-			buddy.setUnread((byte) 0);
-
-			for (Page p : mScreen.findPagesByRule(new BuddyPageLinqRule(buddy))) {
-				((IHasBuddy) p).onBuddyStateChanged(buddy);
-			}
+			resetUnread(buddy);
 		} catch (RemoteException e) {
 			onRemoteException(e);
+		}
+	}
+
+	public void resetUnread(Buddy buddy) {
+		buddy.setUnread((byte) 0);
+		
+		if (mCoreService != null) {
+			try {
+				mCoreService.resetUnread(buddy);
+			} catch (RemoteException e) {
+				onRemoteException(e);
+			}
+		}
+
+		for (Page p : mScreen.findPagesByRule(new BuddyPageLinqRule(buddy))) {
+			((IHasBuddy) p).onBuddyStateChanged(Arrays.asList(buddy));
 		}
 	}
 

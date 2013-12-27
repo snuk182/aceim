@@ -7,10 +7,11 @@ package aceim.app.utils;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
-
 import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileInfo;
 import aceim.api.dataentity.FileMessage;
 import aceim.api.dataentity.FileProgress;
@@ -27,8 +28,10 @@ import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.AccountService;
 import aceim.app.service.CoreService;
+import aceim.app.view.page.Page;
 import aceim.app.view.page.chat.Chat;
 import aceim.app.view.page.contactlist.ContactList;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -38,6 +41,7 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -47,7 +51,7 @@ public class Notificator {
 
 	private static final String URI_PROTOCOL = "aceim://";
 
-	public float mVolumeLevel = 1f;
+	private float mVolumeLevel = 1f;
 
 	private Context mContext;
 	private final NotificationManager mNotificatorManager;
@@ -180,54 +184,105 @@ public class Notificator {
 		notificationIntent.putExtra(Constants.INTENT_EXTRA_MESSAGE, message);
 	}
 
-	public void onAccountStateChanged(AccountService accountService) {
-		Account account = accountService.getAccount();
-
-		Logger.log("Notification for account " + account, LoggerLevel.VERBOSE);
-
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
-
+	public void onAccountStateChanged(List<AccountService> accountServices) {
 		switch (mStatusBarMode) {
 		case ACCOUNTS:
 			mNotificatorManager.cancel(APP_ICON_ID);
-
-			int unreads = account.getUnreadMessages();
-
-			builder.setAutoCancel(false);
-			builder.setOngoing(true);
-			builder.setContentTitle(account.getSafeName());
-			builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources(false)));
-			builder.setLargeIcon(ViewUtils.getIcon(mContext, account.getFilename()));
-
-			builder.setSmallIcon(unreads > 0 ? R.drawable.ic_message : ViewUtils.getAccountStatusIcon(mContext, account));
-			builder.setNumber(unreads);
-
-			Intent notificationIntent = new Intent(mContext, MainActivity.class);
-			String notificatorId = ContactList.class.getSimpleName() + " " + account.getAccountId();
-			notificationIntent.setData((Uri.parse(URI_PROTOCOL + notificatorId)));
-			PendingIntent contentIntent = PendingIntent.getActivity(mContext, account.getServiceId(), notificationIntent, 0);
-			builder.setContentIntent(contentIntent);
-
-			mNotificatorManager.notify(account.getAccountId().hashCode(), builder.build());
+			
+			// order of application bar icons is changed in Android 2.3
+			if (Build.VERSION.SDK_INT < 9) {
+				for (AccountService as : accountServices) {
+					accountNotification(as);				
+				}
+			} else {
+				for (int i=accountServices.size()-1; i>=0; i--) {
+					accountNotification(accountServices.get(i));
+				}
+			}		
 			break;
 		case APP_ICON:
-			mNotificatorManager.cancel(account.getAccountId().hashCode());
-
-			notificationIntent = new Intent(mContext, MainActivity.class);
-			contentIntent = PendingIntent.getActivity(mContext, account.getServiceId(), notificationIntent, 0);
-			builder.setSmallIcon(R.drawable.ic_appbar_icon);
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+			
+			int onlines = 0;
+			int offlines = 0;
+			for (AccountService as : accountServices) {
+				if (as != null && as.getAccount().isEnabled()) {
+					if (as.getAccount().getConnectionState() == ConnectionState.CONNECTED) {
+						onlines++;
+					} else {
+						offlines++;
+					}
+				}
+				mNotificatorManager.cancel(as.getAccount().getAccountId().hashCode());			
+			}
+			
+			StringBuilder contentText = new StringBuilder();
+			if (onlines > 0) {
+				contentText.append(onlines);
+				contentText.append(" ");
+				contentText.append(mContext.getString(R.string.online));
+			}			
+			if (onlines > 0 && offlines > 0) {
+				contentText.append(", ");
+			}
+			if (offlines > 0) {
+				contentText.append(offlines);
+				contentText.append(" ");
+				contentText.append(mContext.getString(R.string.offline));
+			}
+			
+			Intent notificationIntent = new Intent(mContext, MainActivity.class);
+			PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, notificationIntent, 0);
+			builder.setOngoing(true);
+			builder.setSmallIcon(R.drawable.ic_logo_notification);
 			builder.setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher));
 			builder.setContentTitle(mContext.getString(R.string.app_name));
-			builder.setContentText(mContext.getString(R.string.press_to_open));
+			builder.setContentText(contentText.toString());
 			builder.setContentIntent(contentIntent);
 
 			mNotificatorManager.notify(APP_ICON_ID, builder.build());
 			break;
 		default:
 			mNotificatorManager.cancel(APP_ICON_ID);
-			mNotificatorManager.cancel(account.getAccountId().hashCode());
+			for (AccountService as : accountServices) {
+				mNotificatorManager.cancel(as.getAccount().getAccountId().hashCode());			
+			}
 			break;
 		}
+	}
+	
+	@SuppressLint("InlinedApi")
+	private void accountNotification(AccountService accountService) {
+		if (accountService == null || !accountService.getAccount().isEnabled()) return;
+			
+		Account account = accountService.getAccount();
+
+		Logger.log("Notification for account " + account, LoggerLevel.VERBOSE);
+
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+		int unreads = account.getUnreadMessages();
+		
+		int targetWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB 
+				? mContext.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width) : 
+					0;
+		
+		builder.setAutoCancel(false);
+		builder.setOngoing(true);
+		builder.setContentTitle(account.getSafeName());
+		builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources(false)));
+		builder.setLargeIcon(ViewUtils.getIcon(mContext, account.getFilename(), targetWidth, 0));
+
+		builder.setSmallIcon(unreads > 0 ? R.drawable.ic_message : ViewUtils.getAccountStatusIcon(mContext, account));
+		builder.setNumber(unreads);
+
+		Intent notificationIntent = new Intent(mContext, MainActivity.class);
+		String notificatorId = Page.getPageIdForEntityWithId(ContactList.class, account);
+		notificationIntent.setData((Uri.parse(URI_PROTOCOL + notificatorId)));
+		PendingIntent contentIntent = PendingIntent.getActivity(mContext, account.getServiceId(), notificationIntent, 0);
+		builder.setContentIntent(contentIntent);
+
+		mNotificatorManager.notify(account.getAccountId().hashCode(), builder.build());
 	}
 
 	public void onFileTransferProgress(FileProgress progress) {
@@ -288,11 +343,11 @@ public class Notificator {
 		mNotificatorManager.cancel(account.getAccountId().hashCode());
 	}
 
-	public void removeMessageNotification(Buddy buddy, AccountService service) {
+	public void removeMessageNotification(Buddy buddy, List<AccountService> services) {
 		Logger.log("Remove message notification for " + buddy, LoggerLevel.VERBOSE);
 		switch (mStatusBarMode) {
 		case ACCOUNTS:
-			onAccountStateChanged(service);
+			onAccountStateChanged(services);
 			break;
 		default:
 			mNotificatorManager.cancel(buddy.getFilename().hashCode());
@@ -435,6 +490,20 @@ public class Notificator {
 			return;
 		}
 		this.mSoundMode = soundMode;
+	}
+	
+	/**
+	 * @return the mVolumeLevel
+	 */
+	public float getVolumeLevel() {
+		return mVolumeLevel;
+	}
+
+	/**
+	 * @param mVolumeLevel the mVolumeLevel to set
+	 */
+	public void setVolumeLevel(float mVolumeLevel) {
+		this.mVolumeLevel = mVolumeLevel;
 	}
 
 	/**

@@ -16,6 +16,7 @@ import aceim.app.view.page.other.Splash;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import aceim.app.widgets.pageselector.PageAdapter;
 import aceim.app.widgets.pageselector.TabSelector;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -218,7 +219,7 @@ public class TabletScreen extends Screen {
 		Page leftSelectedPage = mPageManagerLeft.getSelectedPage();
 		Page rightSelectedPage = mPageManagerRight.getSelectedPage();
 		
-		if (rightSelectedPage != null) {
+		if (rightSelectedPage != null && rightSelectedPage.hasMenu()) {
 			rightSelectedPage.onPrepareOptionsMenu(menu);
 		}
 		if (leftSelectedPage != null) {
@@ -270,6 +271,7 @@ public class TabletScreen extends Screen {
 		}).first();
 	}
 	
+	@SuppressLint("NewApi")
 	private void setMenuButtonAvailability() {
 		mMenuButton.setVisibility(
 				Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(getContext()).hasPermanentMenuKey()) ? 

@@ -2,6 +2,7 @@ package aceim.app.view.page.contactlist;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -257,8 +258,8 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 	}	
 	
 	@Override
-	public void onBuddyStateChanged(Buddy buddy) {
-		mUpdater.onBuddyStateChanged(buddy);
+	public void onBuddyStateChanged(List<Buddy> buddies) {
+		mUpdater.onBuddyStateChanged(buddies);
 	}
 	
 	@Override
@@ -458,12 +459,12 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		}
 		
 		Page selectedPage = getMainActivity().getScreen().getSelectedPage();
-		if (selectedPage.getPageId().equals(Chat.class.getSimpleName() + " " + b.getFilename())) {
+		if (selectedPage.getPageId().equals(Page.getPageIdForEntityWithId(Chat.class, b))) {
 			return;
 		}
 		
 		b.incrementUnread();
-		onBuddyStateChanged(b);
+		onBuddyStateChanged(Arrays.asList(b));
 		try {
 			getMainActivity().getCoreService().notifyUnread(message, b);
 		} catch (RemoteException e) {
@@ -545,6 +546,11 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		} catch (RemoteException e) {
 			activity.onRemoteException(e);
 		}
+	}
+	
+	@Override
+	public boolean hasMenu(){
+		return true;
 	}
 	
 	protected ContactListAdapter getAdapter() {

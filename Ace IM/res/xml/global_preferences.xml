@@ -93,6 +93,13 @@
             android:defaultValue="@string/default_autoconnect"
             android:key="AUTO_CONNECT"
             android:title="@string/autoconnect" />
+        <aceim.app.widgets.preference.SeekBarPreference
+            android:defaultValue="@string/default_reconnection_attempts"
+            android:max="10"
+            android:stepSize="1"
+            android:key="RECONNECTION_ATTEMPTS"
+            
+            android:title="@string/reconnection_attempts" />
     </PreferenceCategory>
 
 </PreferenceScreen>

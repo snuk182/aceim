@@ -1,6 +1,7 @@
 package aceim.app.view.page.transfers;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import aceim.api.dataentity.Buddy;
@@ -163,7 +164,7 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 	}
 
 	@Override
-	public void onBuddyStateChanged(Buddy buddy) {}
+	public void onBuddyStateChanged(List<Buddy> buddy) {}
 
 	@Override
 	public Buddy getBuddy() {
