@@ -12,7 +12,6 @@ import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.MainActivity;
-import aceim.app.R;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.dataentity.listeners.IHasAccount;
@@ -198,8 +197,6 @@ public abstract class Page extends Fragment {
 	}
 	
 	public static void getAboutPage(Screen screen) {
-		
-		ViewUtils.showInformationToast(screen.getContext(), android.R.drawable.ic_menu_always_landscape_portrait, R.string.simple_placeholder, "BOOO!!!");
 		
 		Page page = getPage(screen, new PageIdLinqRule(About.class.getSimpleName()));
 		if (page == null) {

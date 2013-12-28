@@ -1,5 +1,5 @@
 <resources>
-
+	<string name="x_is_not_a_chat" formatted="false">%s is not a chat!</string>
     <string name="groupchats">Group chats</string>
     <string name="app_name">Ace IM Vkontakte Module</string>
     
@@ -11,7 +11,4 @@
 	<string name="longpoll_wait_time">Poll wait time</string>
 	
 	<string name="info">Vkontakte connectivity module for Ace IM. Homepage https://github.com/snuk182/aceim</string>	
-	
-	<string name="online">Online</string>
-	<string name="away">Away</string>
 </resources>

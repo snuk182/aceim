@@ -29,19 +29,25 @@ public class VkChat extends ApiObject {
 	}
 	
 	public long[] getUsers() {
-		JSONArray arr = getJSONObject().optJSONArray("users");
-		
-		long[] result = new long[arr.length()];
-		
-		for (int i=0; i<arr.length(); i++) {
-			try {
-				result[i] = arr.getLong(i);
-			} catch (JSONException e) {
-				Logger.log(e);
+		try {
+			JSONArray arr = getJSONObject().optJSONArray("users");
+			
+			long[] result = new long[arr.length()];
+			
+			for (int i=0; i<arr.length(); i++) {
+				try {
+					result[i] = arr.getLong(i);
+				} catch (JSONException e) {
+					Logger.log(e);
+				}
 			}
+			
+			return result;
+		} catch (Exception e) {
+			Logger.log(e);
 		}
 		
-		return result;
+		return new long[0];
 	}
 	
 	@Override 

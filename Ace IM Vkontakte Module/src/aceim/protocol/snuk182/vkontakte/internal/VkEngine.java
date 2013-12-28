@@ -449,6 +449,9 @@ final class VkEngine {
 						for (LongPollResponseUpdate u : response.getUpdates()) {
 							processUpdate(u, callback);
 						}
+					} else {
+						//Despite of the "wait" parameter in request, server does not hold the connection and returns previous value immediately. It's not a local cache issue.
+						Thread.sleep(1000);
 					}
 
 					if (response.isConnectionDead()) {

@@ -24,6 +24,7 @@ import aceim.api.dataentity.TextMessage;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
+import aceim.protocol.snuk182.vkontakte.R;
 import aceim.protocol.snuk182.vkontakte.VkConstants;
 import aceim.protocol.snuk182.vkontakte.VkEntityAdapter;
 import aceim.protocol.snuk182.vkontakte.VkService;
@@ -66,8 +67,10 @@ public class VkServiceInternal {
 
 		@Override
 		public void message(VkMessage vkm) {
-			Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId());
-			service.getCoreService().message(message);
+			if (!isChatUid(vkm.getPartnerId()) || isChatJoined(vkm.getPartnerId())) {
+				Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId());
+				service.getCoreService().message(message);
+			} 
 		}
 
 		@Override
@@ -197,6 +200,11 @@ public class VkServiceInternal {
 				try {
 					if (engine == null) {
 						onLogout(null);
+					}
+					
+					if (!isChatUid(Long.parseLong(chatId))) {
+						service.getCoreService().notification(service.getContext().getString(R.string.x_is_not_a_chat, chatId));
+						return;
 					}
 					
 					VkChat vkChat = engine.getChatById(chatId);
@@ -376,6 +384,10 @@ public class VkServiceInternal {
 					
 					chats.clear();
 					chats.addAll(vkchats);
+					
+					List<OnlineInfo> onlineInfos = VkEntityAdapter.vkChats2OnlineInfoList(chats, connectedChats, service.getProtocolUid(), service.getServiceId());
+					
+					service.getCoreService().buddyStateChanged(onlineInfos);
 				} catch (RequestFailedException e) {
 					onRequestFailed(e);
 				}
@@ -425,7 +437,13 @@ public class VkServiceInternal {
 	}
 
 	private boolean isChatUid(long uid) {
-		return chats.contains(uid);
+		for (VkChat chat : chats) {
+			if (chat.getId() == uid) {
+				return true;
+			} 
+		}
+		
+		return false;
 	}
 	
 	private boolean isChatJoined(long uid) {

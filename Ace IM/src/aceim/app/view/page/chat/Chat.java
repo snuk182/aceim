@@ -707,27 +707,40 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		MenuItem sendFile = menu.findItem(R.id.menuitem_send_file);
 		if (sendFile != null) {
-			sendFile.setVisible(mAccount.getConnectionState() == ConnectionState.CONNECTED && mBuddy.getOnlineInfo().getFeatures().getBoolean(ApiConstants.FEATURE_FILE_TRANSFER, false));
+			sendFile.setVisible(
+					mAccount.getConnectionState() == ConnectionState.CONNECTED
+					&& mBuddy.getOnlineInfo().getFeatures().getBoolean(ApiConstants.FEATURE_FILE_TRANSFER, false));
 		}
 		
 		MenuItem sendPhoto = menu.findItem(R.id.menuitem_send_photo);
 		if (sendPhoto != null) {
-			sendPhoto.setVisible(mAccount.getConnectionState() == ConnectionState.CONNECTED && mBuddy.getOnlineInfo().getFeatures().getBoolean(ApiConstants.FEATURE_FILE_TRANSFER, false));
+			sendPhoto.setVisible(
+					mAccount.getConnectionState() == ConnectionState.CONNECTED
+					&& mBuddy.getOnlineInfo().getFeatures().getBoolean(ApiConstants.FEATURE_FILE_TRANSFER, false));
 		}
 		
 		MenuItem joinChat = menu.findItem(R.id.menuitem_join_chat);
 		if (joinChat != null) {
-			joinChat.setVisible(mBuddy instanceof MultiChatRoom && mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0);
+			joinChat.setVisible(
+					mAccount.getConnectionState() == ConnectionState.CONNECTED
+					&& mBuddy instanceof MultiChatRoom
+					&& mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0);
 		}
 		
 		MenuItem leaveChat = menu.findItem(R.id.menuitem_leave_chat);
 		if (leaveChat != null) {
-			leaveChat.setVisible(mBuddy instanceof MultiChatRoom && mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1);
+			leaveChat.setVisible(
+					mAccount.getConnectionState() == ConnectionState.CONNECTED
+					&& mBuddy instanceof MultiChatRoom
+					&& mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1);
 		}
 		
 		MenuItem toggleParticipants = menu.findItem(R.id.menuitem_participants);
 		if (toggleParticipants != null) {
-			toggleParticipants.setVisible(mBuddy instanceof MultiChatRoom && mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1);
+			toggleParticipants.setVisible(
+					mAccount.getConnectionState() == ConnectionState.CONNECTED
+					&& mBuddy instanceof MultiChatRoom
+					&& mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1);
 		}
 	}
 	

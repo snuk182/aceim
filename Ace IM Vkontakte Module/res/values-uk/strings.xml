@@ -1,5 +1,5 @@
 <resources>
-
+	<string name="x_is_not_a_chat" formatted="false">%s не є чатом!</string>    
     <string name="groupchats">Чати</string>
     <string name="app_name">Модуль ВКонтакте для Ace IM</string>
 	<string name="username">ID користувача</string>
@@ -7,7 +7,4 @@
 	<string name="longpoll_wait_time">Час очікування Long poll</string>
 	
 	<string name="info">Модуль ВКонтакте for Ace IM. Домашня сторінка https://github.com/snuk182/aceim</string>	
-	
-	<string name="online">В мережі</string>
-	<string name="away">Пішов</string>
 </resources>

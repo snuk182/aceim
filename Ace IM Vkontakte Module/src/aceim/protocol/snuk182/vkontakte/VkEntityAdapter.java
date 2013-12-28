@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -136,7 +137,10 @@ public final class VkEntityAdapter {
 		if (vi == null) return null;
 		
 		OnlineInfo info = new OnlineInfo(serviceId, Long.toString(vi.getUid()));
-		info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, vi.getStatus());
+		
+		//Does not work either
+		//info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, vi.getStatus());
+		info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) (vi.getStatus() == 0 ? 0 : -1));
 		
 		return info;
 	}
@@ -252,5 +256,23 @@ public final class VkEntityAdapter {
 		}
 		
 		return tm;
+	}
+
+	public static List<OnlineInfo> vkChats2OnlineInfoList(Set<VkChat> chats, Set<Long> connectedChats, String protocolUid, byte serviceId) {
+		if (chats == null) return null;
+		
+		List<OnlineInfo> infos = new ArrayList<OnlineInfo>(chats.size());
+		
+		for (VkChat chat : chats) {
+			OnlineInfo info = new OnlineInfo(serviceId, Long.toString(chat.getId()));
+			
+			if (connectedChats != null && connectedChats.contains(chat.getId())) {
+				info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
+			}
+			
+			infos.add(info);
+		}
+		
+		return infos;
 	}
 }

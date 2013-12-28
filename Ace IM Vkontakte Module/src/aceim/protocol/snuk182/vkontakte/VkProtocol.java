@@ -1,19 +1,15 @@
 package aceim.protocol.snuk182.vkontakte;
 
 import aceim.api.dataentity.ActionFeature;
-import aceim.api.dataentity.ListFeature;
 import aceim.api.dataentity.ProtocolOption;
 import aceim.api.dataentity.ProtocolOption.ProtocolOptionType;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.dataentity.ProtocolServiceFeatureTarget;
-import aceim.api.service.ApiConstants;
 import aceim.api.service.ProtocolService;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import aceim.api.utils.Utils;
 import aceim.protocol.snuk182.vkontakte.internal.VkApiConstants;
 import android.content.Intent;
-
 
 public class VkProtocol extends ProtocolService<VkService> {
 
@@ -25,17 +21,6 @@ public class VkProtocol extends ProtocolService<VkService> {
 	@Override
 	protected ProtocolServiceFeature[] getProtocolFeatures() {
 		return new ProtocolServiceFeature[]{
-				new ListFeature(
-						ApiConstants.FEATURE_STATUS, 
-						"Status", 
-						0,
-						true,
-						false,
-						true,
-						Utils.fillResources(getBaseContext().getResources(), R.array.status_names),
-						Utils.fillResources(getBaseContext().getResources(), R.array.status_icons),
-						false,
-						new ProtocolServiceFeatureTarget[]{ProtocolServiceFeatureTarget.ACCOUNT}),
 				new ActionFeature(VkApiConstants.FEATURE_GROUPCHATS,
 						getBaseContext().getString(R.string.groupchats),
 						R.drawable.ic_menu_allfriends,
