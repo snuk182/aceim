@@ -1,4 +1,6 @@
 <resources>
+    <string name="status_string">Status string</string>
+    
 	<string name="x_is_not_a_chat" formatted="false">%s is not a chat!</string>
     <string name="groupchats">Group chats</string>
     <string name="app_name">Ace IM Vkontakte Module</string>

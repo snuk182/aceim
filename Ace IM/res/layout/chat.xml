@@ -31,7 +31,7 @@
     		android:layout_alignParentBottom="true"
     		android:layout_toRightOf="@id/smiley"
     		android:layout_toLeftOf="@id/send"
-    		android:paddingTop="@dimen/top_bottom_bar_top_padding"
+    		android:paddingTop="@dimen/default_padding"
     		android:gravity="left|top" 
     		android:inputType="textCapSentences|textMultiLine"
     		android:imeOptions="flagNoExtractUi"

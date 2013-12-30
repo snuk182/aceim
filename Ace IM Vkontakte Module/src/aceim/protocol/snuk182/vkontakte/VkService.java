@@ -8,6 +8,7 @@ import aceim.api.dataentity.ItemAction;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.OnlineInfo;
 import aceim.api.service.AccountService;
+import aceim.api.service.ApiConstants;
 import aceim.api.service.ICoreProtocolCallback;
 import aceim.protocol.snuk182.vkontakte.internal.VkApiConstants;
 import aceim.protocol.snuk182.vkontakte.internal.VkServiceInternal;
@@ -70,6 +71,8 @@ public class VkService extends AccountService {
 		public void setFeature(String featureId, OnlineInfo arg1) {
 			if (featureId.equals(VkApiConstants.FEATURE_GROUPCHATS)) {
 				internal.requestAvailableGroupchats();
+			} else if (featureId.equals(ApiConstants.FEATURE_XSTATUS)) {
+				internal.setStatus(arg1);
 			}
 		}
 		

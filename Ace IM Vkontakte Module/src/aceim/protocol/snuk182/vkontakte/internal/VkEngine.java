@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -33,6 +36,7 @@ import org.json.JSONObject;
 
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
+import aceim.api.utils.Utils;
 import aceim.protocol.snuk182.vkontakte.VkConstants;
 import aceim.protocol.snuk182.vkontakte.VkEntityAdapter;
 import aceim.protocol.snuk182.vkontakte.model.AccessToken;
@@ -49,7 +53,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 final class VkEngine {
-
+	
 	private static final String API_URL = "https://api.vk.com/method/";
 	private static final String TOKEN_URL = "https://oauth.vk.com/access_token";
 
@@ -60,6 +64,8 @@ final class VkEngine {
 	
 	private PollListenerThread listener;
 	
+	private final VkEngineConnector connector;
+	
 	static {
 		System.setProperty("networkaddress.cache.ttl", "0");
 		System.setProperty("networkaddress.cache.negative.ttl", "0");
@@ -68,6 +74,7 @@ final class VkEngine {
 	VkEngine(String accessToken, String internalUserId) {
 		this.accessToken = accessToken;
 		this.internalUserId = internalUserId;
+		this.connector = new VkEngineConnector();
 	}
 	
 
@@ -77,6 +84,13 @@ final class VkEngine {
 		params.put("type", "typing");
 
 		doGetRequest("messages.setActivity", accessToken, params);		
+	}
+	
+	void setStatus(String statusString) throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("text", statusString);
+		
+		doGetRequest("status.set", accessToken, params);	
 	}
 	
 	List<VkChat> getGroupChats() throws RequestFailedException {
@@ -151,6 +165,19 @@ final class VkEngine {
 		
 		return ApiObject.parseArray(result, VkBuddy.class).get(0);
 	}
+	
+	String requestStatus(long uid) throws RequestFailedException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("uid", Long.toString(uid));
+		String result = doGetRequest("status.get", accessToken, params);
+		
+		try {
+			return Utils.unescapeXMLString(new JSONObject(result).getJSONObject("response").getString("text"));
+		} catch (JSONException e) {
+			Logger.log(e);
+			throw new RequestFailedException(e);
+		}
+	}
 
 	void connectLongPoll(int pollWaitTime, LongPollCallback callback) throws RequestFailedException {
 		Logger.log("Get new longpoll server connection", LoggerLevel.VERBOSE);
@@ -218,7 +245,7 @@ final class VkEngine {
 			params = new HashMap<String, String>(1);
 		}
 		params.put(PARAM_ACCESS_TOKEN, accessToken);
-		return request(Method.GET, API_URL + apiMethodName, VkEntityAdapter.map2NameValuePairs(params), null, null);
+		return connector.request(Method.GET, API_URL + apiMethodName, VkEntityAdapter.map2NameValuePairs(params), null, null);
 	}
 
 	private void startLongPollConnection(int pollWaitTime, LongPollServer lpServer, LongPollCallback callback) {
@@ -240,138 +267,13 @@ final class VkEngine {
 	
 	public byte[] getIcon(String url) throws RequestFailedException {
 		try {
-			return requestRawStream(Method.GET, url, null, null, null);
+			return connector.requestRawStream(Method.GET, url, null, null, null);
 		} catch (Exception e) {
 			disconnect(e.getLocalizedMessage());
 			throw new RequestFailedException(e);
 		}
 	}
 	
-	private static String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
-		try {
-			byte[] resultBytes = requestRawStream(method, url, parameters, content, nameValuePairs);
-			String result = new String(resultBytes, "UTF-8");
-			
-			Logger.log("Got " + result, LoggerLevel.VERBOSE);
-			return result;
-		} catch (Exception e) {
-			throw new RequestFailedException(e);
-		}
-	}
-
-	private static byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
-		Uri.Builder b = new Uri.Builder();
-		b.encodedPath(url);
-
-		if (parameters != null) {
-			for (NameValuePair p : parameters) {
-				b.appendQueryParameter(p.getName(), p.getValue());
-			}
-		}
-
-		url = b.build().toString();
-
-		HttpRequestBase request;
-		switch (method) {
-		case GET:
-			request = new HttpGet(new URI(url));
-			break;
-		case POST:
-			request = new HttpPost(new URI(url));
-			if (nameValuePairs != null) {
-				((HttpPost) request).setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			}
-
-			if (content != null) {
-				((HttpPost) request).setEntity(new StringEntity(content));
-			}
-			break;
-		default:
-			Logger.log("Unknown request method " + method, LoggerLevel.WTF);
-			return null;
-		}
-		
-		HttpEntity httpEntity = null;
-		ByteArrayOutputStream ostream = null;
-		try {
-			HttpParams httpParameters = new BasicHttpParams();
-			int timeoutConnection = 120000;
-			int timeoutSocket = 120000;
-			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-			httpParameters.setParameter("http.useragent", "Android mobile");
-
-			HttpClient httpclient = new DefaultHttpClient(httpParameters);
-			
-			//ClientConnectionManager connManager = httpclient.getConnectionManager();			
-			//httpclient = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParameters, connManager.getSchemeRegistry()), httpParameters);
-			
-			httpclient.getParams().setParameter("http.useragent", "Android mobile");
-
-			request.addHeader("Accept-Encoding", "gzip");
-			
-			Logger.log("Ask " + url, LoggerLevel.VERBOSE);
-			
-			HttpResponse response = httpclient.execute(request);
-			
-			Logger.log("..." + response.getStatusLine().getStatusCode(), LoggerLevel.VERBOSE);
-			
-			httpEntity = response.getEntity();
-			
-			InputStream instream = httpEntity.getContent();
-			Header contentEncoding = response.getFirstHeader("Content-Encoding");
-			if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
-				instream = new GZIPInputStream(instream);
-			}
-			
-			ostream = new ByteArrayOutputStream();
-			byte[] buffer = new byte[8192];
-			int read = -1;
-			
-			while((read = instream.read(buffer, 0, buffer.length)) != -1) {
-				ostream.write(buffer, 0, read);
-			}
-			
-			ostream.flush();
-			
-			return ostream.toByteArray();
-		} finally {
-			if (httpEntity != null) {
-				httpEntity.consumeContent();
-			}
-			if (ostream != null) {
-				ostream.close();
-			}
-		}
-	}
-
-	private static void processUpdate(LongPollResponseUpdate update, LongPollCallback callback) {
-		switch (update.getType()) {
-		case BUDDY_ONLINE:
-		case BUDDY_OFFLINE_AWAY:
-			VkOnlineInfo vi = VkOnlineInfo.fromLongPollUpdate(update);
-			callback.onlineInfo(vi);
-			break;
-		case MSG_NEW:
-			VkMessage vkm = VkMessage.fromLongPollUpdate(update);
-			if (vkm.isOutgoing() && vkm.isUnread()) {
-				callback.messageAck(vkm);
-			} else {
-				callback.message(vkm);
-			}
-			break;
-		case BUDDY_TYPING:
-			callback.typingNotification(update.getId(), 0);
-			break;
-		case BUDDY_TYPING_CHAT:
-			callback.typingNotification(Long.parseLong(update.getParams()[0]), update.getId());
-			break;
-		default:
-			Logger.log("LongPoll update: " + update.getType() + "/" + update.getId() + "/" + update.getParams(), LoggerLevel.INFO);
-			break;
-		}
-	}
-
 	static AccessToken getAccessToken(String code) throws RequestFailedException {
 		List<NameValuePair> params = new ArrayList<NameValuePair>(4);
 
@@ -380,7 +282,7 @@ final class VkEngine {
 		params.add(new BasicNameValuePair("code", code));
 		params.add(new BasicNameValuePair("redirect_uri", VkConstants.OAUTH_REDIRECT_URL));
 
-		String json = request(Method.GET, TOKEN_URL, params, null, null);
+		String json = new VkEngineConnector().request(Method.GET, TOKEN_URL, params, null, null);
 		
 		try {
 			AccessToken token = new AccessToken(json);
@@ -437,7 +339,7 @@ final class VkEngine {
 
 			while (!isInterrupted() && !isClosed) {
 				try {
-					String responseString = request(Method.GET, "http://" + url, params, null, null);
+					String responseString = connector.request(Method.GET, "http://" + url, params, null, null);
 					
 					LongPollResponse response = new LongPollResponse(responseString);
 
@@ -472,6 +374,33 @@ final class VkEngine {
 				}
 			}
 		}
+		
+		private void processUpdate(LongPollResponseUpdate update, LongPollCallback callback) {
+			switch (update.getType()) {
+			case BUDDY_ONLINE:
+			case BUDDY_OFFLINE_AWAY:
+				VkOnlineInfo vi = VkOnlineInfo.fromLongPollUpdate(update);
+				callback.onlineInfo(vi);
+				break;
+			case MSG_NEW:
+				VkMessage vkm = VkMessage.fromLongPollUpdate(update);
+				if (vkm.isOutgoing() && vkm.isUnread()) {
+					callback.messageAck(vkm);
+				} else {
+					callback.message(vkm);
+				}
+				break;
+			case BUDDY_TYPING:
+				callback.typingNotification(update.getId(), 0);
+				break;
+			case BUDDY_TYPING_CHAT:
+				callback.typingNotification(Long.parseLong(update.getParams()[0]), update.getId());
+				break;
+			default:
+				Logger.log("LongPoll update: " + update.getType() + "/" + update.getId() + "/" + update.getParams(), LoggerLevel.INFO);
+				break;
+			}
+		}
 	}
 	
 	public void disconnect(String reason) {
@@ -504,5 +433,123 @@ final class VkEngine {
 		void message(VkMessage vkm);
 		void typingNotification(long contactId, long chatParticipantId);
 		void disconnected(String reason);
+	}
+	
+	private static class VkEngineConnector {
+		private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+		private volatile boolean requestAllowed = true;
+		
+		private final Runnable requestAllowedResetter = new Runnable() {
+
+			@Override
+			public void run() {
+				requestAllowed = true;
+			}
+			
+		};
+
+		private String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
+			try {
+				byte[] resultBytes = requestRawStream(method, url, parameters, content, nameValuePairs);
+				String result = new String(resultBytes, "UTF-8");
+				
+				Logger.log("Got " + result, LoggerLevel.VERBOSE);
+				return result;
+			} catch (Exception e) {
+				throw new RequestFailedException(e);
+			}
+		}
+
+		private byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
+			while (!requestAllowed) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {}
+			}
+			
+			Uri.Builder b = new Uri.Builder();
+			b.encodedPath(url);
+
+			if (parameters != null) {
+				for (NameValuePair p : parameters) {
+					b.appendQueryParameter(p.getName(), p.getValue());
+				}
+			}
+
+			url = b.build().toString();
+
+			HttpRequestBase request;
+			switch (method) {
+			case GET:
+				request = new HttpGet(new URI(url));
+				break;
+			case POST:
+				request = new HttpPost(new URI(url));
+				if (nameValuePairs != null) {
+					((HttpPost) request).setEntity(new UrlEncodedFormEntity(nameValuePairs));
+				}
+
+				if (content != null) {
+					((HttpPost) request).setEntity(new StringEntity(content));
+				}
+				break;
+			default:
+				Logger.log("Unknown request method " + method, LoggerLevel.WTF);
+				return null;
+			}
+			
+			HttpEntity httpEntity = null;
+			ByteArrayOutputStream ostream = null;
+			try {
+				HttpParams httpParameters = new BasicHttpParams();
+				int timeoutConnection = 120000;
+				int timeoutSocket = 120000;
+				HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+				HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+				httpParameters.setParameter("http.useragent", "Android mobile");
+
+				HttpClient httpclient = new DefaultHttpClient(httpParameters);
+				
+				httpclient.getParams().setParameter("http.useragent", "Android mobile");
+
+				request.addHeader("Accept-Encoding", "gzip");
+				
+				Logger.log("Ask " + url, LoggerLevel.VERBOSE);
+				
+				requestAllowed = false;
+				HttpResponse response = httpclient.execute(request);
+				
+				scheduledExecutor.schedule(requestAllowedResetter, 334, TimeUnit.MILLISECONDS);
+				
+				Logger.log("..." + response.getStatusLine().getStatusCode(), LoggerLevel.VERBOSE);
+				
+				httpEntity = response.getEntity();
+				
+				InputStream instream = httpEntity.getContent();
+				Header contentEncoding = response.getFirstHeader("Content-Encoding");
+				if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+					instream = new GZIPInputStream(instream);
+				}
+				
+				ostream = new ByteArrayOutputStream();
+				byte[] buffer = new byte[8192];
+				int read = -1;
+				
+				while((read = instream.read(buffer, 0, buffer.length)) != -1) {
+					ostream.write(buffer, 0, read);
+				}
+				
+				ostream.flush();
+				
+				return ostream.toByteArray();
+			} finally {
+				if (httpEntity != null) {
+					httpEntity.consumeContent();
+				}
+				if (ostream != null) {
+					ostream.close();
+				}
+			}
+		}
 	}
 }

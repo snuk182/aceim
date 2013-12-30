@@ -49,6 +49,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -342,20 +343,39 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 					
 					ListFeature lf = (ListFeature) feature;
 					
-					Drawable icon;
-					String title;
-					byte value = accountFeatures.getByte(feature.getFeatureId(), (byte) -1);
-					
-					if (value > -1) {
-						icon = r.getDrawable(lf.getDrawables()[value]);
-						title = r.getString(lf.getNames()[value]);
+					if (lf.getDrawables() != null && lf.getNames() != null) {
+						Drawable icon;
+						String title;
+						byte value = accountFeatures.getByte(feature.getFeatureId(), (byte) -1);
+						
+						if (value > -1) {
+							icon = r.getDrawable(lf.getDrawables()[value]);
+							title = r.getString(lf.getNames()[value]);
+						} else {
+							icon = myRes.getDrawable(R.drawable.empty);
+							title = lf.getFeatureName();
+						}
+						
+						item.setIcon(icon);
+						
+						if (feature.getFeatureId().equals(ApiConstants.FEATURE_XSTATUS) && !TextUtils.isEmpty(mAccount.getOnlineInfo().getXstatusName())) {
+							item.setTitle(mAccount.getOnlineInfo().getXstatusName());
+						} else {
+							item.setTitle(title);
+						}
 					} else {
-						icon = myRes.getDrawable(R.drawable.empty);
-						title = lf.getFeatureName();
+						if (feature.getFeatureId().equals(ApiConstants.FEATURE_XSTATUS)) {
+							
+							if (TextUtils.isEmpty(mAccount.getOnlineInfo().getXstatusName())) {
+								item.setTitle(lf.getFeatureName());
+							} else {
+								item.setTitle(mAccount.getOnlineInfo().getXstatusName());
+							}							
+						} else {
+							continue;
+						}
 					}
 					
-					item.setIcon(icon);
-					item.setTitle(title);
 				} else if (feature instanceof InputFormFeature || feature instanceof ActionFeature) {
 					if (feature.getIconId() != 0){
 						item.setIcon(r.getDrawable(feature.getIconId()));

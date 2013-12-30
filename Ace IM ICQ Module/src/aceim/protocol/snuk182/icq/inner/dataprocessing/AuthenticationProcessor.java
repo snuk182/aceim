@@ -129,8 +129,8 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 		byte[] pw = pws.getBytes();
 		byte[] pwhash = new byte[pw.length];
 		
-		// they don't support passwords longer than 8 symbols (facepalm)
 		int ln;
+		// they don't support passwords longer than 8 symbols (facepalm)
 		if (pw.length > 8) {
 			ln = 8;
 		} else {

@@ -1,5 +1,7 @@
 <resources>
-	<string name="x_is_not_a_chat" formatted="false">%s не является чатом!</string>    
+	<string name="status_string">Строка статуса</string>
+    
+    <string name="x_is_not_a_chat" formatted="false">%s не является чатом!</string>    
     <string name="groupchats">Чаты</string>
     <string name="app_name">Модуль ВКонтакте для Ace IM</string>
 	<string name="username">Имя пользователя</string>

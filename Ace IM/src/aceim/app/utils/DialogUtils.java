@@ -76,22 +76,12 @@ public final class DialogUtils {
 
 	public static void showEditListFeatureDialog(final MainActivity activity, final OnlineInfo info, ProtocolResources protocolResources, final ListFeature feature) {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		View view = LayoutInflater.from(activity).inflate(R.layout.list_feature_dialog, null);
-		builder.setView(view);
-	
-		final GridView grid = (GridView) view.findViewById(R.id.grid);
-	
-		grid.setColumnWidth(activity.getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
 		builder.setTitle(feature.getFeatureName());
-	
-		final IconTitleAdapter adapter;
-		try {
-			adapter = IconTitleAdapter.fromListFeature(activity, R.layout.status_item, protocolResources, feature);
-			grid.setAdapter(adapter);
-		} catch (AceImException e) {
-			Logger.log(e);
-			return;
-		}
+		
+		final OnlineInfo tmp = new OnlineInfo(info.getServiceId(), info.getProtocolUid());
+		
+		View view = LayoutInflater.from(activity).inflate(R.layout.list_feature_dialog, null);
+		final GridView grid = (GridView) view.findViewById(R.id.grid);
 	
 		final EditText titleEditor = (EditText) view.findViewById(android.R.id.text1);
 		final EditText textEditor = (EditText) view.findViewById(android.R.id.text2);
@@ -103,33 +93,49 @@ public final class DialogUtils {
 			titleEditor.setText(info.getXstatusName());
 			textEditor.setText(info.getXstatusDescription());
 		}
-		final OnlineInfo tmp = new OnlineInfo(info.getServiceId(), info.getProtocolUid());
-		tmp.getFeatures().putByte(feature.getFeatureId(), info.getFeatures().getByte(feature.getFeatureId(), (byte) (feature.isNullable() ? -1 : 0)));
-	
-		grid.setOnItemClickListener(new OnItemClickListener() {
-	
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (position < 0 || position >= adapter.getCount()) {
-					return;
-				}
-	
-				IconTitleItem item = adapter.getItem(position);
-	
-				if (feature.getFeatureId().equals(ApiConstants.FEATURE_XSTATUS)) {
-					String currentTitle = titleEditor.getText().toString().trim();
-	
-					if (TextUtils.isEmpty(currentTitle) || currentTitle.equals(adapter.getItem(tmp.getFeatures().getByte(feature.getFeatureId()) + 1).getTitle())) {
-						titleEditor.setText(item.getTitle());
-					}
-				}
-	
-				adapter.setSelectedItem(position);
-				adapter.notifyDataSetChanged();
-				tmp.getFeatures().putByte(feature.getFeatureId(), (byte) (feature.isNullable() ? position - 1 : position));
+		
+		if (feature.getDrawables() != null && feature.getNames() != null) {
+			grid.setColumnWidth(activity.getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
+			
+			final IconTitleAdapter adapter;
+			try {
+				adapter = IconTitleAdapter.fromListFeature(activity, R.layout.status_item, protocolResources, feature);
+				grid.setAdapter(adapter);
+			} catch (AceImException e) {
+				Logger.log(e);
+				return;
 			}
-		});
-	
+		
+			grid.setOnItemClickListener(new OnItemClickListener() {
+				
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					if (position < 0 || position >= adapter.getCount()) {
+						return;
+					}
+		
+					IconTitleItem item = adapter.getItem(position);
+		
+					if (feature.getFeatureId().equals(ApiConstants.FEATURE_XSTATUS)) {
+						String currentTitle = titleEditor.getText().toString().trim();
+		
+						if (TextUtils.isEmpty(currentTitle) || currentTitle.equals(adapter.getItem(tmp.getFeatures().getByte(feature.getFeatureId()) + 1).getTitle())) {
+							titleEditor.setText(item.getTitle());
+						}
+					}
+		
+					adapter.setSelectedItem(position);
+					adapter.notifyDataSetChanged();
+					tmp.getFeatures().putByte(feature.getFeatureId(), (byte) (feature.isNullable() ? position - 1 : position));
+				}
+			});
+			
+			grid.setAdapter(adapter);
+			tmp.getFeatures().putByte(feature.getFeatureId(), info.getFeatures().getByte(feature.getFeatureId(), (byte) (feature.isNullable() ? -1 : 0)));
+		} else {
+			grid.setVisibility(View.GONE);
+		}
+		
 		builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
 	
 			@Override
@@ -154,6 +160,7 @@ public final class DialogUtils {
 				}
 			}
 		});
+		
 		builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
 	
 			@Override
@@ -162,11 +169,15 @@ public final class DialogUtils {
 			}
 		});
 	
-		grid.setAdapter(adapter);
+		builder.setView(view);
+		
 		showBrandedDialog(builder.create());
 	
-		byte currentValue = info.getFeatures().getByte(feature.getFeatureId());
-		grid.performItemClick(null, feature.isNullable() ? currentValue + 1 : currentValue, 0);
+		if (feature.getDrawables() != null && feature.getNames() != null) {
+			byte currentValue = info.getFeatures().getByte(feature.getFeatureId());
+			
+			grid.performItemClick(null, feature.isNullable() ? currentValue + 1 : currentValue, 0);
+		}
 	}
 
 	public static void buddyGroupContextMenu(final MainActivity mainActivity, final Account account, final BuddyGroup group, final ProtocolResources protocolResources) {

@@ -660,6 +660,11 @@ public class ICQServiceInternal {
 		case REQ_CONNECT:
 			un = (String) args[0];
 			pw = (String) args[1];
+			
+			// ICQ does not support passwords longer than 8 symbols
+			if (pw != null && pw.length() > 8) {
+				pw = pw.substring(0, 8);
+			}
 
 			if (args[2] != null) {
 				loginHost = (String) args[2];
@@ -668,24 +673,6 @@ public class ICQServiceInternal {
 			if (args[3] != null) {
 				loginPort = Integer.parseInt(((String) args[3]).trim().replace("\n", ""));
 			}
-
-			/*
-			 * Set<String> nameSet = new HashSet<String>();
-			 * nameSet.add(ICQConstants.SAVEDPREFERENCES_SSI_ITEM_COUNT);
-			 * nameSet.add(ICQConstants.SAVEDPREFERENCES_SSI_UPDATE_DATE);
-			 * 
-			 * Map<String, String> privatePreferences = (Map<String, String>)
-			 * serviceResponse.respond(serviceResponse.RES_GETFROMSTORAGE,
-			 * ICQConstants.SAVEDPREFERENCES_NAME, nameSet); String ssiItemCount
-			 * =
-			 * privatePreferences.get(ICQConstants.SAVEDPREFERENCES_SSI_ITEM_COUNT
-			 * ); String ssiLastUpdate =
-			 * privatePreferences.get(ICQConstants.SAVEDPREFERENCES_SSI_UPDATE_DATE
-			 * ); if (ssiItemCount!=null && ssiLastUpdate!=null){
-			 * buddyList.itemNumber = Integer.parseInt(ssiItemCount);
-			 * buddyList.lastUpdateTime = new
-			 * Date(Long.parseLong(ssiLastUpdate)); }
-			 */
 
 			onlineInfo = (ICQOnlineInfo) args[4];
 
