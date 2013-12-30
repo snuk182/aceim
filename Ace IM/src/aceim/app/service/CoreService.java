@@ -1694,7 +1694,7 @@ public class CoreService extends Service {
 		if (TextUtils.isEmpty(hash) || !hash.equals(info.getIconHash())) {
 			try {
 				accountService.getProtocolService().getProtocol().requestIcon(info.getServiceId(), info.getProtocolUid());
-			} catch (RemoteException e) {
+			} catch (Exception e) {
 				Logger.log(e);
 			}
 		}

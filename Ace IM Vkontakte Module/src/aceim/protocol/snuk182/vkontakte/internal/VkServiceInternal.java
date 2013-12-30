@@ -67,10 +67,13 @@ public class VkServiceInternal {
 
 		@Override
 		public void message(VkMessage vkm) {
-			if (!isChatUid(vkm.getPartnerId()) || isChatJoined(vkm.getPartnerId())) {
-				Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId());
-				service.getCoreService().message(message);
+			Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId());
+			
+			if (isChatUid(vkm.getPartnerId()) && !isChatJoined(vkm.getPartnerId())) {
+				joinChatInternal(message.getContactUid(), false);
 			} 
+			
+			service.getCoreService().message(message);
 		}
 
 		@Override
@@ -192,45 +195,62 @@ public class VkServiceInternal {
 		}).start();
 	}
 	
-	public void joinChat(final String chatId, boolean loadIcons) {
+	public void joinChat(final String chatId, final boolean loadIcons) {
 		Executors.defaultThreadFactory().newThread(new Runnable() {
 			
 			@Override
 			public void run() {
-				try {
-					if (engine == null) {
-						onLogout(null);
-					}
-					
-					if (!isChatUid(Long.parseLong(chatId))) {
-						service.getCoreService().notification(service.getContext().getString(R.string.x_is_not_a_chat, chatId));
-						return;
-					}
-					
-					VkChat vkChat = engine.getChatById(chatId);
-					
-					List<VkBuddy> occupants = engine.getUsersByIdList(vkChat.getUsers());
-					
-					MultiChatRoom chat = VkEntityAdapter.vkChat2MultiChatRoom(vkChat, service.getProtocolUid(), service.getServiceId());
-					chat.getOccupants().addAll(VkEntityAdapter.vkChatOccupants2ChatOccupants(vkChat, occupants, accessToken.getUserID(), service.getProtocolUid(), service.getServiceId()));
-					chat.getOnlineInfo().getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
-					
-					chats.add(vkChat);
-					connectedChats.add(vkChat.getId());
-					
-					service.getCoreService().buddyAction(ItemAction.JOINED, chat);
-					service.getCoreService().buddyStateChanged(Arrays.asList(chat.getOnlineInfo()));
-					
-					/*List<VkMessage> vkMessages = engine.getLastChatMessages(chat.getProtocolUid(), true);
-					
-					for (VkMessage vkm : vkMessages) {
-						service.getCoreService().message(VkEntityAdapter.vkChatMessage2Message(vkChat.getId(), vkm, service.getServiceId()));
-					}*/
-				} catch (RequestFailedException e) {
-					onRequestFailed(e);
-				}
+				joinChatInternal(chatId, loadIcons);
 			}
 		}).start();
+		
+	}
+	
+	private void joinChatInternal(final String chatId, boolean loadIcons) {
+		try {
+			if (engine == null) {
+				onLogout(null);
+			}
+			
+			if (!isChatUid(Long.parseLong(chatId))) {
+				service.getCoreService().notification(service.getContext().getString(R.string.x_is_not_a_chat, chatId));
+				return;
+			}
+			
+			final VkChat vkChat = engine.getChatById(chatId);
+			
+			List<VkBuddy> occupants = engine.getUsersByIdList(vkChat.getUsers());
+			
+			MultiChatRoom chat = VkEntityAdapter.vkChat2MultiChatRoom(vkChat, service.getProtocolUid(), service.getServiceId());
+			chat.getOccupants().addAll(VkEntityAdapter.vkChatOccupants2ChatOccupants(vkChat, occupants, accessToken.getUserID(), service.getProtocolUid(), service.getServiceId()));
+			chat.getOnlineInfo().getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
+			
+			chats.add(vkChat);
+			connectedChats.add(vkChat.getId());
+			
+			service.getCoreService().buddyAction(ItemAction.JOINED, chat);
+			service.getCoreService().buddyStateChanged(Arrays.asList(chat.getOnlineInfo()));
+			
+			/*List<VkMessage> vkMessages = engine.getLastChatMessages(chat.getProtocolUid(), true);
+			
+			for (VkMessage vkm : vkMessages) {
+				service.getCoreService().message(VkEntityAdapter.vkChatMessage2Message(vkChat.getId(), vkm, service.getServiceId()));
+			}*/
+			
+			if (loadIcons) {
+				Executors.defaultThreadFactory().newThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						for (long uid : vkChat.getUsers()) {
+							requestIcon(Long.toString(uid));
+						}
+					}
+				});
+			}
+		} catch (RequestFailedException e) {
+			onRequestFailed(e);
+		}
 	}
 
 	public void typingNotification(final String uid) {
@@ -461,8 +481,7 @@ public class VkServiceInternal {
 		try {
 			if (isChat) {
 				if (!isChatJoined(id)) {
-					Logger.log("Cannot send message, chat is not connected: " + message.getContactUid(), LoggerLevel.INFO);
-					return 0;
+					joinChatInternal(message.getContactUid(), false);
 				}
 			}
 

@@ -275,7 +275,10 @@ public class MainActivity extends FragmentActivity {
 
 		try {
 			bundle.putStringArrayList(Constants.SAVED_STATE_PAGES, storingPages);
-			bundle.putString(Constants.SAVED_STATE_SELECTED_PAGE, mScreen.getSelectedPage().getPageId());
+			Page selectedPage = mScreen.getSelectedPage();
+			if (selectedPage != null) {
+				bundle.putString(Constants.SAVED_STATE_SELECTED_PAGE, selectedPage.getPageId());
+			}
 		} catch (Exception e1) {
 			Logger.log(e1);
 		}

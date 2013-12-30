@@ -3,6 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/cornered_background">
+    <aceim.app.widgets.bottombar.BottomBar 
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+    	android:layout_height="@dimen/top_bottom_bar_height"
+       	android:layout_alignParentLeft="true"
+    	android:layout_alignParentRight="true"
+    	android:layout_alignParentBottom="true"
+    	android:gravity="right"/>
     <TextView 
         android:id="@+id/text"
         android:layout_width="wrap_content"
@@ -15,13 +23,4 @@
         android:paddingRight="50dip"
         android:paddingBottom="10dip"
         android:text="Lorem ipsum lorem ipsum"/>
-    <aceim.app.widgets.bottombar.BottomBar 
-        android:id="@+id/bottom_bar"
-        android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_alignParentLeft="true"
-    	android:layout_alignParentRight="true"
-    	android:layout_alignParentBottom="true"
-    	android:gravity="right"/>
-
 </RelativeLayout>
