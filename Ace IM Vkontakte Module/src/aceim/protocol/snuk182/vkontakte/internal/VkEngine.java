@@ -28,6 +28,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
@@ -249,7 +250,9 @@ final class VkEngine {
 	}
 
 	private void startLongPollConnection(int pollWaitTime, LongPollServer lpServer, LongPollCallback callback) {
-		disconnect(null);
+		if (listener != null && !listener.isInterrupted()) {
+			listener.interrupt();
+		}
 		listener = new PollListenerThread(pollWaitTime, lpServer, callback);
 		listener.start();
 	}
@@ -267,7 +270,7 @@ final class VkEngine {
 	
 	public byte[] getIcon(String url) throws RequestFailedException {
 		try {
-			return connector.requestRawStream(Method.GET, url, null, null, null);
+			return connector.requestRawStream(Method.GET, url, null, null, null, null);
 		} catch (Exception e) {
 			disconnect(e.getLocalizedMessage());
 			throw new RequestFailedException(e);
@@ -299,6 +302,8 @@ final class VkEngine {
 		private static final String LONGPOLL_MODE_GET_ATTACHMENTS = "2";
 
 		private final int pollWaitSeconds;
+		
+		private final HttpClient httpClient = new DefaultHttpClient(getHttpParams());
 
 		private final String url;
 		private final String key;
@@ -321,6 +326,7 @@ final class VkEngine {
 			if (!isInterrupted() && !isClosed) {
 				isClosed = true;
 				interrupt();
+				httpClient.getConnectionManager().shutdown();
 				if (callback != null) {
 					callback.disconnected(reason);
 				}
@@ -329,17 +335,17 @@ final class VkEngine {
 
 		@Override
 		public void run() {
-			List<NameValuePair> params = new ArrayList<NameValuePair>(5);
-
-			params.add(new BasicNameValuePair("act", "a_check"));
-			params.add(new BasicNameValuePair("key", key));
-			params.add(new BasicNameValuePair("ts", ts));
-			params.add(new BasicNameValuePair("wait", Integer.toString(pollWaitSeconds)));
-			params.add(new BasicNameValuePair("mode", LONGPOLL_MODE_GET_ATTACHMENTS));
-
 			while (!isInterrupted() && !isClosed) {
+				List<NameValuePair> params = new ArrayList<NameValuePair>(5);
+
+				params.add(new BasicNameValuePair("act", "a_check"));
+				params.add(new BasicNameValuePair("key", key));
+				params.add(new BasicNameValuePair("ts", ts));
+				params.add(new BasicNameValuePair("wait", Integer.toString(pollWaitSeconds)));
+				params.add(new BasicNameValuePair("mode", LONGPOLL_MODE_GET_ATTACHMENTS));
+
 				try {
-					String responseString = connector.request(Method.GET, "http://" + url, params, null, null);
+					String responseString = connector.request(Method.GET, "http://" + url, params, null, null, httpClient);
 					
 					LongPollResponse response = new LongPollResponse(responseString);
 
@@ -352,7 +358,7 @@ final class VkEngine {
 							processUpdate(u, callback);
 						}
 					} else {
-						//Despite of the "wait" parameter in request, server does not hold the connection and returns previous value immediately. It's not a local cache issue.
+						Logger.log(" ... repeated " + currentUpdate);
 						Thread.sleep(1000);
 					}
 
@@ -362,7 +368,7 @@ final class VkEngine {
 					}
 				} catch (Exception e) {
 					Logger.log(e);
-					interrupt();
+					disconnect(e.getLocalizedMessage());
 				} 
 			}
 
@@ -376,6 +382,10 @@ final class VkEngine {
 		}
 		
 		private void processUpdate(LongPollResponseUpdate update, LongPollCallback callback) {
+			if (update == null) {
+				return;
+			}
+			
 			switch (update.getType()) {
 			case BUDDY_ONLINE:
 			case BUDDY_OFFLINE_AWAY:
@@ -384,11 +394,7 @@ final class VkEngine {
 				break;
 			case MSG_NEW:
 				VkMessage vkm = VkMessage.fromLongPollUpdate(update);
-				if (vkm.isOutgoing() && vkm.isUnread()) {
-					callback.messageAck(vkm);
-				} else {
-					callback.message(vkm);
-				}
+				callback.message(vkm);
 				break;
 			case BUDDY_TYPING:
 				callback.typingNotification(update.getId(), 0);
@@ -407,6 +413,18 @@ final class VkEngine {
 		if (listener != null) {
 			listener.disconnect(reason);
 		}
+	}
+	
+	private static HttpParams getHttpParams() {
+		HttpParams httpParameters = new BasicHttpParams();
+		int timeoutConnection = 120000;
+		int timeoutSocket = 120000;
+		HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+		HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+		httpParameters.setParameter("http.useragent", "Android mobile");
+		httpParameters.setParameter(CoreConnectionPNames.TCP_NODELAY, Boolean.FALSE);
+		
+		return httpParameters;
 	}
 	
 	public static class RequestFailedException extends Exception {
@@ -429,7 +447,6 @@ final class VkEngine {
 	public interface LongPollCallback {
 
 		void onlineInfo(VkOnlineInfo vi);
-		void messageAck(VkMessage vkm);
 		void message(VkMessage vkm);
 		void typingNotification(long contactId, long chatParticipantId);
 		void disconnected(String reason);
@@ -447,10 +464,14 @@ final class VkEngine {
 			}
 			
 		};
-
+		
 		private String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
+			return request(method, url, parameters, content, nameValuePairs, null);
+		}			
+
+		private String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs, HttpClient httpClient) throws RequestFailedException {
 			try {
-				byte[] resultBytes = requestRawStream(method, url, parameters, content, nameValuePairs);
+				byte[] resultBytes = requestRawStream(method, url, parameters, content, nameValuePairs, httpClient);
 				String result = new String(resultBytes, "UTF-8");
 				
 				Logger.log("Got " + result, LoggerLevel.VERBOSE);
@@ -460,7 +481,7 @@ final class VkEngine {
 			}
 		}
 
-		private byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
+		private byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs, HttpClient httpClient) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
 			while (!requestAllowed) {
 				try {
 					Thread.sleep(100);
@@ -499,25 +520,20 @@ final class VkEngine {
 			}
 			
 			HttpEntity httpEntity = null;
-			ByteArrayOutputStream ostream = null;
+			HttpClient innerHttpClient = httpClient;
 			try {
-				HttpParams httpParameters = new BasicHttpParams();
-				int timeoutConnection = 120000;
-				int timeoutSocket = 120000;
-				HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-				HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-				httpParameters.setParameter("http.useragent", "Android mobile");
-
-				HttpClient httpclient = new DefaultHttpClient(httpParameters);
+				if (innerHttpClient == null){
+					innerHttpClient = new DefaultHttpClient(getHttpParams());
+					
+					innerHttpClient.getParams().setParameter("http.useragent", "Android mobile");				
+				}
 				
-				httpclient.getParams().setParameter("http.useragent", "Android mobile");
-
 				request.addHeader("Accept-Encoding", "gzip");
 				
 				Logger.log("Ask " + url, LoggerLevel.VERBOSE);
 				
 				requestAllowed = false;
-				HttpResponse response = httpclient.execute(request);
+				HttpResponse response = innerHttpClient.execute(request);
 				
 				scheduledExecutor.schedule(requestAllowedResetter, 334, TimeUnit.MILLISECONDS);
 				
@@ -531,7 +547,7 @@ final class VkEngine {
 					instream = new GZIPInputStream(instream);
 				}
 				
-				ostream = new ByteArrayOutputStream();
+				ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 				byte[] buffer = new byte[8192];
 				int read = -1;
 				
@@ -546,8 +562,8 @@ final class VkEngine {
 				if (httpEntity != null) {
 					httpEntity.consumeContent();
 				}
-				if (ostream != null) {
-					ostream.close();
+				if (httpClient == null && innerHttpClient != null) {
+					innerHttpClient.getConnectionManager().shutdown();
 				}
 			}
 		}

@@ -86,7 +86,7 @@ public final class VkEntityAdapter {
 		
 		List<OnlineInfo> infos = new ArrayList<OnlineInfo>(vkOnlineInfos.size());
 		for (VkOnlineInfo vko : vkOnlineInfos) {
-			OnlineInfo info = new OnlineInfo(serviceId, vko.getUid() == myId ? ownerUid : Long.toString(vko.getUid()));
+			OnlineInfo info = new OnlineInfo(serviceId, vkUid2ProtocolUid(vko.getUid(), myId, ownerUid));
 			info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
 			infos.add(info);
 		}
@@ -99,7 +99,7 @@ public final class VkEntityAdapter {
 			return null;
 		}
 		
-		Buddy b = new Buddy(vkb.getUid() != myId ? Long.toString(vkb.getUid()) : ownerUid, ownerUid, VkConstants.PROTOCOL_NAME, serviceId);
+		Buddy b = new Buddy(vkUid2ProtocolUid(vkb.getUid(), myId, ownerUid), ownerUid, VkConstants.PROTOCOL_NAME, serviceId);
 		
 		long groupId = vkb.getGroupId();
 		b.setGroupId(groupId != 0 ? Long.toString(groupId) : ApiConstants.NO_GROUP_ID);
@@ -133,10 +133,10 @@ public final class VkEntityAdapter {
 		return bg;
 	}
 
-	public static OnlineInfo vkOnlineInfo2OnlineInfo(VkOnlineInfo vi, byte serviceId) {
+	public static OnlineInfo vkOnlineInfo2OnlineInfo(VkOnlineInfo vi, long myId, String ownerUid, byte serviceId) {
 		if (vi == null) return null;
 		
-		OnlineInfo info = new OnlineInfo(serviceId, Long.toString(vi.getUid()));
+		OnlineInfo info = new OnlineInfo(serviceId, vkUid2ProtocolUid(vi.getUid(), myId, ownerUid));
 		
 		//Does not work either
 		//info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, vi.getStatus());
@@ -145,23 +145,27 @@ public final class VkEntityAdapter {
 		return info;
 	}
 
-	public static Message vkMessage2Message(VkMessage vkm, byte serviceId) {
+	public static Message vkMessage2Message(VkMessage vkm, byte serviceId, String protocolUid, long vkUid) {
 		if (vkm == null) return null;
 		
 		//TODO support for other message types
-		TextMessage tm = new TextMessage(serviceId, Long.toString(vkm.getPartnerId()));
+		TextMessage tm = new TextMessage(serviceId, vkUid2ProtocolUid(vkm.getPartnerId(), vkUid, protocolUid));
 		tm.setTime(vkm.getTimestamp());
-		tm.setIncoming(true);
+		tm.setIncoming(!vkm.isOutgoing());
 		tm.setMessageId(vkm.getMessageId());
 		tm.setText(vkm.getText());
 		
 		for (VkMessageAttachment attachment : vkm.getAttachments()) {
 			if (attachment.getAuthorId() != 0) {
-				tm.setContactDetail(Long.toString(attachment.getAuthorId()));
+				tm.setContactDetail(vkUid2ProtocolUid(attachment.getAuthorId(), vkUid, protocolUid));
 			}			
 		}
 		
 		return tm;
+	}
+	
+	private static final String vkUid2ProtocolUid(long vkUid, long myVkUid, String protocolUid) {
+		return vkUid == myVkUid ? protocolUid : Long.toString(vkUid);
 	}
 
 	public static VkMessage textMessage2VkMessage(TextMessage message, boolean isChat) {		
@@ -169,11 +173,11 @@ public final class VkEntityAdapter {
 		return vkm;
 	}
 
-	public static PersonalInfo vkBuddy2PersonalInfo(VkBuddy vkb, byte serviceId, String ownerUid) {
+	public static PersonalInfo vkBuddy2PersonalInfo(VkBuddy vkb, byte serviceId, long myVkUid, String ownerUid) {
 		if (vkb == null) return null;
 		
 		PersonalInfo info = new PersonalInfo(serviceId);
-		info.setProtocolUid(ownerUid != null ? ownerUid : Long.toString(vkb.getUid()));
+		info.setProtocolUid(vkUid2ProtocolUid(vkb.getUid(), myVkUid, ownerUid));
 
 		Bundle bundle = new Bundle();
 		bundle.putString(PersonalInfo.INFO_NICK, getNickOfVkBuddy(vkb));
@@ -238,7 +242,7 @@ public final class VkEntityAdapter {
 		return Arrays.asList(moderators, all);
 	}
 
-	public static Message vkChatMessage2Message(long chatId, VkMessage vkm, byte serviceId) {
+	public static Message vkChatMessage2Message(long chatId, VkMessage vkm, long myUid, String ownerUid, byte serviceId) {
 		if (vkm == null) return null;
 		
 		//TODO support for other message types
@@ -251,7 +255,7 @@ public final class VkEntityAdapter {
 		
 		for (VkMessageAttachment attachment : vkm.getAttachments()) {
 			if (attachment.getAuthorId() != 0) {
-				tm.setContactDetail(Long.toString(attachment.getAuthorId()));
+				tm.setContactDetail(vkUid2ProtocolUid(attachment.getAuthorId(), myUid, ownerUid));
 			}			
 		}
 		

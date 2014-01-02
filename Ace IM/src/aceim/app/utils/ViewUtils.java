@@ -435,7 +435,6 @@ public final class ViewUtils {
 		
 		int[] extraImageIDs = new int[]{R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4};
 		
-		fillIcon(R.id.image_icon, aq, buddy.getFilename(), context);
 		aq.id(R.id.image_status).image(getBuddyStatusIcon(context, buddy, protocolResources));
 		aq.id(R.id.label_xstatus).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
 		
@@ -482,6 +481,7 @@ public final class ViewUtils {
 		for (int i = imagesIndex; i < extraImageIDs.length; i++) {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}
+		fillIcon(R.id.image_icon, aq, buddy.getFilename(), context);
 	}
 	
 	public static void fillAccountPlaceholder(Context context, Account account, View container, ProtocolResources protocolResources) {
@@ -489,7 +489,6 @@ public final class ViewUtils {
 		
 		int[] extraImageIDs = new int[]{R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4};
 		
-		fillIcon(R.id.image_icon, aq, account.getFilename(), context);
 		aq.id(R.id.image_status).image(getAccountStatusIcon(context, account, protocolResources));
 		aq.id(R.id.label_xstatus).text(getFormattedXStatus(account.getOnlineInfo(), account.getConnectionState(), context, protocolResources));		
 
@@ -536,6 +535,7 @@ public final class ViewUtils {
 		for (int i = imagesIndex; i < extraImageIDs.length; i++) {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}
+		fillIcon(R.id.image_icon, aq, account.getFilename(), context);
 	}
 
 	@SuppressWarnings("deprecation")

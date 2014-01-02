@@ -392,7 +392,7 @@ public class Account extends Entity implements EntityWithID {
 	 * @return filename
 	 */
 	public String getFilename() {
-		return getAccountId();
+		return getAccountId() + ApiConstants.GENERAL_DIVIDER + Utils.escapeGeneralDividers(protocolUid);
 	}
 
 	/**

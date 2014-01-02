@@ -440,11 +440,11 @@ public class CoreService extends Service {
 		public Account createAccount(String protocolServiceClassName, List<ProtocolOption> options) throws RemoteException {
 			Logger.log("UI creates account " + protocolServiceClassName, LoggerLevel.VERBOSE);
 			
-			if (findAccountServiceByProtocolUid(options.get(0).getValue()) != null) {
+			String protocolName = mProtocolServiceManager.getProtocolServiceByName(protocolServiceClassName).getProtocol().getProtocolName();
+			if (findAccountServiceByProtocolUidAndProtocolName(options.get(0).getValue(), protocolName) != null) {
 				ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_menu_info_details, R.string.simple_placeholder, options.get(0).getValue());
 				return null;
 			} else {
-				String protocolName = mProtocolServiceManager.getProtocolServiceByName(protocolServiceClassName).getProtocol().getProtocolName();
 				Account account = new Account((byte) mAccounts.size(), options.get(0).getValue(), protocolName, protocolServiceClassName);
 				mStorage.saveAccount(account, options, true);
 				mAccounts.add(initAccount(account));
@@ -1279,7 +1279,7 @@ public class CoreService extends Service {
 			
 			AccountService as = mAccounts.get(infos.get(0).getServiceId());
 			
-			if (as == null || !as.getAccount().isEnabled()) {
+			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
 			
@@ -1700,9 +1700,9 @@ public class CoreService extends Service {
 		}
 	}
 	
-	private AccountService findAccountServiceByProtocolUid(String protocolUid) {
+	private AccountService findAccountServiceByProtocolUidAndProtocolName(String protocolUid, String protocolName) {
 		for (AccountService as : mAccounts) {
-			if (as.getAccount().getProtocolUid().equals(protocolUid)) {
+			if (as.getAccount().getProtocolUid().equals(protocolUid) && as.getAccount().getProtocolName().equals(protocolName)) {
 				return as;
 			}
 		}
@@ -1728,7 +1728,7 @@ public class CoreService extends Service {
 
 	public void importAccounts(List<Account> accounts) {
 		for (Account a : accounts) {
-			if (findAccountServiceByProtocolUid(a.getProtocolUid()) != null) {
+			if (findAccountServiceByProtocolUidAndProtocolName(a.getProtocolUid(), a.getProtocolName()) != null) {
 				Logger.log("Will not import existing account #" + a.getProtocolUid(), LoggerLevel.INFO);
 				ViewUtils.showInformationToast(getBaseContext(), android.R.drawable.ic_menu_myplaces, R.string.simple_placeholder, a.getProtocolUid());
 			} else {

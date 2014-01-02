@@ -136,12 +136,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			}
 		}
 		
-		if (v.getTag() != null && v.getTag() == holder) {
-			//we entered here just to update ack, move out
-			return v;			
-		} else {
-			v.setTag(holder);
-		}
+		v.setTag(holder);
 		
 		TextView time = (TextView) v.findViewById(R.id.time);
 		TextView message = (TextView) v.findViewById(R.id.message);

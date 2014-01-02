@@ -70,7 +70,7 @@ public class VkServiceInternal {
 				info = requestStatusInternal(vi.getUid(), null);
 				info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) (vi.getStatus() == 0 ? 0 : -1));
 			} else {
-				info = VkEntityAdapter.vkOnlineInfo2OnlineInfo(vi, service.getServiceId());
+				info = VkEntityAdapter.vkOnlineInfo2OnlineInfo(vi, accessToken.getUserID(), service.getProtocolUid(), service.getServiceId());
 			}
 
 			service.getCoreService().buddyStateChanged(Arrays.asList(info));
@@ -78,22 +78,27 @@ public class VkServiceInternal {
 
 		@Override
 		public void message(VkMessage vkm) {
-			Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId());
+			//Despite of official documentation to say flag #16 is for "isChat", tests show it is not, but rather for "isAck".
+			if (vkm.getPartnerId() != accessToken.getUserID() && vkm.isOutgoing() && !vkm.isChat()) {
+				
+				MessageAckState ackState;
+				if (vkm.isUnread()){
+					ackState = MessageAckState.RECIPIENT_ACK;			
+				} else {
+					ackState = MessageAckState.READ_ACK;			
+				}
+				
+				service.getCoreService().messageAck(Long.toString(vkm.getPartnerId()), vkm.getMessageId(), ackState);			
+			} else {
+				Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId(), service.getProtocolUid(), accessToken.getUserID());
 
-			if ((isChatUid(vkm.getPartnerId()) && !isChatJoined(vkm.getPartnerId())) // the
-																						// case
-																						// chat
-																						// exists
-																						// but
-																						// not
-																						// joined
-					|| message.getContactDetail() != null) { // the case chat
-																// has just been
-																// created
-				joinChatInternal(message.getContactUid(), false);
+				if ((isChatUid(vkm.getPartnerId()) && !isChatJoined(vkm.getPartnerId())) // the case chat exists but not joined
+						|| message.getContactDetail() != null) { // the case chat has just been created
+					joinChatInternal(message.getContactUid(), false);
+				}
+				
+				service.getCoreService().message(message);
 			}
-
-			service.getCoreService().message(message);
 		}
 
 		@Override
@@ -104,11 +109,6 @@ public class VkServiceInternal {
 		@Override
 		public void disconnected(String reason) {
 			onLogout(reason);
-		}
-
-		@Override
-		public void messageAck(VkMessage vkm) {
-			service.getCoreService().messageAck(Long.toString(vkm.getPartnerId()), vkm.getMessageId(), MessageAckState.SERVER_ACK);
 		}
 	};
 
@@ -375,7 +375,7 @@ public class VkServiceInternal {
 			info.getFeatures().putByte(ApiConstants.FEATURE_XSTATUS, (byte) 0);
 
 			service.getCoreService().accountStateChanged(info);
-			service.getCoreService().personalInfo(VkEntityAdapter.vkBuddy2PersonalInfo(myInfo, service.getServiceId(), service.getProtocolUid()), true);
+			service.getCoreService().personalInfo(VkEntityAdapter.vkBuddy2PersonalInfo(myInfo, service.getServiceId(), accessToken.getUserID(), service.getProtocolUid()), true);
 			service.getCoreService().iconBitmap(service.getProtocolUid(), engine.getIcon(myInfo.getPhotoPath()), myInfo.getPhotoPath());
 		} catch (RequestFailedException e) {
 			onRequestFailed(e);

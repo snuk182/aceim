@@ -25,7 +25,8 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-
+		final MainActivity activity = (MainActivity) getContext();
+		
 		Buddy buddy = getItem(position);
 		View view = super.getView(position, convertView, parent);
 
@@ -35,7 +36,6 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 
 				@Override
 				public void onClick(View v) {
-					MainActivity activity = (MainActivity) getContext();
 					Buddy buddy = (Buddy) v.getTag();
 					activity.onChatRequest(buddy);
 				}
@@ -45,7 +45,6 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 
 				@Override
 				public boolean onLongClick(View v) {
-					MainActivity activity = (MainActivity) getContext();
 					Buddy buddy = (Buddy) v.getTag();
 					activity.onBuddyContextMenuRequest(buddy, mResources);
 					return true;
