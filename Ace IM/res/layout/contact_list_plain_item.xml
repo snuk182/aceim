@@ -4,7 +4,8 @@
     android:layout_height="@dimen/contact_list_vertical_item_size"
     android:background="@android:drawable/menuitem_background"
     android:clickable="true"
-    android:longClickable="true" >
+    android:longClickable="true" 
+    android:focusable="true">
 
     <ImageView
         android:id="@+id/image_status"

@@ -138,6 +138,12 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		
 		v.setTag(holder);
 		
+		if (holder.getMessage().getMessageId() == 0) {
+			v.setBackgroundResource(R.color.transparent);
+		} else {
+			v.setBackgroundColor(0);
+		}
+		
 		TextView time = (TextView) v.findViewById(R.id.time);
 		TextView message = (TextView) v.findViewById(R.id.message);
 		

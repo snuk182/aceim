@@ -46,10 +46,10 @@ import aceim.app.utils.DataStorage;
 import aceim.app.utils.ImportAndExport;
 import aceim.app.utils.LocationSender;
 import aceim.app.utils.Notificator;
-import aceim.app.utils.OptionsReceiver;
 import aceim.app.utils.Notificator.LEDNotificationMode;
 import aceim.app.utils.Notificator.SoundNotificationMode;
 import aceim.app.utils.Notificator.StatusBarNotificationMode;
+import aceim.app.utils.OptionsReceiver;
 import aceim.app.utils.OptionsReceiver.OnOptionChangedListener;
 import aceim.app.utils.ViewUtils;
 import aceim.app.utils.history.HistorySaver;
@@ -60,8 +60,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -423,6 +421,8 @@ public class CoreService extends Service {
 			
 			long messageId = as.getProtocolService().getProtocol().sendMessage(message);
 			Logger.log("UI file sending got message ID #" + messageId);
+			
+			message.setMessageId(messageId);
 			
 			if (message instanceof FileMessage) {
 				FileProgress progress = new FileProgress(message.getServiceId(), messageId, ((FileMessage)message).getFiles().get(0).getFilename(), 0, 0, false, message.getContactUid(), null);
@@ -1541,7 +1541,7 @@ public class CoreService extends Service {
 			return;
 		}
 		
-		if (!isNetworkAvailable()) {
+		/*if (!isNetworkAvailable()) {
 			mHandler.post(new Runnable() {
 				
 				@Override
@@ -1550,7 +1550,7 @@ public class CoreService extends Service {
 				}
 			});
 			return;
-		}
+		}*/
 
 		try {
 			as.getProtocolService().getProtocol().connect(as.getAccount().getOnlineInfo());
@@ -1561,7 +1561,7 @@ public class CoreService extends Service {
 		}
 	}
 
-	private boolean isNetworkAvailable() {
+	/*private boolean isNetworkAvailable() {
 		ConnectivityManager connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connManager != null) {
         	NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
@@ -1570,7 +1570,7 @@ public class CoreService extends Service {
         } else {
         	return false;
         }
-	}
+	}*/
 
 	private void onContactListUpdated(Account account) throws RemoteException {
 		mStorage.saveAccount(account, false);

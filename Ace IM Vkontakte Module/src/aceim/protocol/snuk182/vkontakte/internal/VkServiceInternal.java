@@ -99,6 +99,12 @@ public class VkServiceInternal {
 				
 				service.getCoreService().message(message);
 			}
+			
+			try {
+				engine.markMessagesAsRead(new long[]{vkm.getMessageId()});
+			} catch (RequestFailedException e) {
+				onRequestFailed(e);
+			}
 		}
 
 		@Override

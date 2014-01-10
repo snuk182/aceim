@@ -67,6 +67,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.androidquery.callback.BitmapAjaxCallback;
 import com.androidquery.util.AQUtility;
 
 public class MainActivity extends FragmentActivity {
@@ -87,8 +88,11 @@ public class MainActivity extends FragmentActivity {
 
 		super.onCreate(null);
 		setTheme(R.style.Ace_IM_Theme_Transparent);
+		
+		//Debug.startMethodTracing();
+		
+		BitmapAjaxCallback.setCacheLimit(Integer.MAX_VALUE);
 
-		// setContentView(R.layout.splash);
 		mScreen = Screen.getScreen(this);
 		setContentView(mScreen);
 		Page.addSplash(mScreen);
@@ -220,10 +224,19 @@ public class MainActivity extends FragmentActivity {
 	protected void onDestroy() {
 		Logger.log("Destroy", LoggerLevel.VERBOSE);
 		super.onDestroy();
+		
 		mSmileysManager.onExit();
 		saveInstanceState();
 		unbindService(mCoreServiceConnection);
 		AQUtility.cleanCacheAsync(this);
+		
+		//Debug.stopMethodTracing();
+	}
+	
+	@Override
+	public void onLowMemory() {
+		Logger.log("Low memory", LoggerLevel.VERBOSE);
+		BitmapAjaxCallback.clearCache();
 	}
 
 	@Override

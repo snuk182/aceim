@@ -145,7 +145,7 @@ public class ChatParticipantsAdapter extends BaseExpandableListAdapter {
 		TextView username = (TextView) view.findViewById(R.id.username);
 		username.setText(buddy.getSafeName());
 		
-		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources);
+		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, childPosition, groupPosition, (AbsListView) parent);
 		
 		int size = parent.getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
 		view.setLayoutParams(new AbsListView.LayoutParams(size, size));

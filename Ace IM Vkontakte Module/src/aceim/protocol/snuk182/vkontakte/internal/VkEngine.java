@@ -94,6 +94,25 @@ final class VkEngine {
 		doGetRequest("status.set", accessToken, params);	
 	}
 	
+	void markMessagesAsRead(long[] messageIds) throws RequestFailedException {
+		if (messageIds == null || messageIds.length < 1) {
+			return;
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<messageIds.length; i++) {
+			sb.append(messageIds[i]);
+			if (i < (messageIds.length - 1)) {
+				sb.append(',');
+			}
+		}
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("mids", sb.toString());
+		
+		doGetRequest("messages.markAsRead", accessToken, params);	
+	}
+	
 	List<VkChat> getGroupChats() throws RequestFailedException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("count", "200");

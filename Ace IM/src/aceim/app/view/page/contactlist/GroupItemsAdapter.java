@@ -11,16 +11,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 
 	private final ProtocolResources mResources;
+	private final int groupPosition;
 
-	public GroupItemsAdapter(MainActivity activity, int resource, int textViewResourceId, List<Buddy> buddyList, ProtocolResources resources) {
+	public GroupItemsAdapter(MainActivity activity, int resource, int textViewResourceId, List<Buddy> buddyList, ProtocolResources resources, int groupPosition) {
 		super(activity, resource, textViewResourceId, buddyList);
 		this.mResources = resources;
+		this.groupPosition = groupPosition;
 	}
 
 	@Override
@@ -55,7 +58,7 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 		TextView name = (TextView) view.findViewById(R.id.username);
 		name.setText(buddy.getSafeName());
 		
-		ViewUtils.fillBuddyPlaceholder(getContext(), buddy, view, mResources);
+		ViewUtils.fillBuddyPlaceholder(getContext(), buddy, view, mResources, position, groupPosition, (AbsListView) parent);
 
 		return view;
 	}

@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.androidquery.AQuery;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.ConnectionState;
@@ -266,6 +268,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		@Override
 		public void onClick(View v) {
 			sendMessage(mEditor.getText().toString());
+			mEditor.setText(null);
 		}
 	};
 	
@@ -292,6 +295,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 			if (sendWithEnter && actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN){
 				sendMessage(mEditor.getText().toString());
+				mEditor.setText(null);
 				return true;
 			} 
 			return false;
@@ -338,40 +342,38 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		Runnable r = new Runnable() {
-			
+		final TextMessage message = new TextMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid());
+		message.setTime(System.currentTimeMillis());
+		message.setText(text);
+		message.setIncoming(false);
+		
+		prohibitTypingNotificationSending();
+		
+		fillContactDetail(message);
+		
+		mMessageAdapter.add(new ChatMessageHolder(message, mAccount.getSafeName()));
+		getMainActivity().runOnUiThread(mScrollToEndRunnable);
+		
+		AsyncTask<Message, Void, Long> messageSender = new AsyncTask<Message, Void, Long>() {
+
 			@Override
-			public void run() {
+			protected Long doInBackground(Message... params) {
 				try {
-					final TextMessage message = new TextMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid());
-					message.setTime(System.currentTimeMillis());
-					message.setText(text);
-					message.setIncoming(false);
-					
-					long messageId = getMainActivity().getCoreService().sendMessage(message);
-					
-					message.setMessageId(messageId);
-					
-					getMainActivity().runOnUiThread(new Runnable() {
-						
-						@Override
-						public void run() {
-							prohibitTypingNotificationSending();
-							mMessageAdapter.add(new ChatMessageHolder(message, mAccount.getSafeName()));
-							mEditor.setText(null);
-							//mEditor.setEnabled(true);
-						}
-					});
-					getMainActivity().runOnUiThread(mScrollToEndRunnable);
-				} catch (RemoteException e1) {
-					Logger.log(e1);
-					/*Toast.makeText(getEntryPoint(), "Error sending message " + e1.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-					ServiceUtils.log(e1);*/
+					return getMainActivity().getCoreService().sendMessage(message);
+				} catch (RemoteException e) {
+					getMainActivity().onRemoteException(e);
+					return 0L;
 				}
 			}
+			
+			@Override
+			protected void onPostExecute(Long messageId) {
+				message.setMessageId(messageId);
+				mMessageAdapter.notifyDataSetChanged();
+			}			
 		};
-
-		Executors.defaultThreadFactory().newThread(r).start();
+		
+		messageSender.execute(message);
 	}
 
 	@Override
@@ -521,7 +523,13 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 					if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
 						result = saved.getParcelableArrayList(SAVE_PARAM_MESSAGES);
 					} else if (mMessageAdapter.getCount() < 1) {
-						result =  ViewUtils.wrapMessages(mBuddy, mAccount, getMainActivity().getCoreService().getLastMessages(mBuddy));
+						List<Message> lastMessages = getMainActivity().getCoreService().getLastMessages(mBuddy);
+						
+						for (Message message : lastMessages) {
+							fillContactDetail(message);
+						}
+						
+						result =  ViewUtils.wrapMessages(mBuddy, mAccount, lastMessages);
 					} else {
 						result = Collections.emptyList();
 					}
@@ -580,19 +588,27 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		if (TextUtils.isEmpty(message.getContactDetail())) {
-			message.setContactDetail(mBuddy.getSafeName());
-		} else {
-			if (mBuddy instanceof MultiChatRoom) {
-				Buddy b = ((MultiChatRoom)mBuddy).findOccupantByUid(message.getContactDetail());
-				if (b != null) {
-					message.setContactDetail(b.getSafeName());
-				}
-			}
-		}
+		fillContactDetail(message);
 		
 		mMessageAdapter.add(new ChatMessageHolder(message, message.getContactDetail() != null ? message.getContactDetail() : mBuddy.getSafeName()));
 		mScrollToEndRunnable.run();
+	}
+
+	private void fillContactDetail(Message message) {
+		if (message.isIncoming()) {
+			if (TextUtils.isEmpty(message.getContactDetail())) {
+				message.setContactDetail(mBuddy.getSafeName());
+			} else {
+				if (mBuddy instanceof MultiChatRoom) {
+					Buddy b = ((MultiChatRoom)mBuddy).findOccupantByUid(message.getContactDetail());
+					if (b != null) {
+						message.setContactDetail(b.getSafeName());
+					}
+				}
+			}
+		} else {
+			message.setContactDetail(mAccount.getSafeName());
+		}
 	}
 
 	@Override
@@ -676,7 +692,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, (View) mStatus.getParent(), mProtocolResources);
+		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, new AQuery((View) mStatus.getParent()), mProtocolResources);
 		
 		if (mBuddy instanceof MultiChatRoom){
 			((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();

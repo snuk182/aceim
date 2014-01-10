@@ -15,7 +15,9 @@
         android:layout_alignParentLeft="true"
     	android:layout_alignParentRight="true"
     	android:layout_alignParentTop="true"
+    	android:layout_above="@id/bottom_bar"
     	android:divider="#0000"
     	android:choiceMode="none"
-    	android:layout_above="@id/bottom_bar"/>
+    	android:focusable="false"
+    	android:focusableInTouchMode="false"/>
 </RelativeLayout>

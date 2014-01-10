@@ -38,6 +38,8 @@ final class ContactListUpdater {
 
 	private boolean showGroups = false;
 	private boolean showOffline = true;
+	
+	private volatile boolean canStartRedraw = true;
 
 	ContactListUpdater(byte serviceId, Resources resources, Class<? extends ContactListAdapter> adapterClass, ProtocolResources protocolResources) {
 		this.mAdapter = initAdapter(adapterClass, protocolResources, mContactListGroups);
@@ -73,74 +75,76 @@ final class ContactListUpdater {
 		return g;
 	}
 
-	public synchronized void onContactListUpdated(Account account, MainActivity activity) {
+	public void onContactListUpdated(Account account, MainActivity activity) {
 		SharedPreferences p = activity.getSharedPreferences(account.getAccountId(), 0);
 
 		showGroups = p.getBoolean(AccountOptionKeys.SHOW_GROUPS.name(), Boolean.parseBoolean(activity.getString(R.string.default_show_groups)));
 		showOffline = p.getBoolean(AccountOptionKeys.SHOW_OFFLINE.name(), Boolean.parseBoolean(activity.getString(R.string.default_show_offline)));
 
-		mContactListGroups.clear();
+		synchronized (mContactListGroups) {
+			mContactListGroups.clear();
 
-		unreadGroup.getBuddyList().clear();
-		offlineGroup.getBuddyList().clear();
-		notInListGroup.getBuddyList().clear();
-		onlineGroup.getBuddyList().clear();
-		chatsGroup.getBuddyList().clear();
-		noGroup.getBuddyList().clear();
-		
-		List<Buddy> noGroupBuddies = account.getNoGroupBuddies();
-		
-		synchronized (noGroupBuddies) {
-			for (Buddy buddy : noGroupBuddies) {
+			unreadGroup.getBuddyList().clear();
+			offlineGroup.getBuddyList().clear();
+			notInListGroup.getBuddyList().clear();
+			onlineGroup.getBuddyList().clear();
+			chatsGroup.getBuddyList().clear();
+			noGroup.getBuddyList().clear();
+			
+			List<Buddy> noGroupBuddies = account.getNoGroupBuddies();
+			
+			synchronized (noGroupBuddies) {
+				for (Buddy buddy : noGroupBuddies) {
 
-				BuddyGroup targetGroup = getTargetGroup(buddy, null);
-				if (targetGroup != null) {
-					targetGroup.getBuddyList().add(buddy);
-				}
-			}
-		}
-		
-		List<BuddyGroup> groups = account.getBuddyGroupList();
-		
-		synchronized (groups) {
-			for (BuddyGroup origin : groups) {
-
-				ContactListModelGroup viewGroup;
-				if (showGroups && !origin.getId().equals(ApiConstants.NO_GROUP_ID)) {
-					viewGroup = initGroup(origin);
-				} else {
-					viewGroup = null;
-				}
-
-				for (Buddy buddy : origin.getBuddyList()) {
-
-					BuddyGroup targetGroup = getTargetGroup(buddy, viewGroup);
+					BuddyGroup targetGroup = getTargetGroup(buddy, null);
 					if (targetGroup != null) {
 						targetGroup.getBuddyList().add(buddy);
 					}
 				}
+			}
+			
+			List<BuddyGroup> groups = account.getBuddyGroupList();
+			
+			synchronized (groups) {
+				for (BuddyGroup origin : groups) {
 
-				if (viewGroup != null) {
-					mContactListGroups.add(viewGroup);
+					ContactListModelGroup viewGroup;
+					if (showGroups && !origin.getId().equals(ApiConstants.NO_GROUP_ID)) {
+						viewGroup = initGroup(origin);
+					} else {
+						viewGroup = null;
+					}
+
+					for (Buddy buddy : origin.getBuddyList()) {
+
+						BuddyGroup targetGroup = getTargetGroup(buddy, viewGroup);
+						if (targetGroup != null) {
+							targetGroup.getBuddyList().add(buddy);
+						}
+					}
+
+					if (viewGroup != null) {
+						mContactListGroups.add(viewGroup);
+					}
 				}
 			}
-		}
-		
-		if (!showGroups) {
-			mContactListGroups.add(onlineGroup);
-		}
+			
+			if (!showGroups) {
+				mContactListGroups.add(onlineGroup);
+			}
 
-		showPredefinedGroups();
+			showPredefinedGroups();
 
-		if (!showGroups && showOffline) {
-			mContactListGroups.add(offlineGroup);
+			if (!showGroups && showOffline) {
+				mContactListGroups.add(offlineGroup);
+			}
+
+			for (BuddyGroup group : mContactListGroups) {
+				Collections.sort(group.getBuddyList());
+			}
+
+			mAdapter.notifyDataSetChanged();
 		}
-
-		for (BuddyGroup group : mContactListGroups) {
-			Collections.sort(group.getBuddyList());
-		}
-
-		mAdapter.notifyDataSetChanged();
 	}
 
 	private void showPredefinedGroups() {
@@ -206,51 +210,59 @@ final class ContactListUpdater {
 		} 	
 	}
 
-	public synchronized void onBuddyStateChanged(List<Buddy> buddies) {
+	public void onBuddyStateChanged(List<Buddy> buddies) {
 		if (buddies == null || buddies.size() < 1) return;
 		
-		for (final Buddy buddy : buddies) {
-			// We may need the actual protocol group for a view with "show groups",
-			// so create a spare group link for it
-			BuddyGroup idGroup = null;
-			for (BuddyGroup viewGroup : mContactListGroups) {
-				Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new BuddyLinqRule(buddy)).first();
+		synchronized (mContactListGroups) {
+			for (final Buddy buddy : buddies) {
+				// We may need the actual protocol group for a view with "show groups",
+				// so create a spare group link for it
+				BuddyGroup idGroup = null;
+				for (BuddyGroup viewGroup : mContactListGroups) {
+					Buddy old = KindaLinq.from(viewGroup.getBuddyList()).where(new BuddyLinqRule(buddy)).first();
 
-				if (old != null) {
-					
-					viewGroup.getBuddyList().remove(old);
+					if (old != null) {
+						
+						viewGroup.getBuddyList().remove(old);
 
-					if (showGroups && buddy.getGroupId().equals(viewGroup.getId())) {
-						idGroup = viewGroup;
+						if (showGroups && buddy.getGroupId().equals(viewGroup.getId())) {
+							idGroup = viewGroup;
+						}
 					}
 				}
-			}
 
-			if (showGroups && idGroup == null) {
-				idGroup = KindaLinq.from(mContactListGroups).where(new KindaLinqRule<ContactListModelGroup>() {
+				if (showGroups && idGroup == null) {
+					idGroup = KindaLinq.from(mContactListGroups).where(new KindaLinqRule<ContactListModelGroup>() {
 
-					@Override
-					public boolean match(ContactListModelGroup t) {
-						return t.getId().equals(buddy.getGroupId());
-					}
-				}).first();
-			}
+						@Override
+						public boolean match(ContactListModelGroup t) {
+							return t.getId().equals(buddy.getGroupId());
+						}
+					}).first();
+				}
 
-			BuddyGroup target = getTargetGroup(buddy, idGroup);
-			if (target != null) {
-				target.getBuddyList().add(buddy);
-				Collections.sort(target.getBuddyList());
-			}
+				BuddyGroup target = getTargetGroup(buddy, idGroup);
+				if (target != null) {
+					target.getBuddyList().add(buddy);
+					Collections.sort(target.getBuddyList());
+				}
+			}			
 		}
 
-		mContactListGroups.remove(unreadGroup);
-		mContactListGroups.remove(notInListGroup);
-		mContactListGroups.remove(chatsGroup);
-		mContactListGroups.remove(noGroup);
+		if (canStartRedraw) {
+			canStartRedraw = false;
+			
+			mContactListGroups.remove(unreadGroup);
+			mContactListGroups.remove(notInListGroup);
+			mContactListGroups.remove(chatsGroup);
+			mContactListGroups.remove(noGroup);
 
-		showPredefinedGroups();
+			showPredefinedGroups();
 
-		mAdapter.notifyDataSetChanged();
+			mAdapter.notifyDataSetChanged();
+			
+			canStartRedraw = true;
+		}
 	}
 
 	public ContactListAdapter getAdapter() {

@@ -57,6 +57,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,7 +68,8 @@ import com.androidquery.callback.BitmapAjaxCallback;
 
 public final class ViewUtils {
 
-	private ViewUtils() {}
+	private ViewUtils() {
+	}
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends Page>[] ALLOWED_PAGES_FOR_STORING = new Class[] { Chat.class, History.class };
@@ -125,14 +128,14 @@ public final class ViewUtils {
 		TextView text = (TextView) v.findViewById(R.id.text);
 
 		if (icon == null) {
-			//iconView.getLayoutParams().width = 0;
+			// iconView.getLayoutParams().width = 0;
 		} else if (icon instanceof Integer) {
 			iconView.setImageResource((Integer) icon);
 		} else if (icon instanceof Drawable) {
 			iconView.setImageDrawable((Drawable) icon);
 		} else if (icon instanceof Bitmap) {
 			iconView.setImageBitmap((Bitmap) icon);
-		} 
+		}
 
 		if (params != null) {
 			String contentText = context.getString(textId, params);
@@ -168,7 +171,7 @@ public final class ViewUtils {
 	public static Drawable getAccountStatusIcon(Context context, Account account, ProtocolResources protocolResources) {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			
+
 			int ic = 0;
 			switch (account.getConnectionState()) {
 			case CONNECTED:
@@ -176,10 +179,10 @@ public final class ViewUtils {
 				return getConnectedStatusIcon(protocolResources, status, context);
 			case CONNECTING:
 			case DISCONNECTING:
-				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_CONNECTING, "drawable", protocolResources.getProtocolServicePackageName());				
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_CONNECTING, "drawable", protocolResources.getProtocolServicePackageName());
 				break;
 			default:
-				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());			
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());
 				break;
 			}
 
@@ -189,11 +192,11 @@ public final class ViewUtils {
 			return null;
 		}
 	}
-	
+
 	private static Drawable getConnectedStatusIcon(ProtocolResources protocolResources, byte status, Context context) {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			
+
 			ListFeature statusFeature;
 			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null && status > -1) {
 				int[] stIcons = statusFeature.getDrawables();
@@ -208,11 +211,11 @@ public final class ViewUtils {
 			return null;
 		}
 	}
-	
+
 	private static String getConnectedStatusName(ProtocolResources protocolResources, byte status, Context context) {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-			
+
 			ListFeature statusFeature;
 			if ((statusFeature = (ListFeature) protocolResources.getFeature(ApiConstants.FEATURE_STATUS)) != null && status > -1) {
 				int[] stNames = statusFeature.getNames();
@@ -272,7 +275,7 @@ public final class ViewUtils {
 		try {
 			Resources nRes = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
 			byte status = buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1);
-			
+
 			if (status > -1) {
 				return getConnectedStatusIcon(protocolResources, status, context);
 			} else {
@@ -428,16 +431,33 @@ public final class ViewUtils {
 	public static void removeIcon(Context context, String filename) {
 		context.deleteFile(filename + BUDDYICON_FILEEXT);
 	}
-	
-	public static void fillBuddyPlaceholder(Context context, Buddy buddy, View container, ProtocolResources protocolResources) {
-		
+
+	public static void fillBuddyPlaceholder(Context context, Buddy buddy, View container, ProtocolResources protocolResources, int position, int groupPosition, AbsListView parent) {
+
 		AQuery aq = new AQuery(container);
 		
-		int[] extraImageIDs = new int[]{R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4};
+		if (position < 0 || parent == null) {			
+			fillBuddyPlaceholder(context, buddy, aq, protocolResources);
+			return;
+		}
 		
+		boolean shouldDelay = parent instanceof ExpandableListView 
+				? aq.shouldDelay(groupPosition, position, true, container, parent, buddy.getFilename()) 
+						: aq.shouldDelay(position, container, parent, buddy.getFilename());
+
+		if (shouldDelay) {
+			aq.id(R.id.image_icon).image(null, 1f);
+		} else {
+			fillBuddyPlaceholder(context, buddy, aq, protocolResources);
+		}
+	}
+	
+	public static void fillBuddyPlaceholder(Context context, Buddy buddy, AQuery aq, ProtocolResources protocolResources) {
+		int[] extraImageIDs = new int[] { R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4 };
+
 		aq.id(R.id.image_status).image(getBuddyStatusIcon(context, buddy, protocolResources));
 		aq.id(R.id.label_xstatus).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
-		
+
 		Resources res;
 		try {
 			res = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
@@ -481,16 +501,17 @@ public final class ViewUtils {
 		for (int i = imagesIndex; i < extraImageIDs.length; i++) {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}
+
 		fillIcon(R.id.image_icon, aq, buddy.getFilename(), context);
 	}
-	
+
 	public static void fillAccountPlaceholder(Context context, Account account, View container, ProtocolResources protocolResources) {
 		AQuery aq = new AQuery(container);
-		
-		int[] extraImageIDs = new int[]{R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4};
-		
+
+		int[] extraImageIDs = new int[] { R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4 };
+
 		aq.id(R.id.image_status).image(getAccountStatusIcon(context, account, protocolResources));
-		aq.id(R.id.label_xstatus).text(getFormattedXStatus(account.getOnlineInfo(), account.getConnectionState(), context, protocolResources));		
+		aq.id(R.id.label_xstatus).text(getFormattedXStatus(account.getOnlineInfo(), account.getConnectionState(), context, protocolResources));
 
 		Resources res;
 		try {
@@ -568,21 +589,21 @@ public final class ViewUtils {
 	public static void resetFeaturesForOffline(OnlineInfo info, ProtocolResources mProtocolResources, boolean resetStatus) {
 		for (String featureKey : new ArrayList<String>(info.getFeatures().keySet())) {
 			ProtocolServiceFeature feature = mProtocolResources.getFeature(featureKey);
-			
+
 			if (feature == null || !feature.isAvailableOffline()) {
 				info.getFeatures().remove(featureKey);
 			}
 		}
-		
+
 		if (resetStatus) {
 			info.getFeatures().remove(ApiConstants.FEATURE_STATUS);
 		}
 	}
-	
-	public static File getBitmapFile(Context context, String filename){
+
+	public static File getBitmapFile(Context context, String filename) {
 		return new File(context.getFilesDir().getAbsolutePath() + File.separator + filename + BUDDYICON_FILEEXT);
 	}
-	
+
 	public static String getIconHash(Context context, String filename) {
 		try {
 			return new Scanner(new File(context.getFilesDir().getAbsolutePath() + File.separator + filename + BUDDYICONHASH_FILEEXT)).useDelimiter("\\A").next();
@@ -592,36 +613,9 @@ public final class ViewUtils {
 	}
 
 	public static Bitmap getIcon(Context context, String filename) {
-		FileInputStream fis = null;
-		try {
-			fis = context.openFileInput(filename + BUDDYICON_FILEEXT);
-		} catch (Exception e) {
-		}
-
-		if (fis == null) return null;
-
-		BitmapFactory.Options options = new BitmapFactory.Options();
-
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeStream(fis, null, options);
-
-		if (!checkAvailableRamForBitmap(options.outHeight, options.outWidth))
-			return null;
-
-		try {
-			fis = context.openFileInput(filename + BUDDYICON_FILEEXT);
-		} catch (Exception e) {
-		}
-
-		options.inJustDecodeBounds = false;
-		options.inDither = true;
-		options.inScaled = false;
-		options.inPurgeable = true;
-		options.inPreferredConfig = Bitmap.Config.RGB_565;
-
-		return BitmapFactory.decodeStream(fis, null, options);
+		return getIcon(context, filename, -1, -1);
 	}
-	
+
 	public static Bitmap getIcon(Context context, String filename, int width, int height) {
 		FileInputStream fis = null;
 		try {
@@ -629,7 +623,8 @@ public final class ViewUtils {
 		} catch (Exception e) {
 		}
 
-		if (fis == null) return null;
+		if (fis == null)
+			return null;
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -658,19 +653,19 @@ public final class ViewUtils {
 				if (width < 1) {
 					width = height * options.outWidth / options.outHeight;
 				}
-				
+
 				if (height < 1) {
 					height = width * options.outHeight / options.outWidth;
 				}
 			}
-			
+
 			Bitmap scaled = Bitmap.createScaledBitmap(b, width, height, false);
 			b.recycle();
-			
+
 			return scaled;
 		}
 	}
-	
+
 	private static synchronized final boolean checkAvailableRamForBitmap(int h, int w) {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			if ((h * w * 2) > (Debug.getNativeHeapFreeSize() * 0.75)) {
@@ -693,7 +688,7 @@ public final class ViewUtils {
 			fis = context.openFileInput(filename + BUDDYICON_FILEEXT);
 			fis.close();
 		} catch (Exception e) {
-		} 
+		}
 
 		return fis != null;
 	}
@@ -704,18 +699,18 @@ public final class ViewUtils {
 
 	public static void fillIcon(int imageIcon, AQuery aq, String filename, Context context) {
 		String hash = getIconHash(context, filename);
-		
+
 		if (TextUtils.isEmpty(hash) || !hash.equals(aq.id(imageIcon).getTag())) {
 			BitmapAjaxCallback callback = new BitmapAjaxCallback();
 			File file = getBitmapFile(context, filename);
 			callback
-					//.animation(android.R.anim.slide_in_left)
-					.memCache(true)
-					.fallback(R.drawable.dummy_icon)
-					.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
-					.file(file)
-					.url(file.getAbsolutePath());
-			aq.id(imageIcon).image(callback).tag(hash);		
+				// .animation(android.R.anim.slide_in_left)
+				.memCache(true)
+				.fallback(R.drawable.dummy_icon)
+				.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
+				.file(file)
+				.url(filename);
+			aq.id(imageIcon).image(callback).tag(hash);
 		}
 	}
 
@@ -723,24 +718,25 @@ public final class ViewUtils {
 		if (messages == null) {
 			return Collections.emptyList();
 		}
-		
-		List<ChatMessageHolder> messageHolders = new ArrayList<ChatMessageHolder>(messages.size());		
-		
+
+		List<ChatMessageHolder> messageHolders = new ArrayList<ChatMessageHolder>(messages.size());
+
 		for (Message m : messages) {
 			String senderName = m.isIncoming() ? (m.getContactDetail() != null ? m.getContactDetail() : buddy.getSafeName()) : account.getSafeName();
 			messageHolders.add(new ChatMessageHolder(m, senderName));
 		}
-		
+
 		return messageHolders;
 	}
 
 	public static void removeAccountIcons(Account account, Context context) {
-		if (account == null) return; 
-		
+		if (account == null)
+			return;
+
 		for (Buddy buddy : account.getBuddyList()) {
 			context.deleteFile(buddy.getFilename() + BUDDYICON_FILEEXT);
 		}
-		
+
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
 
@@ -748,14 +744,14 @@ public final class ViewUtils {
 		spanUrl("ftp", spannable, text);
 		spanUrl("http", spannable, text);
 		spanUrl("https", spannable, text);
-		spanUrl("market", spannable, text);		
+		spanUrl("market", spannable, text);
 	}
-	
+
 	private static final void spanUrl(String protocol, Spannable spannable, String text) {
 		if (spannable == null || text.indexOf(protocol + "://") < 0) {
 			return;
 		}
-		
+
 		int pos = 0;
 
 		while (pos > -1 && pos < text.length()) {
