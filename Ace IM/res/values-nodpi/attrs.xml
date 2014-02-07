@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ViewWrapper">
+        <attr name="cornerHeight" format="reference|integer" />
+    </declare-styleable>
+    
+    <declare-styleable name="StyleableView">
+        <attr name="styleableBackground" format="reference|color" />
+        <attr name="styleableLayoutWidth" format="reference|integer" />
+        <attr name="styleableLayoutHeight" format="reference|integer" />        
+    </declare-styleable>
+</resources>

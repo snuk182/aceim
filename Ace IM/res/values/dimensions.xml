@@ -4,4 +4,12 @@
     <dimen name="top_bottom_bar_top_padding">3dp</dimen>
     <dimen name="toast_frame_logo_height">32dip</dimen>
     <dimen name="top_bar_padding">4dp</dimen>
+    
+    <dimen name="contact_list_grid_items_spacing">2dip</dimen>
+    <dimen name="chat_buddy_status_height">24dp</dimen>
+    <dimen name="chat_buddy_status_font_height">10dip</dimen>
+    <dimen name="chat_participant_group_header_size">4dip</dimen>
+    <dimen name="smiley_column_width">70dp</dimen>
+    
+    <dimen name="info_toast_height">16dp</dimen>
 </resources>

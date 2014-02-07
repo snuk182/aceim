@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/contact_list_grid_item_size"
-    android:layout_height="@dimen/contact_list_grid_item_size"
+<aceim.app.themeable.widgets.StyleableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/default_contact_list_grid_item_size"
+    android:layout_height="@dimen/default_contact_list_grid_item_size"
     android:clickable="true"
     android:focusable="false"
     android:longClickable="true" 
@@ -45,4 +45,4 @@
             android:textSize="12sp" />
     </FrameLayout>
 
-</RelativeLayout>
+</aceim.app.themeable.widgets.StyleableRelativeLayout>

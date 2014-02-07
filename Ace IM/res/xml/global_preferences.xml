@@ -8,6 +8,10 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/appearance_prefs" >
         <ListPreference
+            android:defaultValue=""
+            android:key="THEME"
+            android:title="@string/theme" />
+        <ListPreference
             android:defaultValue="@string/default_screen_type"
             android:entries="@array/view_type_names"
             android:entryValues="@array/view_type_values"
@@ -97,9 +101,12 @@
             android:defaultValue="@string/default_reconnection_attempts"
             android:max="10"
             android:stepSize="1"
-            android:key="RECONNECTION_ATTEMPTS"
-            
+            android:key="RECONNECTION_ATTEMPTS"            
             android:title="@string/reconnection_attempts" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="LOG_TO_FILE"
+            android:title="@string/log_to_file" />
     </PreferenceCategory>
 
 </PreferenceScreen>

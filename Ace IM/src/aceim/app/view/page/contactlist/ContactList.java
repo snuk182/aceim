@@ -325,8 +325,7 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		
 		if (mAccount.getConnectionState() != ConnectionState.CONNECTING) {
 			
-			for (String featureId : accountFeatures.keySet()) {
-				ProtocolServiceFeature feature = mProtocolResources.getFeature(featureId);
+			for (ProtocolServiceFeature feature : mProtocolResources.getFeatures()) {
 				
 				if (feature == null || !feature.isEditable() || !feature.isAppliedToTarget(ProtocolServiceFeatureTarget.ACCOUNT)) {
 					continue;
@@ -359,7 +358,7 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 						item.setIcon(icon);
 						
 						if (feature.getFeatureId().equals(ApiConstants.FEATURE_XSTATUS) && !TextUtils.isEmpty(mAccount.getOnlineInfo().getXstatusName())) {
-							item.setTitle(mAccount.getOnlineInfo().getXstatusName());
+							item.setTitle(ViewUtils.getFormattedXStatus(mAccount.getOnlineInfo(), mAccount.getConnectionState(), getMainActivity(), mProtocolResources));
 						} else {
 							item.setTitle(title);
 						}
@@ -369,7 +368,7 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 							if (TextUtils.isEmpty(mAccount.getOnlineInfo().getXstatusName())) {
 								item.setTitle(lf.getFeatureName());
 							} else {
-								item.setTitle(mAccount.getOnlineInfo().getXstatusName());
+								item.setTitle(ViewUtils.getFormattedXStatus(mAccount.getOnlineInfo(), mAccount.getConnectionState(), getMainActivity(), mProtocolResources));
 							}							
 						} else {
 							continue;
@@ -478,9 +477,11 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 			return;
 		}
 		
-		Page selectedPage = getMainActivity().getScreen().getSelectedPage();
-		if (selectedPage.getPageId().equals(Page.getPageIdForEntityWithId(Chat.class, b))) {
-			return;
+		if (getMainActivity().isActivityVisible()) {
+			Page selectedPage = getMainActivity().getScreen().getSelectedPage();
+			if (selectedPage.getPageId().equals(Page.getPageIdForEntityWithId(Chat.class, b))) {
+				return;
+			}
 		}
 		
 		b.incrementUnread();

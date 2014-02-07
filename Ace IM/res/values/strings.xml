@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="default_theme">Default (transparent)</string>
+    <string name="theme">Theme</string>
     <string name="connect_first">To send a message, please connect account to a network</string>
     <string name="reconnection_attempts">Reconnection attempts</string>
     <string name="network_unavailable">Data network is unavailable, try to connect later</string>

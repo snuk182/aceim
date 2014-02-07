@@ -27,7 +27,7 @@ public class DoubleListAdapter extends ContactListAdapter {
 		Resources res = parent.getContext().getResources();
 
 		final int spacingDp = res.getDimensionPixelSize(R.dimen.contact_list_grid_items_spacing);
-		final int rowHeightDp = res.getDimensionPixelSize(R.dimen.contact_list_vertical_item_size);
+		final int rowHeightDp = res.getDimensionPixelSize(aceim.res.R.dimen.default_contact_list_plain_item_height);
 
 		GridView view = getGroupContentView(convertView, parent, groupPosition, spacingDp, g);		
 
@@ -60,7 +60,8 @@ public class DoubleListAdapter extends ContactListAdapter {
 		}
 
 		if (view.getTag() == null || view.getTag() != g) {
-			view.setAdapter(new GroupItemsAdapter((MainActivity) parent.getContext(), R.layout.contact_list_plain_item, R.id.username, g.getBuddyList(), mResources, groupPosition));
+			MainActivity activity = (MainActivity) parent.getContext();
+			view.setAdapter(new GroupItemsAdapter(activity, activity.getThemesManager().getViewResources().getListItemLayout(), g.getBuddyList(), mResources, groupPosition));
 			view.setTag(g);
 		} else {
 			((GroupItemsAdapter)view.getAdapter()).notifyDataSetChanged();

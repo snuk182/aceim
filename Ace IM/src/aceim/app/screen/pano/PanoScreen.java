@@ -15,7 +15,6 @@ import aceim.app.view.page.contactlist.ContactList;
 import aceim.app.view.page.other.Splash;
 import aceim.app.widgets.HorizontalListView;
 import aceim.app.widgets.bottombar.BottomBarButton;
-import aceim.app.widgets.pageselector.PanoPageAdapter;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,8 +52,9 @@ public class PanoScreen extends Screen {
 		
 		mMenuButton = (BottomBarButton) findViewById(R.id.menu_button);
 		mMenuButton.setOnClickListener(mMenuButtonClickListener);
+		mMenuButton.setOnLongClickListener(mMenuButtonLongClickListener);
 		
-		mPageAdapter = new PanoPageAdapter(activity, mTabClickListener, R.layout.screen_pano_item, mPages);
+		mPageAdapter = new PanoPageAdapter(activity, mTabClickListener, mPages);
 		mPageAdapter.setNotifyOnChange(true);
 		
 		int width = activity.getResources().getDisplayMetrics().widthPixels;

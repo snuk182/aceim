@@ -1,7 +1,11 @@
 package aceim.app.view.page.history;
 
 import java.util.List;
+
+import aceim.api.dataentity.Buddy;
 import aceim.app.MainActivity;
+import aceim.app.dataentity.Account;
+import aceim.app.themeable.dataentity.HistoryMessageItemThemeResource;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.chat.ChatMessageTimeFormat;
 import aceim.app.widgets.adapters.MessagesAdapter;
@@ -18,18 +22,18 @@ class HistoryMessagesAdapter extends MessagesAdapter {
 	private Button mButton;
 	private final OnClickListener mButtonClickListener;
 
-	public HistoryMessagesAdapter(MainActivity activity, int resource, OnClickListener clickListener) {
-		super(activity, resource, ChatMessageTimeFormat.DATE_TIME);
+	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, OnClickListener clickListener) {
+		super(activity, account, buddy, resource, ChatMessageTimeFormat.DATE_TIME);
 		mButtonClickListener = clickListener;
 	}
 
-	public HistoryMessagesAdapter(MainActivity activity, int resource, ChatMessageHolder[] objects, OnClickListener clickListener) {
-		super(activity, resource, objects, ChatMessageTimeFormat.DATE_TIME);
+	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, ChatMessageHolder[] objects, OnClickListener clickListener) {
+		super(activity, account, buddy, resource, objects, ChatMessageTimeFormat.DATE_TIME);
 		mButtonClickListener = clickListener;
 	}
 
-	public HistoryMessagesAdapter(MainActivity activity, int resource, List<ChatMessageHolder> objects, OnClickListener clickListener) {
-		super(activity, resource, objects, ChatMessageTimeFormat.DATE_TIME);
+	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, List<ChatMessageHolder> objects, OnClickListener clickListener) {
+		super(activity, account, buddy, resource, objects, ChatMessageTimeFormat.DATE_TIME);
 		mButtonClickListener = clickListener;
 	}
 	

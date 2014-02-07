@@ -17,7 +17,9 @@ public enum GlobalOptionKeys implements OptionKey, Parcelable {
 	STATUSBAR_NOTIFICATION_TYPE,
 	FORCE_DRAW_WALLPAPER,
 	AUTOCONNECT,
-	RECONNECTION_ATTEMPTS;
+	RECONNECTION_ATTEMPTS,
+	LOG_TO_FILE,
+	THEME;
 
 	@Override
 	public String getStringKey() {

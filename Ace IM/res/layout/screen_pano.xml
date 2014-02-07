@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<FrameLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
+   	android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <RelativeLayout
+    <aceim.app.themeable.widgets.StyleableRelativeLayout
+        aceim:styleableBackground="?attr/screen_background"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" 
-        android:background="@color/transparent">      
+        android:layout_height="match_parent">      
         
         <aceim.app.widgets.HorizontalListView 
         	android:id="@+id/horizontal_list"
@@ -26,6 +28,6 @@
                 android:scaleType="center"
                 android:src="@drawable/menu_button_caption" 
                 android:visibility="gone"/>
-    </RelativeLayout>
+    </aceim.app.themeable.widgets.StyleableRelativeLayout>
 
 </FrameLayout>

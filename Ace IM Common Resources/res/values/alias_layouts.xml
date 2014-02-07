@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="layout" name="group_header_item">@android:layout/simple_expandable_list_item_2</item>
+</resources>

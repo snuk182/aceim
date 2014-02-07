@@ -3,6 +3,8 @@ package aceim.app.view.page.contactlist;
 import java.util.List;
 
 import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.BuddyGroup;
+import aceim.api.service.ApiConstants;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
@@ -10,17 +12,20 @@ import aceim.app.view.page.contactlist.ContactListUpdater.ContactListModelGroup;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.TextView;
+
+import com.androidquery.AQuery;
 
 public abstract class ContactListAdapter extends BaseExpandableListAdapter {
 
 	protected final List<ContactListModelGroup> mGroupList;
 	protected final ProtocolResources mResources;
+	
+	protected AQuery mAq = null;
 
 	public ContactListAdapter(List<ContactListModelGroup> groups, ProtocolResources resources) {
 		this.mGroupList = groups;
@@ -75,13 +80,19 @@ public abstract class ContactListAdapter extends BaseExpandableListAdapter {
 		if (convertView == null) {
 			Context context = parent.getContext();
 			LayoutInflater inflater = LayoutInflater.from(context);
-			item = (View) inflater.inflate(android.R.layout.simple_expandable_list_item_1, null);
+			item = (View) inflater.inflate(R.layout.group_header_item, null);
 		} else {
 			item = convertView;
 		}
-
-		TextView text = (TextView) item.findViewById(android.R.id.text1);
-		text.setText(parent.getContext().getString(R.string.group_name_mask_short, g.getName(), Integer.toString(g.getBuddyList().size())));
+		
+		if (mAq == null) {
+			mAq = new AQuery(item);
+		} else {
+			mAq.recycle(item);
+		}
+		
+		mAq.id(android.R.id.text1).text(g.getName());
+		mAq.id(android.R.id.text2).text(getOnlinesOfflinesText(parent.getContext(), g));
 
 		if (g.isCollapsed()) {
 			((ExpandableListView) parent).collapseGroup(groupPosition);
@@ -112,7 +123,37 @@ public abstract class ContactListAdapter extends BaseExpandableListAdapter {
 				}
 			});
 		}
-
+		
+		
 		return item;
+	}
+	
+	private String getOnlinesOfflinesText(Context context, BuddyGroup parent) {
+		int onlines = 0;
+		int offlines = 0;
+		for (Buddy b : parent.getBuddyList()) {
+			if (b.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1) {
+				onlines++;
+			} else {
+				offlines++;
+			}			
+		}
+		
+		StringBuilder contentText = new StringBuilder();
+		if (onlines > 0) {
+			contentText.append(onlines);
+			contentText.append(" ");
+			contentText.append(context.getString(R.string.online));
+		}			
+		if (onlines > 0 && offlines > 0) {
+			contentText.append(", ");
+		}
+		if (offlines > 0) {
+			contentText.append(offlines);
+			contentText.append(" ");
+			contentText.append(context.getString(R.string.offline));
+		}
+		
+		return contentText.toString();
 	}
 }

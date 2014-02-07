@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<FrameLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
+   	android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <LinearLayout
+    <aceim.app.themeable.widgets.StyleableLinearLayout
+        aceim:styleableBackground="?attr/screen_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
         android:orientation="vertical"
-        android:baselineAligned="true"
-        android:background="@color/transparent">
+        android:baselineAligned="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="50" >
 
-            <RelativeLayout
+            <aceim.app.themeable.widgets.StyleableRelativeLayout 
+            	aceim:styleableBackground="?attr/top_bar_background"
                 android:id="@+id/top_bar_left"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/top_bottom_bar_height"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:background="@drawable/top_bottom_bar_background"
                 android:paddingTop="4dp" >
 
                 <aceim.app.widgets.bottombar.BottomBarButton
@@ -48,7 +50,7 @@
                     android:fadingEdge="none"
                     android:fadingEdgeLength="0px"
                     android:scrollbars="none" />
-            </RelativeLayout>
+            </aceim.app.themeable.widgets.StyleableRelativeLayout>
 
             <FrameLayout
                 android:id="@+id/fragment_holder_left"
@@ -66,14 +68,14 @@
             android:layout_height="match_parent"
             android:layout_weight="50" >
 
-            <RelativeLayout
+            <aceim.app.themeable.widgets.StyleableRelativeLayout 
+            	aceim:styleableBackground="?attr/top_bar_background"
                 android:id="@+id/top_bar_right"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/top_bottom_bar_height"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:background="@drawable/top_bottom_bar_background"
                 android:paddingTop="4dp" >
 
                 <aceim.app.widgets.pageselector.TabSelector
@@ -87,7 +89,7 @@
                     android:fadingEdge="none"
                     android:fadingEdgeLength="0px"
                     android:scrollbars="none" />
-            </RelativeLayout>
+            </aceim.app.themeable.widgets.StyleableRelativeLayout>
 
             <FrameLayout
                 android:id="@+id/fragment_holder_right"
@@ -100,5 +102,5 @@
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"/>
         </RelativeLayout>
-    </LinearLayout>
+    </aceim.app.themeable.widgets.StyleableLinearLayout>
 </FrameLayout>

@@ -10,8 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.androidquery.AQuery;
-
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
 import aceim.api.dataentity.ConnectionState;
@@ -39,6 +37,7 @@ import aceim.app.dataentity.listeners.IHasBuddy;
 import aceim.app.dataentity.listeners.IHasFilePicker;
 import aceim.app.dataentity.listeners.IHasMessages;
 import aceim.app.service.ServiceUtils;
+import aceim.app.themeable.dataentity.ContactThemeResource;
 import aceim.app.utils.DialogUtils;
 import aceim.app.utils.LinqRules.BuddyLinqRule;
 import aceim.app.utils.ViewUtils;
@@ -89,11 +88,15 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.androidquery.AQuery;
+
 public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, IHasFilePicker {
 	
 	private static final String SAVE_PARAM_MESSAGES = "messages";
 	private static final String SAVE_PARAM_URI = "uri";
 	private static final String SAVE_PARAM_TEXT = "text";
+	
+	private static ContactThemeResource sContactResource;
 	
 	private final Buddy mBuddy;
 	private final Account mAccount;
@@ -349,9 +352,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		prohibitTypingNotificationSending();
 		
-		fillContactDetail(message);
-		
-		mMessageAdapter.add(new ChatMessageHolder(message, mAccount.getSafeName()));
+		mMessageAdapter.add(ViewUtils.message2MessageHolder(message, mBuddy, mAccount));
 		getMainActivity().runOnUiThread(mScrollToEndRunnable);
 		
 		AsyncTask<Message, Void, Long> messageSender = new AsyncTask<Message, Void, Long>() {
@@ -392,6 +393,10 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		mChatBuddies = (ExpandableListView) view.findViewById(R.id.chat_buddies);
 		mXStatusText = (TextView) view.findViewById(R.id.label_xstatus);
 		
+		if (sContactResource == null) {
+			sContactResource = new ChatParticipantThemeResource(getMainActivity());
+		}
+		
 		if (mBuddy instanceof MultiChatRoom) {
 			mChatBuddies.setAdapter(new ChatParticipantsAdapter(((MultiChatRoom)mBuddy).getOccupants(), mProtocolResources));
 		} else {
@@ -405,7 +410,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 		
 		if (mMessageAdapter == null) {
-			mMessageAdapter = new MessagesAdapter(getMainActivity(), R.layout.chat_message, mMessageHolders, ChatMessageTimeFormat.DATE_TIME);
+			mMessageAdapter = new MessagesAdapter(getMainActivity(), mAccount, mBuddy, getMainActivity().getThemesManager().getViewResources().getChatMessageItemLayout(), mMessageHolders, ChatMessageTimeFormat.DATE_TIME);
 		}
 		mMessages.setAdapter(mMessageAdapter);
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
@@ -444,9 +449,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	@Override
 	public void onSetMeSelected() {
 		resetUnread();
-		mScrollToEndRunnable.run();
 		mEditor.requestFocus();
-		//sInputMethodManager.setInputMethod(mEditor.getWindowToken(), mEditor.toString());
+		mScrollToEndRunnable.run();
 	}
 	
 	@Override
@@ -474,6 +478,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		if (bundle == null) {
 			return;
 		}
+		
+		bundle.setClassLoader(ChatMessageHolder.class.getClassLoader());
 		
 		mEditorUnsavedContent = bundle.getCharSequence(SAVE_PARAM_TEXT);
 		mAwaitingUri = bundle.getParcelable(SAVE_PARAM_URI);
@@ -525,11 +531,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 					} else if (mMessageAdapter.getCount() < 1) {
 						List<Message> lastMessages = getMainActivity().getCoreService().getLastMessages(mBuddy);
 						
-						for (Message message : lastMessages) {
-							fillContactDetail(message);
-						}
-						
-						result =  ViewUtils.wrapMessages(mBuddy, mAccount, lastMessages);
+						result = ViewUtils.wrapMessages(mBuddy, mAccount, lastMessages);						
 					} else {
 						result = Collections.emptyList();
 					}
@@ -588,27 +590,10 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		fillContactDetail(message);
+		ChatMessageHolder holder = ViewUtils.message2MessageHolder(message, mBuddy, mAccount);
 		
-		mMessageAdapter.add(new ChatMessageHolder(message, message.getContactDetail() != null ? message.getContactDetail() : mBuddy.getSafeName()));
+		mMessageAdapter.add(holder);
 		mScrollToEndRunnable.run();
-	}
-
-	private void fillContactDetail(Message message) {
-		if (message.isIncoming()) {
-			if (TextUtils.isEmpty(message.getContactDetail())) {
-				message.setContactDetail(mBuddy.getSafeName());
-			} else {
-				if (mBuddy instanceof MultiChatRoom) {
-					Buddy b = ((MultiChatRoom)mBuddy).findOccupantByUid(message.getContactDetail());
-					if (b != null) {
-						message.setContactDetail(b.getSafeName());
-					}
-				}
-			}
-		} else {
-			message.setContactDetail(mAccount.getSafeName());
-		}
 	}
 
 	@Override
@@ -692,7 +677,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 			return;
 		}
 		
-		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, new AQuery((View) mStatus.getParent()), mProtocolResources);
+		ViewUtils.fillBuddyPlaceholder(getMainActivity(), mBuddy, new AQuery((View) mStatus.getParent()), mProtocolResources, sContactResource);
 		
 		if (mBuddy instanceof MultiChatRoom){
 			((ChatParticipantsAdapter)mChatBuddies.getExpandableListAdapter()).notifyDataSetChanged();
@@ -966,5 +951,17 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	@Override
 	public boolean hasMenu(){
 		return true;
+	}
+	
+	private class ChatParticipantThemeResource extends ContactThemeResource {
+
+		public ChatParticipantThemeResource(Context context) {
+			super(context, 0);
+			setBuddyStatusImageId(R.id.image_status);
+			setIconImageId(R.id.image_icon);
+			setTitleTextViewId(R.id.username);
+			setXstatusTextViewId(R.id.label_xstatus);
+			setExtraImageIDs(new int[] { R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4 });
+		}
 	}
 }

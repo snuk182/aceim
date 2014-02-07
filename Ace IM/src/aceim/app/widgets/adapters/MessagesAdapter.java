@@ -4,21 +4,26 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.FileInfo;
 import aceim.api.dataentity.FileMessage;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
+import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
 import aceim.api.utils.Logger;
 import aceim.app.MainActivity;
 import aceim.app.R;
+import aceim.app.dataentity.Account;
 import aceim.app.dataentity.SmileyResources;
+import aceim.app.themeable.dataentity.ChatMessageItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.chat.ChatMessageTimeFormat;
@@ -33,7 +38,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -41,7 +45,7 @@ import com.androidquery.AQuery;
 
 public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
-	private static Map<String, Drawable> sSmileys;
+	private static SortedMap<String, Drawable> sSmileys;
 	private static int sSmileyBound; 
 	
 	private DateFormat mDateFormat;
@@ -51,27 +55,42 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	private boolean mDontDrawSmilies = false;
 	
 	private Object copyModeStarter = null;
+	private AQuery mAq = null;
 	
-	private final  OnClickListener mCheckForCopyClickListener = new OnClickListener() {
+	private final Account mAccount;
+	private final Buddy mBuddy;
+	
+	private final ChatMessageItemThemeResource messageItemLayout;
+	
+	private final OnClickListener mCheckForCopyClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			new AQuery(v).id(R.id.checkbox).checked(true);
+			mAq.recycle(v).id(messageItemLayout.getCheckboxId()).checked(true);
 		}
 	};
 	
-	public MessagesAdapter(MainActivity activity, int resource, ChatMessageTimeFormat timeDisplayFormat) {
-		super(activity, resource, R.id.sender);		
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, 0, 0);		
+		this.messageItemLayout = messageItemLayout;
+		this.mAccount = account;
+		this.mBuddy = buddy;
 		init(activity, timeDisplayFormat);
 	}
 
-	public MessagesAdapter(MainActivity activity, int resource, ChatMessageHolder[] objects, ChatMessageTimeFormat timeDisplayFormat) {
-		super(activity, resource, R.id.sender, objects);
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, ChatMessageHolder[] objects, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, 0, 0, objects);
+		this.messageItemLayout = messageItemLayout;
+		this.mAccount = account;
+		this.mBuddy = buddy;
 		init(activity, timeDisplayFormat);
 	}
 
-	public MessagesAdapter(MainActivity activity, int resource, List<ChatMessageHolder> objects, ChatMessageTimeFormat timeDisplayFormat) {
-		super(activity, resource, R.id.sender, objects);
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, List<ChatMessageHolder> objects, ChatMessageTimeFormat timeDisplayFormat) {
+		super(activity, 0, 0, objects);
+		this.messageItemLayout = messageItemLayout;
+		this.mAccount = account;
+		this.mBuddy = buddy;
 		init(activity, timeDisplayFormat);
 	}
 	
@@ -81,7 +100,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		mTimeDisplayFormat = timeDisplayFormat;
 		
 		if (sSmileys == null) {
-			sSmileys = Collections.synchronizedMap(new HashMap<String, Drawable>());
+			sSmileys = Collections.synchronizedSortedMap(new TreeMap<String, Drawable>(new StringLengthComparator()));
 			
 			List<SmileyResources> smileys = new ArrayList<SmileyResources>(activity.getAdditionalSmileys());
 			
@@ -91,9 +110,13 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 					Resources nr = r.getNativeResourcesForProtocol(activity.getPackageManager());
 					
 					for (int i=0; i<r.getNames().length; i++) {
-						if (!sSmileys.containsKey(r.getNames()[i])) {
+						String smileyKey = r.getNames()[i];
+						
+						smileyKey = ViewUtils.escapeOmittableSmiley(smileyKey);
+						
+						if (!sSmileys.containsKey(smileyKey)) {
 							Drawable d = nr.getDrawable(r.getDrawableIDs()[i]);
-							sSmileys.put(r.getNames()[i], d);
+							sSmileys.put(smileyKey, d);
 						}
 					}
 				} catch (Exception e) {
@@ -105,50 +128,68 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = super.getView(position, convertView, parent);
+		if (convertView == null) {
+			convertView = ViewUtils.fromThemeResource(messageItemLayout);
+		}
+		
+		if (mAq == null) {
+			mAq = new AQuery(convertView);
+		} else {
+			mAq.recycle(convertView);
+		}
+		
+		View v = convertView;
 		
 		ChatMessageHolder holder = getItem(position);
 
-		ImageView status = (ImageView) v.findViewById(R.id.status);
-		CheckBox checkbox = (CheckBox) v.findViewById(R.id.checkbox);
-		TextView sender = (TextView) v.findViewById(R.id.sender);
-		sender.setText(holder.getSenderName());
+		mAq.id(messageItemLayout.getIconImageViewId()).visibility(copyModeStarter != null ? View.GONE : View.VISIBLE);
 		
-		colorSenderName(holder, sender);
-
-		if (status != null) {
-			status.setImageResource(getImageResourceForAckState(holder.getAckState()));
+		String filename;
+		
+		if (!holder.getMessage().isIncoming()) {
+			filename = mAccount.getFilename();
+		} else {
+			Buddy b = null;
+			if (mBuddy instanceof MultiChatRoom) {
+				b = ((MultiChatRoom)mBuddy).findOccupantByUid(holder.getMessage().getContactDetail());				
+			}
 			
-			status.setVisibility(copyModeStarter != null ? View.INVISIBLE : View.VISIBLE);
+			if (b == null) {
+				b = mBuddy;
+			}
+			
+			filename = b.getFilename();
 		}
 		
-		checkbox.setVisibility(copyModeStarter != null ? View.VISIBLE : View.GONE);
+		ViewUtils.fillIcon(messageItemLayout.getIconImageViewId(), mAq, filename, getContext());
 		
-		if (copyModeStarter == null) {
-			checkbox.setChecked(false);
+		mAq.id(messageItemLayout.getSenderTextViewId()).text(holder.getSenderName());		
+		
+		colorSenderName(holder, mAq.getTextView());
+		
+		mAq.id(messageItemLayout.getMessageStatusImageId()).image(getImageResourceForAckState(holder.getAckState())).visibility(copyModeStarter == null ? View.VISIBLE : View.INVISIBLE);
+		mAq.id(messageItemLayout.getCheckboxId()).visibility(copyModeStarter != null ? View.VISIBLE : View.GONE).checked(copyModeStarter != null && copyModeStarter == v);
+		
+		if (copyModeStarter == null) {			
 			v.setOnClickListener(null);
 		} else {
 			v.setOnClickListener(mCheckForCopyClickListener);
-			if (copyModeStarter == v) {
-				checkbox.setChecked(true);
-			}
 		}
 		
 		v.setTag(holder);
 		
 		if (holder.getMessage().getMessageId() == 0) {
-			v.setBackgroundResource(R.color.transparent);
+			v.setBackgroundDrawable(parent.getContext().getResources().getDrawable(R.color.transparent));
 		} else {
 			v.setBackgroundColor(0);
 		}
 		
-		TextView time = (TextView) v.findViewById(R.id.time);
-		TextView message = (TextView) v.findViewById(R.id.message);
+		mAq.id(messageItemLayout.getTimeTextViewId()).text(getFormattedMessageTime(holder));
 		
-		time.setText(getFormattedMessageTime(holder));
-		setTextAndFormat(getMainActivity(), message, holder, mDontDrawSmilies);
+		setTextAndFormat(getMainActivity(), mAq.id(messageItemLayout.getMessageTextViewId()).getTextView(), holder, mDontDrawSmilies);
 		
 		return v;
 	}
@@ -287,7 +328,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		
 		for (int i=0; i<list.getChildCount(); i++){
 			View item = list.getChildAt(i);
-			CheckBox cb = (CheckBox) item.findViewById(R.id.checkbox);
+			CheckBox cb = (CheckBox) item.findViewById(messageItemLayout.getCheckboxId());
 			
 			if (cb.isChecked() && item.getTag() != null) {
 				ChatMessageHolder holder = (ChatMessageHolder) item.getTag();
@@ -326,5 +367,21 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
 	protected MainActivity getMainActivity() {
 		return (MainActivity) getContext();
+	}
+	
+	private static final class StringLengthComparator implements Comparator<String> {
+
+		@Override
+		public int compare(String rhs, String lhs) {
+			if (lhs != null && rhs != null) {
+				if (lhs.length() != rhs.length()) {
+					return lhs.length() - rhs.length();
+				} else {
+					return lhs.compareTo(rhs);
+				}
+			} else {
+				return lhs != null ? 1 : -1;
+			}
+		}		
 	}
 }

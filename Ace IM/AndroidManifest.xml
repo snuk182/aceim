@@ -12,7 +12,7 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.CAMERA"/>
 	
-	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="17" />
+	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="19" />
 	
 	<supports-screens 
 	    android:largeScreens="true"
@@ -21,7 +21,7 @@
 		android:resizeable="true"
 		android:anyDensity="true" />
 	
-	<application android:theme="@style/Ace.IM.Theme.Transparent"
+	<application android:theme="@style/Ace.IM.Theme"
 	    	android:icon="@drawable/ic_launcher" 
 	    	android:label="@string/app_name" 
 	    	android:name="aceim.api.application.AceIMBaseApplication" 
@@ -42,7 +42,8 @@
 		    android:launchMode="standard">
 		</activity>
 		<service android:name=".service.CoreService" 
-		    android:exported="false">
+		    android:exported="false"
+		    android:process="aceim.core">
 			<intent-filter>
 				<action android:name="aceim.app.service.CoreService" />
 				<category android:name="android.intent.category.DEFAULT" />

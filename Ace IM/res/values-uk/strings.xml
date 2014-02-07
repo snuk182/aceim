@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="default_theme">Вбудована (прозора)</string>
+    <string name="theme">Тема оформлення</string>
     <string name="connect_first">Щоб відправити повідомлення, спочатку ввійдіть до мережі</string>
     <string name="reconnection_attempts">Намагання перепідключення</string>
     <string name="network_unavailable">Нема доступу до інтернету, спробуйте пізніше</string>

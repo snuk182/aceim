@@ -144,7 +144,6 @@ public class CoreService extends Service {
 			default:
 				if (mInterface != null) {
 					try {
-						//mInterface.onProtocolUpdated(protocol.getResources(), action);
 						mInterface.terminate();
 						exitService(true);
 					} catch (RemoteException e) {
@@ -167,8 +166,6 @@ public class CoreService extends Service {
 					account = acs.getAccount();
 				}
 			}
-
-			// mStorage.savePreference(key, value, account);
 
 			onOptionChangedInternal(key, value, account);
 		}
@@ -394,7 +391,17 @@ public class CoreService extends Service {
 				StatusBarNotificationMode barMode = StatusBarNotificationMode.valueOf(value);
 				mNotificator.setStatusBarMode(barMode);
 
-				mNotificator.onAccountStateChanged(mAccounts);				
+				mNotificator.onAccountStateChanged(mAccounts);
+			case LOG_TO_FILE:
+				boolean logToFile = Boolean.parseBoolean(value);
+				Logger.logToFile = logToFile;
+				for (ProtocolService protocol: mProtocolServiceManager.getProtocolsList()) {
+					try {
+						protocol.getProtocol().logToFile(logToFile);
+					} catch (RemoteException e) {
+						Logger.log(e);
+					}
+				}
 				break;
 			default:
 				break;
@@ -461,7 +468,7 @@ public class CoreService extends Service {
 				return;
 			}
 			
-			if (as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
+			if (as.getProtocolService() != null && as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
 				as.getProtocolService().getProtocol().disconnect(account.getServiceId());
 			}
 			
@@ -1537,21 +1544,10 @@ public class CoreService extends Service {
 		AccountService as = mAccounts.get(serviceId);
 		
 		if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
-			Logger.log("Trying to connect disabled account " + as.getAccount().getAccountId(), LoggerLevel.INFO);
+			Logger.log("Trying to connect disabled or already connected account " + as.getAccount().getAccountId(), LoggerLevel.INFO);
 			return;
 		}
 		
-		/*if (!isNetworkAvailable()) {
-			mHandler.post(new Runnable() {
-				
-				@Override
-				public void run() {
-					ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_dialog_alert, R.string.network_unavailable, null);					
-				}
-			});
-			return;
-		}*/
-
 		try {
 			as.getProtocolService().getProtocol().connect(as.getAccount().getOnlineInfo());
 			
@@ -1560,17 +1556,6 @@ public class CoreService extends Service {
 			Logger.log(e);
 		}
 	}
-
-	/*private boolean isNetworkAvailable() {
-		ConnectivityManager connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connManager != null) {
-        	NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
-            
-            return networkInfo != null && networkInfo.isConnected();
-        } else {
-        	return false;
-        }
-	}*/
 
 	private void onContactListUpdated(Account account) throws RemoteException {
 		mStorage.saveAccount(account, false);
@@ -1702,7 +1687,7 @@ public class CoreService extends Service {
 	
 	private AccountService findAccountServiceByProtocolUidAndProtocolName(String protocolUid, String protocolName) {
 		for (AccountService as : mAccounts) {
-			if (as.getAccount().getProtocolUid().equals(protocolUid) && as.getAccount().getProtocolName().equals(protocolName)) {
+			if (as != null && as.getAccount().getProtocolUid().equals(protocolUid) && as.getAccount().getProtocolName().equals(protocolName)) {
 				return as;
 			}
 		}

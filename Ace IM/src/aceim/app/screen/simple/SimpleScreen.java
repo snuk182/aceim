@@ -48,11 +48,12 @@ public class SimpleScreen extends Screen implements PageChangedListener {
 		mMenuButton = (BottomBarButton) findViewById(R.id.menu_button);
 		
 		mPageManager = new PageManager(R.id.fragment_holder, activity);
-		mPageAdapter = new PageAdapter(activity, mTabClickListener, R.layout.tab_indicator, mPageManager.getPages());
+		mPageAdapter = new PageAdapter(activity, mTabClickListener, activity.getThemesManager().getViewResources().getTabItemLayout(), mPageManager.getPages());
 		mPageAdapter.setNotifyOnChange(true);
 		mTabHolder.setPageAdapter(mPageAdapter);
 		mTabHolder.setOnHierarchyChangeListener(mTabChangedListener);
 		mMenuButton.setOnClickListener(mMenuButtonClickListener);
+		mMenuButton.setOnLongClickListener(mMenuButtonLongClickListener);
 	}
 	
 	@Override

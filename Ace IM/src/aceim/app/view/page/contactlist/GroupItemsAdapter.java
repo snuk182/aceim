@@ -4,8 +4,8 @@ import java.util.List;
 
 import aceim.api.dataentity.Buddy;
 import aceim.app.MainActivity;
-import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.themeable.dataentity.ContactListItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,14 +16,16 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 class GroupItemsAdapter extends ArrayAdapter<Buddy> {
-
+	
 	private final ProtocolResources mResources;
+	private final ContactListItemThemeResource itemLayoutResource;
 	private final int groupPosition;
-
-	public GroupItemsAdapter(MainActivity activity, int resource, int textViewResourceId, List<Buddy> buddyList, ProtocolResources resources, int groupPosition) {
-		super(activity, resource, textViewResourceId, buddyList);
+	
+	public GroupItemsAdapter(MainActivity activity, ContactListItemThemeResource itemLayoutResource, List<Buddy> buddyList, ProtocolResources resources, int groupPosition) {
+		super(activity, 0, 0, buddyList);
 		this.mResources = resources;
 		this.groupPosition = groupPosition;
+		this.itemLayoutResource = itemLayoutResource;
 	}
 
 	@Override
@@ -31,8 +33,12 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 		final MainActivity activity = (MainActivity) getContext();
 		
 		Buddy buddy = getItem(position);
-		View view = super.getView(position, convertView, parent);
-
+		View view = convertView;
+		
+		if (convertView == null) {
+			view = ViewUtils.fromThemeResource(itemLayoutResource);
+		}
+		
 		if (view.getTag() == null || view.getTag() != buddy) {
 			view.setTag(buddy);
 			view.setOnClickListener(new OnClickListener() {
@@ -55,11 +61,16 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 			});
 		}
 		
-		TextView name = (TextView) view.findViewById(R.id.username);
+		TextView name = (TextView) view.findViewById(itemLayoutResource.getTitleTextViewId());
 		name.setText(buddy.getSafeName());
 		
-		ViewUtils.fillBuddyPlaceholder(getContext(), buddy, view, mResources, position, groupPosition, (AbsListView) parent);
+		ViewUtils.fillBuddyPlaceholder(getContext(), buddy, view, mResources, itemLayoutResource, position, groupPosition, (AbsListView) parent);
 
 		return view;
 	}
+	
+	@Override
+	public boolean hasStableIds() {
+        return true;
+    }
 }

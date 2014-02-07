@@ -4,26 +4,30 @@
     android:layout_height="wrap_content"
     android:background="@android:drawable/menuitem_background">
     
-    <ImageView 
+    <aceim.app.styleable.widgets.StyleableImageView
         android:id="@+id/left_icon"
-        android:layout_width="@dimen/contact_list_grid_item_size"
-        android:layout_height="@dimen/contact_list_grid_item_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/dummy_icon"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:paddingTop="@dimen/default_padding"
         android:paddingLeft="@dimen/default_padding"
-        android:paddingBottom="@dimen/default_padding"/>
-    <ImageView 
+        android:paddingBottom="@dimen/default_padding"
+        styleableWidth="?attr/grid_item_size"
+        styleableHeight="?attr/grid_item_size"/>
+    <aceim.app.styleable.widgets.StyleableImageView 
         android:id="@+id/right_icon"
-        android:layout_width="@dimen/contact_list_grid_item_size"
-        android:layout_height="@dimen/contact_list_grid_item_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/dummy_icon"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:paddingTop="@dimen/default_padding"
         android:paddingRight="@dimen/default_padding"
-        android:paddingBottom="@dimen/default_padding"/>
+        android:paddingBottom="@dimen/default_padding"
+        styleableWidth="?attr/grid_item_size"
+        styleableHeight="?attr/grid_item_size"/>
     <TextView 
         android:id="@+id/left_label"
         android:layout_width="wrap_content"
@@ -63,7 +67,7 @@
     <ProgressBar 
         android:id="@+id/progress"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/contact_list_grid_item_icons_size"
+        android:layout_height="12dp"
         android:indeterminateOnly="false" 
 		android:progressDrawable="@android:drawable/progress_horizontal"
 		android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal" 

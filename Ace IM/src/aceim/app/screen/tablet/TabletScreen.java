@@ -68,17 +68,18 @@ public class TabletScreen extends Screen {
 		
 		mMenuButton = (BottomBarButton) findViewById(R.id.menu_button);
 		mMenuButton.setOnClickListener(mMenuButtonClickListener);
+		mMenuButton.setOnLongClickListener(mMenuButtonLongClickListener);
 		
 		mTabHolderLeft = (TabSelector) findViewById(R.id.tab_selector_left);
 		mPageManagerLeft = new PageManager(R.id.fragment_holder_left, activity);
-		mPageAdapterLeft = new PageAdapter(activity, mTabClickListener, R.layout.tab_indicator, mPageManagerLeft.getPages());
+		mPageAdapterLeft = new PageAdapter(activity, mTabClickListener, activity.getThemesManager().getViewResources().getTabItemLayout(), mPageManagerLeft.getPages());
 		mPageAdapterLeft.setNotifyOnChange(true);
 		mTabHolderLeft.setPageAdapter(mPageAdapterLeft);
 		mTabHolderLeft.setOnHierarchyChangeListener(mTabChangedListener);
 		
 		mTabHolderRight = (TabSelector) findViewById(R.id.tab_selector_right);
 		mPageManagerRight = new PageManager(R.id.fragment_holder_right, activity);
-		mPageAdapterRight = new PageAdapter(activity, mTabClickListener, R.layout.tab_indicator, mPageManagerRight.getPages());
+		mPageAdapterRight = new PageAdapter(activity, mTabClickListener, activity.getThemesManager().getViewResources().getTabItemLayout(), mPageManagerRight.getPages());
 		mPageAdapterRight.setNotifyOnChange(true);
 		mTabHolderRight.setPageAdapter(mPageAdapterRight);
 		mTabHolderRight.setOnHierarchyChangeListener(mTabChangedListener);		

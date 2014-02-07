@@ -120,7 +120,7 @@ public class Notificator {
 			if (message instanceof FileMessage) {
 				FileMessage fm = (FileMessage) message;
 				StringBuilder sb = new StringBuilder();
-				sb.append(mContext.getString(R.string.buddy_sends_files, buddy));
+				sb.append(mContext.getString(R.string.buddy_sends_files, buddy.getSafeName()));
 				for (FileInfo fi : fm.getFiles()) {
 					sb.append("\n");
 					sb.append(mContext.getString(R.string.file_transfer_request_format, fi.getFilename(), ViewUtils.humanReadableByteCount(fi.getSize(), true)));
@@ -286,7 +286,7 @@ public class Notificator {
 	}
 
 	public void onFileTransferProgress(FileProgress progress) {
-		Logger.log("Notification for file transfer " + progress.getFilePath() + ", id #" + progress.getMessageId() + " size " + progress.getSentBytes() + "/" + progress.getTotalSizeBytes(), LoggerLevel.VERBOSE);
+		Logger.log("Notification for file transfer " + progress.getFilePath() + ", id #" + progress.getMessageId() + " size " + ViewUtils.humanReadableByteCount(progress.getSentBytes(), true) + "/" + ViewUtils.humanReadableByteCount(progress.getTotalSizeBytes(), true), LoggerLevel.VERBOSE);
 
 		NotificationCompat.Builder builder = mFileTransferViews.get(progress.getMessageId());
 
@@ -314,6 +314,11 @@ public class Notificator {
 				mFileTransferViews.remove(progress.getMessageId());
 			} else {
 				builder.setAutoCancel(false);
+				
+				Intent intent = new Intent(mContext, MainActivity.class);
+				PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+				builder.setContentIntent(contentIntent);
+				
 				if (progress.getTotalSizeBytes() > 0) {
 					int percentDone = (int) ((progress.getSentBytes() * 100f) / progress.getTotalSizeBytes());
 					builder.setProgress(100, percentDone, false);
@@ -327,6 +332,7 @@ public class Notificator {
 			Intent intent = new Intent(mContext, MainActivity.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
 			builder.setContentIntent(contentIntent);
+			
 			builder.setContentText(progress.getError());
 
 			builder.setAutoCancel(true);

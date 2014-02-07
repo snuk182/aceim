@@ -8,6 +8,7 @@ import java.util.List;
 import aceim.api.utils.Logger;
 import aceim.app.MainActivity;
 import aceim.app.dataentity.SmileyResources;
+import aceim.app.utils.ViewUtils;
 import aceim.app.widgets.adapters.SingleViewAdapter;
 import android.content.Context;
 import android.content.res.Resources;
@@ -40,18 +41,19 @@ public class ImageSmileyAdapter extends SingleViewAdapter<Drawable, ImageView> {
 			try {
 				Resources res = smr.getNativeResourcesForProtocol(activity.getPackageManager());
 				for (int i = 0; i < smr.getDrawableIDs().length; i++) {
+					String smiley = smr.getNames()[i];
 					
 					boolean found = false;
 					for (int j=0; j<slist.size(); j++) {
-						if (smr.getNames()[i].equals(slist.get(j))) {
+						if (smiley.equals(slist.get(j))) {
 							found = true;
 							break;
 						}
 					}
 					
-					if (!found) {
+					if (!found && !ViewUtils.isSmileyReadOnly(smiley)) {
 						dlist.add(res.getDrawable(smr.getDrawableIDs()[i]));
-						slist.add(smr.getNames()[i]);
+						slist.add(smiley);
 					}
 				}
 			} catch (Exception e) {

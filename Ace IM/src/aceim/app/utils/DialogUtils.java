@@ -95,7 +95,7 @@ public final class DialogUtils {
 		}
 		
 		if (feature.getDrawables() != null && feature.getNames() != null) {
-			grid.setColumnWidth(activity.getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
+			//grid.setColumnWidth(activity.getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
 			
 			final IconTitleAdapter adapter;
 			try {

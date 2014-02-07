@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:textSize="@dimen/chat_message_holder_header_font_size"
+        android:textSize="12sp"
         android:gravity="center_vertical"
         android:text="name"
         android:paddingRight="@dimen/default_padding"/>
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/sender"
-        android:textSize="@dimen/chat_message_holder_header_font_size"
+        android:textSize="12sp"
         android:gravity="center_vertical"
         android:text="12:34:45"/>
     
@@ -36,10 +36,11 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@id/sender"
         android:textColor="#ffff"
-        android:text="lorem ipsum"/>
+        android:text="lorem ipsum"
+        android:textSize="15sp"/>
 	<CheckBox android:id="@+id/checkbox"
-        android:layout_width="@dimen/chat_message_holder_header_height"
-        android:layout_height="@dimen/chat_message_holder_header_height"
+        android:layout_width="12sp"
+        android:layout_height="12sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
 		android:visibility="gone"

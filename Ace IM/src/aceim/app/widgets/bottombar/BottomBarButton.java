@@ -1,20 +1,28 @@
 package aceim.app.widgets.bottombar;
 
+import aceim.app.AceIMActivity;
 import aceim.app.R;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
 
 public class BottomBarButton extends ImageButton {
 	
+	private Drawable sBackground = null;
+	
+	@SuppressWarnings("deprecation")
 	public BottomBarButton(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		int padding = context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_items_spacing);
 		setPadding(0, 0, 0, padding);
 		setScaleType(ScaleType.CENTER);
-		setBackgroundResource(android.R.drawable.menuitem_background);
-		//setAdjustViewBounds(true);
+		
+		initVariables((AceIMActivity) context);
+		
+		setBackgroundDrawable(sBackground);
 	}
 
 	@Override
@@ -37,31 +45,22 @@ public class BottomBarButton extends ImageButton {
 	
 	@Override
 	public void setImageBitmap(Bitmap bm){
-		/*int offset = getContext().getResources().getDimensionPixelSize(R.dimen.top_bottom_bar_top_padding);
-		
-		int wbias = bm.getWidth() - getWidth() - offset;
-		int hbias = bm.getHeight() - getHeight() - offset;
-		
-		if (wbias > 0 || hbias > 0) {
-			int dstWidth;
-			int dstHeight;
-			
-			if (bm.getWidth() > bm.getHeight()) {
-				dstWidth = getWidth() - offset;
-				dstHeight = (int) ((dstWidth+0f / bm.getWidth()) * bm.getHeight());
-			} else {
-				dstHeight = getHeight() - offset;
-				dstWidth = (int) (dstHeight+0f / bm.getHeight() * bm.getWidth());
-			}
-			
-			Bitmap tmp = Bitmap.createScaledBitmap(bm, dstWidth, dstHeight, false);
-			
-			if (tmp != bm) {
-				bm.recycle();
-				bm = tmp;
-			}
-		}*/
-		
 		super.setImageBitmap(bm);
+	}
+	
+	private void initVariables(AceIMActivity activity) {
+		TypedArray array = activity.getThemesManager().getCurrentTheme().obtainStyledAttributes(aceim.res.R.styleable.Ace_IM_Theme);
+		
+		for (int i =0; i< array.getIndexCount(); i++) {
+			int res = array.getIndex(i);
+			
+			switch (res) {
+			case aceim.res.R.styleable.Ace_IM_Theme_bottom_bar_button_background:
+				sBackground = array.getDrawable(i);
+				break;
+			}
+		}
+		
+		array.recycle();
 	}
 }

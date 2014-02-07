@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_contact_list_plain_item_height">50dip</dimen>
+    <dimen name="default_contact_list_grid_item_icons_size">15dip</dimen>
+    <dimen name="default_contact_list_grid_item_size">100dip</dimen>
+    <dimen name="default_contact_list_grid_item_label_size">12sp</dimen>    
+    
+    <dimen name="default_padding">7dp</dimen>
+    <dimen name="top_bottom_padding">2dp</dimen>
+</resources>

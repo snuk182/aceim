@@ -8,6 +8,7 @@ import java.util.Set;
 
 import aceim.app.MainActivity;
 import aceim.app.dataentity.SmileyResources;
+import aceim.app.utils.ViewUtils;
 import aceim.app.widgets.adapters.SingleViewAdapter;
 import android.content.Context;
 import android.view.Gravity;
@@ -26,13 +27,23 @@ public class TextSmileyAdapter extends SingleViewAdapter<String, TextView> {
 	}
 
 	public static final TextSmileyAdapter fromTypedArray(MainActivity activity){
-		Set<String> list = new HashSet<String>();
+		Set<String> set = new HashSet<String>();
 		
 		for (SmileyResources smr : activity.getAdditionalSmileys()) {
-			list.addAll(Arrays.asList(smr.getNames()));
+			set.addAll(Arrays.asList(smr.getNames()));
 		}
 		
-		return fromStringList(activity, new ArrayList<String>(list));
+		List<String> list = new ArrayList<String>(set);
+		
+		for (int i=0; i<list.size(); i++) {
+			String smiley = list.get(i);
+			
+			if (!ViewUtils.isSmileyReadOnly(smiley)) {
+				list.set(i, smiley);
+			}
+		}
+		
+		return fromStringList(activity, list);
 	}
 	
 	public static final TextSmileyAdapter fromStringList(Context context, List<String> list){

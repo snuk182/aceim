@@ -7,6 +7,7 @@ import java.util.List;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
+import aceim.api.utils.Logger;
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
@@ -147,7 +148,13 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		mCancelBtn = (BottomBarButton) view.findViewById(R.id.cancel);
 		
 		if (mMessageAdapter == null) {
-			mMessageAdapter = new HistoryMessagesAdapter(getMainActivity(), R.layout.history_message, mMessageHolders, mAddMoreClickListener);
+			MainActivity activity = getMainActivity();
+			try {
+				Account a = activity.getCoreService().getAccount(mBuddy.getServiceId());
+				mMessageAdapter = new HistoryMessagesAdapter(activity, a, mBuddy, activity.getThemesManager().getViewResources().getHistoryMessageItemLayout(), mMessageHolders, mAddMoreClickListener);
+			} catch (RemoteException e) {
+				Logger.log(e);
+			}
 		}
 		mMessages.setAdapter(mMessageAdapter);
 		if (sTextSmileyAdapter == null) {
@@ -200,6 +207,11 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 				}
 				
 				messageHolders.add(sAddMoreButtonHolder);
+			}
+			
+			
+			for (Message message : messages) {
+				
 			}
 			
 			messageHolders.addAll(ViewUtils.wrapMessages(mBuddy, account, messages));

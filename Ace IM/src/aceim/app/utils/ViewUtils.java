@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.ListFeature;
 import aceim.api.dataentity.Message;
+import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.dataentity.OnlineInfo;
 import aceim.api.dataentity.ProtocolServiceFeature;
 import aceim.api.service.ApiConstants;
@@ -29,7 +32,10 @@ import aceim.app.dataentity.Account;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.preference.OptionsActivity;
+import aceim.app.themeable.dataentity.ContactThemeResource;
+import aceim.app.themeable.dataentity.ThemeResource;
 import aceim.app.view.page.Page;
+import aceim.app.view.page.about.About;
 import aceim.app.view.page.chat.Chat;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.history.History;
@@ -52,12 +58,14 @@ import android.os.RemoteException;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.style.URLSpan;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
+import android.widget.AbsListView.LayoutParams;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -68,11 +76,10 @@ import com.androidquery.callback.BitmapAjaxCallback;
 
 public final class ViewUtils {
 
-	private ViewUtils() {
-	}
+	private ViewUtils() {}
 
 	@SuppressWarnings("unchecked")
-	private static final Class<? extends Page>[] ALLOWED_PAGES_FOR_STORING = new Class[] { Chat.class, History.class };
+	private static final Class<? extends Page>[] ALLOWED_PAGES_FOR_STORING = new Class[] { Chat.class, History.class, About.class };
 
 	static final String BUDDYICON_FILEEXT = ".ico";
 	static final String BUDDYICONHASH_FILEEXT = ".hash";
@@ -311,7 +318,7 @@ public final class ViewUtils {
 		Resources res;
 		try {
 			res = resources.getNativeResourcesForProtocol(context.getPackageManager());
-		} catch (AceImException e) {
+		} catch (Exception e) {
 			Logger.log(e);
 			return "";
 		}
@@ -432,12 +439,12 @@ public final class ViewUtils {
 		context.deleteFile(filename + BUDDYICON_FILEEXT);
 	}
 
-	public static void fillBuddyPlaceholder(Context context, Buddy buddy, View container, ProtocolResources protocolResources, int position, int groupPosition, AbsListView parent) {
+	public static void fillBuddyPlaceholder(Context context, Buddy buddy, View container, ProtocolResources protocolResources, ContactThemeResource themeResources, int position, int groupPosition, AbsListView parent) {
 
 		AQuery aq = new AQuery(container);
 		
 		if (position < 0 || parent == null) {			
-			fillBuddyPlaceholder(context, buddy, aq, protocolResources);
+			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
 			return;
 		}
 		
@@ -446,17 +453,17 @@ public final class ViewUtils {
 						: aq.shouldDelay(position, container, parent, buddy.getFilename());
 
 		if (shouldDelay) {
-			aq.id(R.id.image_icon).image(null, 1f);
+			aq.id(themeResources.getIconImageId()).image(null, 1f);
 		} else {
-			fillBuddyPlaceholder(context, buddy, aq, protocolResources);
+			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
 		}
 	}
 	
-	public static void fillBuddyPlaceholder(Context context, Buddy buddy, AQuery aq, ProtocolResources protocolResources) {
-		int[] extraImageIDs = new int[] { R.id.image_extra_1, R.id.image_extra_2, R.id.image_extra_3, R.id.image_extra_4 };
+	public static void fillBuddyPlaceholder(Context context, Buddy buddy, AQuery aq, ProtocolResources protocolResources, ContactThemeResource themeResources) {
+		//int[] extraImageIDs = new int[] { aceim.res.R.id.image_extra_1, aceim.res.R.id.image_extra_2, aceim.res.R.id.image_extra_3, aceim.res.R.id.image_extra_4 };
 
-		aq.id(R.id.image_status).image(getBuddyStatusIcon(context, buddy, protocolResources));
-		aq.id(R.id.label_xstatus).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
+		aq.id(themeResources.getBuddyStatusImageId()).image(getBuddyStatusIcon(context, buddy, protocolResources));
+		aq.id(themeResources.getXstatusTextViewId()).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
 
 		Resources res;
 		try {
@@ -467,6 +474,8 @@ public final class ViewUtils {
 		}
 
 		int imagesIndex = 0;
+		
+		int[] extraImageIDs = themeResources.getExtraImageIDs();
 
 		Bundle features = buddy.getOnlineInfo().getFeatures();
 		synchronized (features) {
@@ -502,7 +511,7 @@ public final class ViewUtils {
 			aq.id(extraImageIDs[i]).visibility(View.GONE);
 		}
 
-		fillIcon(R.id.image_icon, aq, buddy.getFilename(), context);
+		fillIcon(themeResources.getIconImageId(), aq, buddy.getFilename(), context);
 	}
 
 	public static void fillAccountPlaceholder(Context context, Account account, View container, ProtocolResources protocolResources) {
@@ -707,7 +716,6 @@ public final class ViewUtils {
 				// .animation(android.R.anim.slide_in_left)
 				.memCache(true)
 				.fallback(R.drawable.dummy_icon)
-				.targetWidth(context.getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size))
 				.file(file)
 				.url(filename);
 			aq.id(imageIcon).image(callback).tag(hash);
@@ -722,8 +730,7 @@ public final class ViewUtils {
 		List<ChatMessageHolder> messageHolders = new ArrayList<ChatMessageHolder>(messages.size());
 
 		for (Message m : messages) {
-			String senderName = m.isIncoming() ? (m.getContactDetail() != null ? m.getContactDetail() : buddy.getSafeName()) : account.getSafeName();
-			messageHolders.add(new ChatMessageHolder(m, senderName));
+			messageHolders.add(message2MessageHolder(m, buddy, account));
 		}
 
 		return messageHolders;
@@ -778,5 +785,53 @@ public final class ViewUtils {
 				break;
 			}
 		}
+	}
+	
+	public static boolean isSmileyReadOnly(String smiley){
+		return smiley != null && smiley.startsWith("! ");
+	}
+
+	public static String escapeOmittableSmiley(String smiley) {
+		return isSmileyReadOnly(smiley) ? smiley.substring(2) : smiley;
+	}
+	
+	public static View fromThemeResource(ThemeResource tr) {
+		XmlPullParser layoutParser = tr.getContext().getResources().getLayout(tr.getId());
+		XmlPullParser attrsParser = tr.getContext().getResources().getLayout(tr.getId());;
+		
+		View view = LayoutInflater.from(tr.getContext()).inflate(layoutParser, null);
+		
+		try {
+			while (attrsParser.nextToken() != XmlPullParser.START_TAG) {}
+		} catch (Exception e) {
+			Logger.log(e);
+		}
+		view.setLayoutParams(new LayoutParams(tr.getContext(), (AttributeSet) attrsParser));
+		
+		return view;
+	}
+	
+	public static ChatMessageHolder message2MessageHolder(Message message, Buddy buddy, Account account) {
+		String senderName;
+		if (message.isIncoming()) {
+			if (TextUtils.isEmpty(message.getContactDetail())) {
+				senderName = buddy.getSafeName();
+			} else {
+				if (buddy instanceof MultiChatRoom) {
+					Buddy b = ((MultiChatRoom)buddy).findOccupantByUid(message.getContactDetail());
+					if (b != null) {
+						senderName = b.getSafeName();
+					} else {
+						senderName = message.getContactDetail();
+					}
+				} else {
+					senderName = buddy.getSafeName();
+				}
+			}
+		} else {
+			senderName = account.getSafeName();
+		}
+		
+		return new ChatMessageHolder(message, senderName);
 	}
 }

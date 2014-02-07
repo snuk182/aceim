@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<FrameLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
+   	android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <aceim.app.themeable.widgets.StyleableRelativeLayout
+        aceim:styleableBackground="?attr/screen_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
-        android:background="@color/transparent">
+        >
 
-        <RelativeLayout android:id="@+id/top_bar"
+        <aceim.app.themeable.widgets.StyleableRelativeLayout android:id="@+id/top_bar"
+            aceim:styleableBackground="?attr/top_bar_background"
             android:layout_width="match_parent"
             android:layout_height="@dimen/top_bottom_bar_height"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/top_bottom_bar_background" 
-            android:paddingTop="@dimen/top_bar_padding">
+            android:paddingTop="@dimen/top_bar_padding"
+            >
 
             <aceim.app.widgets.bottombar.BottomBarButton
                 android:id="@+id/menu_button"
@@ -47,7 +51,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/tab_selector"/>        
-        </RelativeLayout>
+        </aceim.app.themeable.widgets.StyleableRelativeLayout>
 
         <FrameLayout
             android:id="@+id/fragment_holder"
@@ -59,6 +63,6 @@
             android:layout_below="@id/top_bar"
             android:layout_centerVertical="true"
             android:layout_gravity="center" />
-    </RelativeLayout>
+    </aceim.app.themeable.widgets.StyleableRelativeLayout>
 
 </FrameLayout>

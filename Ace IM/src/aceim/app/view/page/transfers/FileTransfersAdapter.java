@@ -75,7 +75,7 @@ public class FileTransfersAdapter extends ArrayAdapter<FileTransfer> {
 		Bitmap bicon = ViewUtils.getIcon(getContext(), t.getParticipant().getFilename());
 
 		if (p.isIncoming()) {
-			leftIcon.getLayoutParams().width = getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
+			leftIcon.getLayoutParams().width = LayoutParams.WRAP_CONTENT;// getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
 			leftLabel.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 			leftArrow.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 
@@ -91,7 +91,7 @@ public class FileTransfersAdapter extends ArrayAdapter<FileTransfer> {
 			rightLabel.getLayoutParams().width = 0;
 			rightArrow.getLayoutParams().width = 0;
 		} else {
-			rightIcon.getLayoutParams().width = getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
+			rightIcon.getLayoutParams().width = LayoutParams.WRAP_CONTENT; //getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
 			rightLabel.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 			rightArrow.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 
@@ -122,7 +122,7 @@ public class FileTransfersAdapter extends ArrayAdapter<FileTransfer> {
 			} else {
 				progress.setIndeterminate(false);
 				progress.setProgress((int) (MAX_PROGRESS * p.getSentBytes() / p.getTotalSizeBytes()));
-				info.setText(getContext().getString(R.string.file_transfer_progress_format, p.getSentBytes(), p.getTotalSizeBytes()));
+				info.setText(getContext().getString(R.string.file_transfer_progress_format, ViewUtils.humanReadableByteCount(p.getSentBytes(), true), ViewUtils.humanReadableByteCount(p.getTotalSizeBytes(), true)));
 			}
 		}
 

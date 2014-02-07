@@ -1,9 +1,12 @@
 package aceim.app.screen;
 
 import java.util.List;
+
+import aceim.api.dataentity.ConnectionState;
 import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
+import aceim.app.dataentity.Account;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.screen.pano.PanoScreen;
 import aceim.app.screen.simple.SimpleScreen;
@@ -11,10 +14,12 @@ import aceim.app.screen.tablet.TabletScreen;
 import aceim.app.utils.ViewUtils;
 import aceim.app.utils.linq.KindaLinqRule;
 import aceim.app.view.page.Page;
+import aceim.app.view.page.contactlist.ContactList;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,7 +66,32 @@ public abstract class Screen extends FrameLayout {
 		}		
 	}
 	
-	
+	protected final OnLongClickListener mMenuButtonLongClickListener = new OnLongClickListener() {
+		
+		@Override
+		public boolean onLongClick(View v) {
+			List<Page> pages = findPagesByRule(new KindaLinqRule<Page>() {
+
+				@Override
+				public boolean match(Page t) {
+					return t instanceof ContactList;
+				}
+			});
+			
+			for (Page page : pages) {
+				Account a = ((ContactList)page).getAccount();
+				if (a.getConnectionState() == ConnectionState.DISCONNECTED) {
+					try {
+						getActivity().getCoreService().connect(a.getServiceId());
+					} catch (RemoteException e) {
+						getActivity().onRemoteException(e);
+					}
+				}
+			}
+			
+			return true;
+		}
+	}; 
 	
 	protected final OnClickListener mMenuButtonClickListener = new OnClickListener() {
 		

@@ -43,6 +43,13 @@ public abstract class PluginsManager {
 		}
 	}
 	
+	/**
+	 * @return the mContext
+	 */
+	public Context getContext() {
+		return mContext;
+	}
+	
 	public void onExit(){
 		mContext.unregisterReceiver(packageBroadcastReceiver);
 	}

@@ -23,6 +23,7 @@ public abstract class OptionsPage extends OptionsFragment {
 				if (p instanceof ListPreference) {
 					ListPreference listPref = (ListPreference) p;
 					p.setSummary(listPref.getEntry());
+					
 				} else if (p instanceof EditablePasswordPreference) {
 					EditablePasswordPreference ePref = (EditablePasswordPreference) p;
 					p.setSummary(ePref.getText() != null && ePref.getText().length() > 0 ? R.string.yes : R.string.no);

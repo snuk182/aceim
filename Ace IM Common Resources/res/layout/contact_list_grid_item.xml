@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/contact_list_grid_item_size"
-    android:layout_height="@dimen/contact_list_grid_item_size"
-    android:background="@android:drawable/menuitem_background"
-    android:focusable="true">
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/default_contact_list_grid_item_size"
+    android:layout_height="@dimen/default_contact_list_grid_item_size"
+    android:background="@android:drawable/menuitem_background">
 
     <ImageView
         android:id="@+id/image_icon"
@@ -19,7 +19,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/contact_list_grid_item_icons_size"
+        android:layout_height="@dimen/default_contact_list_grid_item_icons_size"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
@@ -68,13 +68,16 @@
         android:background="#00000000" >
 
         <TextView
-            style="@style/textWithShadow"
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:focusable="false"
             android:padding="1dp"
+            android:shadowColor="#ef000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.4"
             android:text="My Nickname"
             android:textColor="#ffff"
             android:textSize="12sp" 

@@ -2,41 +2,46 @@ package aceim.app.widgets.pageselector;
 
 import java.util.List;
 
+import aceim.app.themeable.dataentity.TabThemeResource;
+import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.androidquery.AQuery;
 
 public class PageAdapter extends ArrayAdapter<Page> {
 
-	private OnClickListener mOnClickListener;
+	private final OnClickListener mOnClickListener;
+	private final TabThemeResource mTabResource;
 	
-	public PageAdapter(Context context, OnClickListener onClickListener, int itemLayoutId, List<Page> pages) {
-		super(context, itemLayoutId, android.R.id.title, pages);
+	private AQuery mAq;
+	
+	public PageAdapter(Context context, OnClickListener onClickListener, TabThemeResource tabThemeResource, List<Page> pages) {
+		super(context, 0, 0, pages);
 		this.mOnClickListener = onClickListener;
+		this.mTabResource = tabThemeResource;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-
-		View view = super.getView(position, convertView, parent);
-
-		if (convertView == null && mOnClickListener != null) {
-			view.setOnClickListener(mOnClickListener);
-		}
 		
+		if (convertView == null) {
+			convertView = ViewUtils.fromThemeResource(mTabResource);
+			if (mOnClickListener != null) {
+				convertView.setOnClickListener(mOnClickListener);
+			}
+		}
+
 		Page page = getItem(position);
 
-		//if (view.getTag() != page) {
-			view.setTag(page);
-			fillWithImageAndTitle(view, page);
-		//}
+		convertView.setTag(page);
+		fillWithImageAndTitle(convertView, page);
 		
-		return view;
+		return convertView;
 	}
 
 	public void fillWithImageAndTitle(View view, Page page) {
@@ -44,9 +49,13 @@ public class PageAdapter extends ArrayAdapter<Page> {
 			return;
 		}
 		
-		ImageView icon = (ImageView) view.findViewById(android.R.id.icon);
-		TextView title = (TextView) view.findViewById(android.R.id.title);
-		icon.setImageDrawable(page.getIcon(getContext()));
-		title.setText(page.getTitle(getContext()));
+		if (mAq == null) {
+			mAq = new AQuery(view);
+		} else {
+			mAq.recycle(view);
+		}
+		
+		mAq.id(android.R.id.icon).image(page.getIcon(getContext()));
+		mAq.id(android.R.id.title).text(page.getTitle(getContext()));
 	}
 }

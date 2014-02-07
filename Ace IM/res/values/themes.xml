@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="Ace.IM.Theme.Transparent" parent="@android:style/Theme.Translucent.NoTitleBar">
-        <!-- <item name="android:windowBackground">@color/transparent</item> -->
-    </style>
-    <style name="Ace.IM.Theme.Black" parent="@android:style/Theme.Black.NoTitleBar" />
-    <style name="Ace.IM.Theme.White" parent="@android:style/Theme.Light.NoTitleBar" />
-    
     <style name="textWithShadow">
         <item name="android:shadowColor">#ef000000</item>
         <item name="android:shadowDx">1</item>

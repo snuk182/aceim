@@ -5,8 +5,10 @@ import java.util.List;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
+import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.themeable.dataentity.ContactListItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -110,12 +112,14 @@ public class ChatParticipantsAdapter extends BaseExpandableListAdapter {
 	@Override
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, final ViewGroup parent) {
 		Buddy buddy = (Buddy) getChild(groupPosition, childPosition);
-		View view;
+		
+		MainActivity activity = (MainActivity)parent.getContext();	
+		ContactListItemThemeResource itemResource = activity.getThemesManager().getViewResources().getGridItemLayout();
+
+		View view = convertView;
 		
 		if (convertView == null) {
-			view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_grid_item, null);
-		} else {
-			view = convertView;
+			view = ViewUtils.fromThemeResource(itemResource);
 		}
 		
 		if (view.getTag() == null || view.getTag() != buddy) {
@@ -142,13 +146,13 @@ public class ChatParticipantsAdapter extends BaseExpandableListAdapter {
 			});*/
 		} 
 		
-		TextView username = (TextView) view.findViewById(R.id.username);
+		TextView username = (TextView) view.findViewById(itemResource.getTitleTextViewId());
 		username.setText(buddy.getSafeName());
 		
-		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, childPosition, groupPosition, (AbsListView) parent);
+		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, itemResource, childPosition, groupPosition, (AbsListView) parent);
 		
-		int size = parent.getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
-		view.setLayoutParams(new AbsListView.LayoutParams(size, size));
+		/*int size = parent.getContext().getResources().getDimensionPixelSize(R.dimen.contact_list_grid_item_size);
+		view.setLayoutParams(new AbsListView.LayoutParams(size, size));*/
 		
 		return view;
 	}

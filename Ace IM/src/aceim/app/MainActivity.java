@@ -60,7 +60,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,11 +69,13 @@ import android.view.View;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.androidquery.util.AQUtility;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AceIMActivity {
+	
+	private boolean mActivityVisible = false;
 
 	private final Map<String, ProtocolResources> mProtocolResources = new HashMap<String, ProtocolResources>();
 	private SmileysManager mSmileysManager;
-
+	
 	private ICoreService mCoreService;
 
 	private Intent mCoreServiceIntent = null;
@@ -87,11 +88,13 @@ public class MainActivity extends FragmentActivity {
 		Logger.log("Starting main activity", LoggerLevel.VERBOSE);
 
 		super.onCreate(null);
-		setTheme(R.style.Ace_IM_Theme_Transparent);
 		
 		//Debug.startMethodTracing();
 		
 		BitmapAjaxCallback.setCacheLimit(Integer.MAX_VALUE);
+		
+		//This helps caching dummy_icon from native context
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.dummy_icon);
 
 		mScreen = Screen.getScreen(this);
 		setContentView(mScreen);
@@ -100,6 +103,19 @@ public class MainActivity extends FragmentActivity {
 		mSmileysManager = new SmileysManager(this);
 		
 		initCoreService();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mActivityVisible = true;
+		mScreen.setSelectedPage(mScreen.getSelectedPage().getPageId());
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mActivityVisible = false;
 	}
 
 	private final Runnable mCoreServiceConnectionWaiter = new Runnable() {
@@ -225,7 +241,7 @@ public class MainActivity extends FragmentActivity {
 		Logger.log("Destroy", LoggerLevel.VERBOSE);
 		super.onDestroy();
 		
-		mSmileysManager.onExit();
+		mSmileysManager.onExit();		
 		saveInstanceState();
 		unbindService(mCoreServiceConnection);
 		AQUtility.cleanCacheAsync(this);
@@ -866,5 +882,12 @@ public class MainActivity extends FragmentActivity {
 	 */
 	public Collection<SmileyResources> getAdditionalSmileys() {
 		return mSmileysManager.getResources().values();
+	}
+
+	/**
+	 * @return the mActivityVisible
+	 */
+	public boolean isActivityVisible() {
+		return mActivityVisible;
 	}
 }

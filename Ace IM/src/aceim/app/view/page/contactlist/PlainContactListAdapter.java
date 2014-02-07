@@ -4,11 +4,10 @@ import java.util.List;
 
 import aceim.api.dataentity.Buddy;
 import aceim.app.MainActivity;
-import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.themeable.dataentity.ContactListItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.contactlist.ContactListUpdater.ContactListModelGroup;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -25,13 +24,15 @@ public class PlainContactListAdapter extends ContactListAdapter {
 	@Override
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, final ViewGroup parent) {
 		Buddy buddy = getChild(groupPosition, childPosition);
-		View view;
+		
+		final MainActivity activity = (MainActivity) parent.getContext();
+		ContactListItemThemeResource ctr = activity.getThemesManager().getViewResources().getListItemLayout();
+		
+		View view = convertView;
 		
 		if (convertView == null) {
-			view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_plain_item, null);
-		} else {
-			view = convertView;
-		}
+			view = ViewUtils.fromThemeResource(ctr);
+		}		
 		
 		if (view.getTag() == null || view.getTag() != buddy) {
 			view.setTag(buddy);
@@ -57,10 +58,10 @@ public class PlainContactListAdapter extends ContactListAdapter {
 			});
 		} 
 		
-		TextView name = (TextView) view.findViewById(R.id.username);
+		TextView name = (TextView) view.findViewById(ctr.getTitleTextViewId());
 		name.setText(buddy.getSafeName());
 		
-		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, childPosition, groupPosition, (AbsListView) parent);
+		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, ctr, childPosition, groupPosition, (AbsListView) parent);
 		
 		return view;
 	}

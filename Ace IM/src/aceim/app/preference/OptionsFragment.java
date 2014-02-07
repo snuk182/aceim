@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import aceim.api.utils.Logger;
+import aceim.app.R;
 import aceim.app.view.page.Page;
 import android.app.Activity;
 import android.content.Context;
@@ -23,11 +24,14 @@ import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 abstract class OptionsFragment extends Page implements OnPreferenceChangeListener, OnPreferenceClickListener {
+    
+	private int xmlId;
+    private String sharedPreferenceName;
     
     private PreferenceManager mPreferenceManager;
     
@@ -48,9 +52,6 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
             }
         }
     };
-    private ListView lv;
-    private int xmlId;
-    private String sharedPreferenceName;
     
     public OptionsFragment(int xmlId){
         this(xmlId, null);
@@ -64,16 +65,20 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
     @Override
     public View createView(LayoutInflater inflater, ViewGroup container, Bundle b){
         postBindPreferences();
-        return lv;
+        View v = inflater.inflate(R.layout.options, null);
+        ImageView icon = (ImageView) v.findViewById(R.id.icon);
+        TextView title = (TextView) v.findViewById(R.id.title);
+        
+        icon.setImageDrawable(getIcon(getActivity()));
+        title.setText(getTitle(getActivity()));
+        
+        return v;
     }
     
     @Override
     public void onDestroyView(){
     	mHandler.removeMessages(MSG_BIND_PREFERENCES);
         super.onDestroyView();
-        ViewParent p = lv.getParent();
-        if(p != null)
-            ((ViewGroup)p).removeView(lv);
     }
 
     @Override
@@ -84,10 +89,6 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
         mPreferenceManager = onCreatePreferenceManager();
         if (sharedPreferenceName != null)
         	mPreferenceManager.setSharedPreferencesName(sharedPreferenceName);
-        lv = new ListView(getActivity());
-        lv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        lv.setDrawSelectorOnTop(false);
-        lv.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         addPreferencesFromResource(xmlId);
         postBindPreferences();
         onPreferenceAttached(getPreferenceScreen(), xmlId);
@@ -108,14 +109,13 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
     @Override
     public void onDestroy() {
         super.onDestroy();
-        lv = null;
         try{
             Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityDestroy");
             m.setAccessible(true);
             m.invoke(mPreferenceManager);
-           }catch(Exception e){
-               Logger.log(e);
-           }
+        }catch(Exception e){
+            Logger.log(e);
+        }
     }
 
     @Override
@@ -151,7 +151,8 @@ abstract class OptionsFragment extends Page implements OnPreferenceChangeListene
     private void bindPreferences() {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
-            preferenceScreen.bind(lv);
+        	View v = getView();
+            preferenceScreen.bind((ListView) v.findViewById(R.id.list));
         }
     }
     

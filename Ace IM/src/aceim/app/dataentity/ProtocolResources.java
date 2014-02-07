@@ -45,7 +45,18 @@ public class ProtocolResources extends PluginResources {
 		this.protocolInfo = in.readString();
 		this.protocolVersion = in.readString();
 		this.apiVersion = in.readString();
-		this.mFeatures = (ProtocolServiceFeature[]) in.readParcelableArray(ProtocolServiceFeature.class.getClassLoader());
+		
+		Parcelable[] p = in.readParcelableArray(ProtocolServiceFeature.class.getClassLoader());
+		
+		if (p == null) {
+			p = new Parcelable[0];
+		} 
+
+		this.mFeatures = new ProtocolServiceFeature[p.length];
+		
+		for (int i=0; i<p.length; i++) {
+			this.mFeatures[i] = (ProtocolServiceFeature) p[i];
+		}
 	}
 
 	@Override

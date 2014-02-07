@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Ace.IM.Theme.Transparent" parent="@android:style/Theme.Holo.Wallpaper.NoTitleBar" >
-         <!-- <item name="android:windowBackground">@color/transparent</item> -->
+    <style name="Ace.IM.Theme" parent="@android:style/Theme.Holo.Wallpaper.NoTitleBar" 
+    		xmlns:android="http://schemas.android.com/apk/res/android" 
+    		xmlns:aceim="http://schemas.android.com/apk/res/aceim.res.Ace.IM.Theme">
+        <item name="selection_marker">@android:drawable/menuitem_background</item>
+        <item name="screen_background">@color/transparent</item>
+        <item name="top_bar_background">@color/transparent</item>
+        <item name="bottom_bar_background">@color/transparent</item>
+        <item name="bottom_bar_button_background">@android:drawable/menuitem_background</item>
+        <item name="list_item_height">50dip</item>
+        <item name="grid_item_size">@dimen/default_contact_list_grid_item_size</item>
     </style>
-    <style name="Ace.IM.Theme.Black" parent="@android:style/Theme.Holo.NoActionBar" />
-    <style name="Ace.IM.Theme.White" parent="@style/Theme.Holo.Light.NoActionBar.v11" />
 </resources>
