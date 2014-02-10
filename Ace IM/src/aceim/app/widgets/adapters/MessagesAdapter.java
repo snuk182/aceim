@@ -42,6 +42,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.BitmapAjaxCallback;
 
 public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
@@ -170,7 +171,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		
 		colorSenderName(holder, mAq.getTextView());
 		
-		mAq.id(messageItemLayout.getMessageStatusImageId()).image(getImageResourceForAckState(holder.getAckState())).visibility(copyModeStarter == null ? View.VISIBLE : View.INVISIBLE);
+		mAq.id(messageItemLayout.getMessageStatusImageId()).image(BitmapAjaxCallback.getMemoryCached(getContext(), getImageResourceForAckState(holder.getAckState()))).visibility(copyModeStarter == null ? View.VISIBLE : View.INVISIBLE);
 		mAq.id(messageItemLayout.getCheckboxId()).visibility(copyModeStarter != null ? View.VISIBLE : View.GONE).checked(copyModeStarter != null && copyModeStarter == v);
 		
 		if (copyModeStarter == null) {			

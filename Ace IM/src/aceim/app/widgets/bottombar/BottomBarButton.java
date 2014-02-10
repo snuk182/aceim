@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 
 public class BottomBarButton extends ImageButton {
 	
-	private Drawable sBackground = null;
+	private Drawable mBackground = null;
 	
 	@SuppressWarnings("deprecation")
 	public BottomBarButton(Context context, AttributeSet attrs) {
@@ -22,7 +22,7 @@ public class BottomBarButton extends ImageButton {
 		
 		initVariables((AceIMActivity) context);
 		
-		setBackgroundDrawable(sBackground);
+		setBackgroundDrawable(mBackground);
 	}
 
 	@Override
@@ -56,11 +56,15 @@ public class BottomBarButton extends ImageButton {
 			
 			switch (res) {
 			case aceim.res.R.styleable.Ace_IM_Theme_bottom_bar_button_background:
-				sBackground = array.getDrawable(i);
+				mBackground = array.getDrawable(i);
 				break;
 			}
 		}
 		
 		array.recycle();
+		
+		if (mBackground == null) {
+			mBackground = activity.getResources().getDrawable(android.R.drawable.menuitem_background);
+		}
 	}
 }

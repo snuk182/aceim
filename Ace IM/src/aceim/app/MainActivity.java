@@ -87,14 +87,11 @@ public class MainActivity extends AceIMActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		Logger.log("Starting main activity", LoggerLevel.VERBOSE);
 
-		super.onCreate(null);
+		super.onCreate(savedInstanceState);
 		
 		//Debug.startMethodTracing();
 		
-		BitmapAjaxCallback.setCacheLimit(Integer.MAX_VALUE);
-		
-		//This helps caching dummy_icon from native context
-		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.dummy_icon);
+		prepareImagesCache();
 
 		mScreen = Screen.getScreen(this);
 		setContentView(mScreen);
@@ -105,6 +102,21 @@ public class MainActivity extends AceIMActivity {
 		initCoreService();
 	}
 	
+	/**
+	 * This method initializes cache with common image resources, 
+	 * so they can be used despite of the context the particular view is built within. 
+	 */
+	private void prepareImagesCache() {
+		BitmapAjaxCallback.setCacheLimit(Integer.MAX_VALUE);
+		
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.dummy_icon);
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.btn_check_off);
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.btn_check_off_disable);
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.btn_check_on);
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.btn_check_on_disable);
+		BitmapAjaxCallback.getMemoryCached(getBaseContext(), R.drawable.btn_check_on_selected);
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();

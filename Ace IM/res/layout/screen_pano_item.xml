@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bottom_bar_height" 
         android:layout_alignParentTop="true"
-       	android:layout_centerHorizontal="true"/>
+       	android:layout_centerHorizontal="true"
+       	android:paddingTop="@dimen/top_bottom_padding"/>
 
     <FrameLayout
         android:layout_width="match_parent"
