@@ -3,15 +3,14 @@ package aceim.app.view.page.chat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import aceim.api.utils.Logger;
 import aceim.app.MainActivity;
-import aceim.app.dataentity.SmileyResources;
 import aceim.app.utils.ViewUtils;
 import aceim.app.widgets.adapters.SingleViewAdapter;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -32,32 +31,19 @@ public class ImageSmileyAdapter extends SingleViewAdapter<Drawable, ImageView> {
 	}
 
 	public static final ImageSmileyAdapter fromActivity(MainActivity activity){
-		List<Drawable> dlist = new ArrayList<Drawable>();
-		List<String> slist = new ArrayList<String>();
 		
-		List<SmileyResources> smileys = new ArrayList<SmileyResources>(activity.getAdditionalSmileys());
-		for (int k=smileys.size()-1; k>=0; k--) {
-			SmileyResources smr = smileys.get(k);
-			try {
-				Resources res = smr.getNativeResourcesForProtocol(activity.getPackageManager());
-				for (int i = 0; i < smr.getDrawableIDs().length; i++) {
-					String smiley = smr.getNames()[i];
-					
-					boolean found = false;
-					for (int j=0; j<slist.size(); j++) {
-						if (smiley.equals(slist.get(j))) {
-							found = true;
-							break;
-						}
-					}
-					
-					if (!found && !ViewUtils.isSmileyReadOnly(smiley)) {
-						dlist.add(res.getDrawable(smr.getDrawableIDs()[i]));
-						slist.add(smiley);
-					}
-				}
-			} catch (Exception e) {
-				Logger.log(e);
+		Map<String, Drawable> smileys = activity.getManagedSmileys();
+		
+		List<Drawable> dlist = new ArrayList<Drawable>();
+		List<String> slist = new ArrayList<String>(smileys.keySet());
+		
+		for (Iterator<String> i = slist.iterator(); i.hasNext();) {
+			String smiley = i.next();
+			
+			if (ViewUtils.isSmileyReadOnly(smiley)) {
+				i.remove();
+			} else {
+				dlist.add(smileys.get(smiley));
 			}
 		}
 		

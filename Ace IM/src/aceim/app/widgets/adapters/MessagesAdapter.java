@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
@@ -22,12 +21,10 @@ import aceim.api.utils.Logger;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
-import aceim.app.dataentity.SmileyResources;
 import aceim.app.themeable.dataentity.ChatMessageItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.chat.ChatMessageTimeFormat;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -101,27 +98,13 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		mTimeDisplayFormat = timeDisplayFormat;
 		
 		if (sSmileys == null) {
-			sSmileys = Collections.synchronizedSortedMap(new TreeMap<String, Drawable>(new StringLengthComparator()));
+			sSmileys = Collections.synchronizedSortedMap(new TreeMap<String, Drawable>(activity.getManagedSmileys()));
 			
-			List<SmileyResources> smileys = new ArrayList<SmileyResources>(activity.getAdditionalSmileys());
-			
-			for (int ii = smileys.size()-1; ii>=0; ii--) {
-				SmileyResources r = smileys.get(ii);
-				try {
-					Resources nr = r.getNativeResourcesForProtocol(activity.getPackageManager());
-					
-					for (int i=0; i<r.getNames().length; i++) {
-						String smileyKey = r.getNames()[i];
-						
-						smileyKey = ViewUtils.escapeOmittableSmiley(smileyKey);
-						
-						if (!sSmileys.containsKey(smileyKey)) {
-							Drawable d = nr.getDrawable(r.getDrawableIDs()[i]);
-							sSmileys.put(smileyKey, d);
-						}
-					}
-				} catch (Exception e) {
-					Logger.log(e);
+			for (String smiley: new ArrayList<String>(sSmileys.keySet())) {
+				if (ViewUtils.isSmileyReadOnly(smiley)) {
+					Drawable value = sSmileys.remove(smiley);
+					smiley = ViewUtils.escapeOmittableSmiley(smiley);
+					sSmileys.put(smiley, value);
 				}
 			}
 			
@@ -276,7 +259,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			return;
 		}
 		
-		ViewUtils.spanKnownUrls(spannable, text);
+		ViewUtils.spanKnownUrls(spannable, text, activity);
 
 		if (dontDrawSmileys) {
 			return;
@@ -368,21 +351,5 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
 	protected MainActivity getMainActivity() {
 		return (MainActivity) getContext();
-	}
-	
-	private static final class StringLengthComparator implements Comparator<String> {
-
-		@Override
-		public int compare(String rhs, String lhs) {
-			if (lhs != null && rhs != null) {
-				if (lhs.length() != rhs.length()) {
-					return lhs.length() - rhs.length();
-				} else {
-					return lhs.compareTo(rhs);
-				}
-			} else {
-				return lhs != null ? 1 : -1;
-			}
-		}		
 	}
 }

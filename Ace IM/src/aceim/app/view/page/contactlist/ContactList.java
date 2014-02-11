@@ -279,6 +279,9 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 
 	@Override
 	public Drawable getIcon(Context context) {
+		if (mAccount.getUnreadMessages() > 0) {
+			return context.getResources().getDrawable(R.drawable.tab_message);
+		}
 		return ViewUtils.getAccountStatusIcon(context, mAccount, mProtocolResources);
 	}
 

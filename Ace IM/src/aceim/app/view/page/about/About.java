@@ -53,7 +53,7 @@ public class About extends Page {
 		return v;
 	}
 
-	private static void spanUrlsInInfo(View v) {
+	private void spanUrlsInInfo(View v) {
 		TextView info = (TextView) v.findViewById(R.id.info);
 		if (info != null) {
 			MovementMethod mm = info.getMovementMethod();
@@ -62,7 +62,7 @@ public class About extends Page {
 	             info.setMovementMethod(LinkMovementMethod.getInstance());
 	        }
 	        
-	        ViewUtils.spanKnownUrls(info.getEditableText(), info.getText().toString());
+	        ViewUtils.spanKnownUrls(info.getEditableText(), info.getText().toString(), getMainActivity());
 		}
 	}
 

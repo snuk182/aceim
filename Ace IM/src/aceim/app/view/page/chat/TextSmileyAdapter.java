@@ -29,7 +29,7 @@ public class TextSmileyAdapter extends SingleViewAdapter<String, TextView> {
 	public static final TextSmileyAdapter fromTypedArray(MainActivity activity){
 		Set<String> set = new HashSet<String>();
 		
-		for (SmileyResources smr : activity.getAdditionalSmileys()) {
+		for (SmileyResources smr : activity.getUnmanagedSmileys()) {
 			set.addAll(Arrays.asList(smr.getNames()));
 		}
 		

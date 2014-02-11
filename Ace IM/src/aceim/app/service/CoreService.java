@@ -782,12 +782,20 @@ public class CoreService extends Service {
 		@Override
 		public void joinChat(byte serviceId, String chatId) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
+			Account a = as.getAccount();
 			
-			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
+			if (as == null || !a.isEnabled() || a.getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
 			
-			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+			//The following actions are required in a case when user joins non-already-existing chat
+			Buddy b = a.getBuddyByProtocolUid(chatId);
+			if (b == null) {
+				b = new MultiChatRoom(chatId, a.getProtocolUid(), a.getProtocolName(), a.getServiceId());
+				a.addBuddyToList(b);
+			}
+			
+			boolean loadIcons = getBaseContext().getSharedPreferences(a.getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
 			
 			as.getProtocolService().getProtocol().joinChatRoom(serviceId, chatId, loadIcons);

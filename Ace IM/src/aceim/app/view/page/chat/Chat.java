@@ -54,6 +54,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -97,6 +98,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	private static final String SAVE_PARAM_TEXT = "text";
 	
 	private static ContactThemeResource sContactResource;
+	private static int sChatParticipantItemWidth = 0;
 	
 	private final Buddy mBuddy;
 	private final Account mAccount;
@@ -379,6 +381,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 	@Override
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
+		initVariables();
+		
 		View view = inflater.inflate(R.layout.chat, group, false);
 		mEditor = (EditText) view.findViewById(R.id.editor);
 		
@@ -399,6 +403,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		if (mBuddy instanceof MultiChatRoom) {
 			mChatBuddies.setAdapter(new ChatParticipantsAdapter(((MultiChatRoom)mBuddy).getOccupants(), mProtocolResources));
+			mChatBuddies.getLayoutParams().width = sChatParticipantItemWidth;
+			mChatBuddies.setVisibility(shouldMultiChatControlBeVisible() ? View.VISIBLE : View.GONE);
 		} else {
 			mChatBuddies.setVisibility(View.GONE);
 		}
@@ -446,6 +452,24 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		return view;
 	}
 	
+	private void initVariables() {
+		if (mBuddy instanceof MultiChatRoom && sChatParticipantItemWidth < 1) {
+			TypedArray array = getMainActivity().getThemesManager().getCurrentTheme().obtainStyledAttributes(aceim.res.R.styleable.Ace_IM_Theme);
+			
+			for (int i =0; i< array.getIndexCount(); i++) {
+				int res = array.getIndex(i);
+				
+				switch (res) {
+				case aceim.res.R.styleable.Ace_IM_Theme_grid_item_size:
+					sChatParticipantItemWidth = array.getDimensionPixelSize(i, 100);
+					break;
+				}
+			}
+			
+			array.recycle();
+		}		
+	}
+
 	@Override
 	public void onSetMeSelected() {
 		resetUnread();
@@ -738,13 +762,17 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		MenuItem toggleParticipants = menu.findItem(R.id.menuitem_participants);
 		if (toggleParticipants != null) {
-			toggleParticipants.setVisible(
-					mAccount.getConnectionState() == ConnectionState.CONNECTED
-					&& mBuddy instanceof MultiChatRoom
-					&& mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1);
+			toggleParticipants.setVisible(shouldMultiChatControlBeVisible());
+			toggleParticipants.setTitle(mChatBuddies.getVisibility() == View.VISIBLE ? R.string.hide_participants : R.string.show_participants);
 		}
 	}
 	
+	private boolean shouldMultiChatControlBeVisible() {
+		return mAccount.getConnectionState() == ConnectionState.CONNECTED
+				&& mBuddy instanceof MultiChatRoom
+				&& mBuddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) > -1;
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		MainActivity a = getMainActivity();

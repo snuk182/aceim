@@ -162,6 +162,4 @@ public class ChatParticipantsAdapter extends BaseExpandableListAdapter {
 		return false;
 	}
 
-	
-
 }

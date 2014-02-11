@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.Buddy;
@@ -517,6 +518,7 @@ public class MainActivity extends AceIMActivity {
 						} else {
 							for (Page p : mScreen.findPagesByRule(new MessagePageLinqRule(message.getServiceId(), message.getContactUid()))) {
 								((IHasMessages) p).onMessageReceived(message);
+								mScreen.updateTabWidget(p);
 							}
 						}
 					} catch (RemoteException e) {
@@ -786,6 +788,7 @@ public class MainActivity extends AceIMActivity {
 
 		for (Page p : mScreen.findPagesByRule(new BuddyPageLinqRule(buddy))) {
 			((IHasBuddy) p).onBuddyStateChanged(Arrays.asList(buddy));
+			mScreen.updateTabWidget(p);
 		}
 	}
 
@@ -892,8 +895,12 @@ public class MainActivity extends AceIMActivity {
 	/**
 	 * @return the mSmileysManager
 	 */
-	public Collection<SmileyResources> getAdditionalSmileys() {
+	public Collection<SmileyResources> getUnmanagedSmileys() {
 		return mSmileysManager.getResources().values();
+	}
+	
+	public SortedMap<String, Drawable> getManagedSmileys() {
+		return mSmileysManager.manageSmileys();
 	}
 
 	/**

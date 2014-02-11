@@ -315,32 +315,31 @@ public final class ViewUtils {
 	}
 
 	public static String getFormattedXStatus(OnlineInfo info, ConnectionState connectionState, Context context, ProtocolResources resources) {
-		Resources res;
 		try {
-			res = resources.getNativeResourcesForProtocol(context.getPackageManager());
+			Resources res = resources.getNativeResourcesForProtocol(context.getPackageManager());
+			
+			byte value = -1;
+			if (info.getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
+				if (connectionState != null && connectionState == ConnectionState.CONNECTED) {
+					return context.getString(R.string.online);
+				} else {
+					return context.getString(R.string.offline);
+				}
+			} else if (!TextUtils.isEmpty(info.getXstatusName()) || !TextUtils.isEmpty(info.getXstatusDescription())) {
+				if (!TextUtils.isEmpty(info.getXstatusName()) && !TextUtils.isEmpty(info.getXstatusDescription())) {
+					return context.getResources().getString(R.string.xstatus_text_format, info.getXstatusName(), info.getXstatusDescription());
+				} else {
+					return TextUtils.isEmpty(info.getXstatusDescription()) ? info.getXstatusName() : info.getXstatusDescription();
+				}
+			} else if ((value = info.getFeatures().getByte(ApiConstants.FEATURE_XSTATUS, (byte) -1)) > -1) {
+				return res.getString(((ListFeature) resources.getFeature(ApiConstants.FEATURE_XSTATUS)).getNames()[value]);
+			} else {
+				value = info.getFeatures().getByte(ApiConstants.FEATURE_STATUS);
+				return getConnectedStatusName(resources, value, context);
+			}
 		} catch (Exception e) {
 			Logger.log(e);
 			return "";
-		}
-
-		byte value = -1;
-		if (info.getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
-			if (connectionState != null && connectionState == ConnectionState.CONNECTED) {
-				return context.getString(R.string.online);
-			} else {
-				return context.getString(R.string.offline);
-			}
-		} else if (!TextUtils.isEmpty(info.getXstatusName()) || !TextUtils.isEmpty(info.getXstatusDescription())) {
-			if (!TextUtils.isEmpty(info.getXstatusName()) && !TextUtils.isEmpty(info.getXstatusDescription())) {
-				return context.getResources().getString(R.string.xstatus_text_format, info.getXstatusName(), info.getXstatusDescription());
-			} else {
-				return TextUtils.isEmpty(info.getXstatusDescription()) ? info.getXstatusName() : info.getXstatusDescription();
-			}
-		} else if ((value = info.getFeatures().getByte(ApiConstants.FEATURE_XSTATUS, (byte) -1)) > -1) {
-			return res.getString(((ListFeature) resources.getFeature(ApiConstants.FEATURE_XSTATUS)).getNames()[value]);
-		} else {
-			value = info.getFeatures().getByte(ApiConstants.FEATURE_STATUS);
-			return getConnectedStatusName(resources, value, context);
 		}
 	}
 
@@ -525,7 +524,7 @@ public final class ViewUtils {
 		Resources res;
 		try {
 			res = protocolResources.getNativeResourcesForProtocol(context.getPackageManager());
-		} catch (AceImException e) {
+		} catch (Exception e) {
 			Logger.log(e);
 			return;
 		}
@@ -747,14 +746,14 @@ public final class ViewUtils {
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
 
-	public static void spanKnownUrls(Spannable spannable, String text) {
-		spanUrl("ftp", spannable, text);
-		spanUrl("http", spannable, text);
-		spanUrl("https", spannable, text);
-		spanUrl("market", spannable, text);
+	public static void spanKnownUrls(Spannable spannable, String text, MainActivity activity) {
+		spanUrl("ftp", spannable, text, activity);
+		spanUrl("http", spannable, text, activity);
+		spanUrl("https", spannable, text, activity);
+		spanUrl("market", spannable, text, activity);
 	}
 
-	private static final void spanUrl(String protocol, Spannable spannable, String text) {
+	private static final void spanUrl(String protocol, Spannable spannable, String text, MainActivity activity) {
 		if (spannable == null || text.indexOf(protocol + "://") < 0) {
 			return;
 		}
@@ -775,7 +774,7 @@ public final class ViewUtils {
 				}
 
 				String url = text.substring(pos, endPos);
-				URLSpan urlSpan = new URLSpan(url);
+				URLSpan urlSpan = new ContextIndependentURLSpan(activity, url);
 				spannable.setSpan(urlSpan, pos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				byte[] replace = new byte[endPos - pos];
 				Arrays.fill(replace, (byte) '_');
