@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    android:padding="@dimen/default_padding"
+    android:background="#0000">
+    <aceim.app.widgets.bottombar.BottomBarButton
+	    android:id="@+id/play"
+	    android:layout_width="@dimen/top_bottom_bar_height"
+	    android:layout_height="@dimen/top_bottom_bar_height"
+	    android:src="@android:drawable/ic_media_play"
+	    android:layout_alignParentTop="true"
+	    android:layout_alignParentRight="true"/>
+    <TextView android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/play"
+        android:padding="@dimen/default_padding"
+        android:textSize="15sp"
+        android:text="Lorem ipsum"/>	
+	<ImageView android:id="@+id/picture"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_below="@id/title"
+	    android:adjustViewBounds="true"
+	    android:scaleType="fitCenter"
+	    android:src="@drawable/dummy_icon"/>
+	<TextView android:id="@+id/source"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:textSize="12sp"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_below="@id/title"
+	    android:autoLink="all"
+	    android:text="http://google.com"/>
+</RelativeLayout>

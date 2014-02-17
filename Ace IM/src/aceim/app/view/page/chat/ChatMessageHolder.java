@@ -2,14 +2,17 @@ package aceim.app.view.page.chat;
 
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
+import aceim.api.dataentity.tkv.MessageAttachment;
 import aceim.api.utils.Logger;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.ArrayAdapter;
 
 public final class ChatMessageHolder implements Parcelable{
 
 	private final Message mMessage;
 	private final String mSenderName;
+	private ArrayAdapter<MessageAttachment> mAttachmentsAdapter;
 	private MessageAckState mAckState = null;
 
 	public ChatMessageHolder(Message message, String senderName) {
@@ -81,4 +84,20 @@ public final class ChatMessageHolder implements Parcelable{
 	public String getSenderName() {
 		return mSenderName;
 	}
+
+	/**
+	 * @return the mAttachmentsAdapter
+	 */
+	public ArrayAdapter<MessageAttachment> getAttachmentsAdapter() {
+		return mAttachmentsAdapter;
+	}
+
+	/**
+	 * @param mAttachmentsAdapter the mAttachmentsAdapter to set
+	 */
+	public void setAttachmentsAdapter(ArrayAdapter<MessageAttachment> mAttachmentsAdapter) {
+		this.mAttachmentsAdapter = mAttachmentsAdapter;
+	}
+	
+	
 }

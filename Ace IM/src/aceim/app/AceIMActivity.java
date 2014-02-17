@@ -37,6 +37,7 @@ public abstract class AceIMActivity extends FragmentActivity {
 		return mThemesManager;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void setStyle(View view, AttributeSet attrs) {	
 		TypedArray a = mThemesManager.getCurrentTheme().obtainStyledAttributes(attrs, R.styleable.StyleableView, 0, 0);
 		

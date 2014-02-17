@@ -36,4 +36,16 @@ public abstract class OptionsPage extends OptionsFragment {
 	public boolean onPreferenceClick(Preference preference) {
 		return false;
 	}
+	
+	@Override
+	public boolean onPreferenceChange(Preference p, Object newValue) {
+		if (p instanceof ListPreference) {
+			ListPreference listPref = (ListPreference) p;
+			p.setSummary(listPref.getEntry());			
+		}
+		
+		return onPreferenceChangeInternal(p, newValue);
+	}
+
+	protected abstract boolean onPreferenceChangeInternal(Preference p, Object newValue);
 }

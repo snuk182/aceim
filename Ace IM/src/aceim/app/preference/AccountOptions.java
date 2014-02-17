@@ -32,16 +32,12 @@ public class AccountOptions extends OptionsPage {
 	}
 
 	@Override
-	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		return onPreferenceChangeInternal(preference, newValue);
-	}
-
-	@Override
 	void onPreferenceAttached(PreferenceScreen root, int xmlId) {
 		onPreferenceAttached(root, xmlId, AccountOptionKeys.values());
 	}
 	
-	private boolean onPreferenceChangeInternal(Preference p, Object newValue){
+	@Override
+	protected boolean onPreferenceChangeInternal(Preference p, Object newValue){
 		Intent i = new Intent();
 		i.putExtra(Constants.INTENT_EXTRA_SERVICE_ID, mAccount.getServiceId());
 		i.putExtra(Constants.INTENT_EXTRA_OPTION_VALUE, newValue.toString());

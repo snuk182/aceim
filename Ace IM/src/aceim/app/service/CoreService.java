@@ -72,7 +72,7 @@ import android.text.TextUtils;
 import com.androidquery.callback.BitmapAjaxCallback;
 
 public class CoreService extends Service {
-	
+
 	private static byte sReconnectionAttempts;
 
 	private WifiManager.WifiLock wifiLock = null;
@@ -84,7 +84,7 @@ public class CoreService extends Service {
 	private OptionsReceiver mOptionsReceiver;
 	private Notificator mNotificator;
 	private LocationSender mLocationSender;
-	
+
 	private final List<AccountService> mAccounts = new ArrayList<AccountService>();
 	private volatile boolean mProtocolsReady = false;
 	private volatile boolean mAccountsReady = false;
@@ -94,14 +94,14 @@ public class CoreService extends Service {
 	private HistorySaver mHistorySaver;
 
 	private IUserInterface mInterface;
-	//private boolean uiVisible = true;
+	// private boolean uiVisible = true;
 
 	private Bundle mSavedInstanceState = null;
 	private final Handler mHandler = new Handler();
 	private final ScheduledExecutorService mScheduledExecutor = Executors.newScheduledThreadPool(1);
-	
+
 	private final Runnable mSaveAccountsRunnable = new Runnable() {
-		
+
 		@Override
 		public void run() {
 			mStorage.saveAccounts(mAccounts);
@@ -112,19 +112,20 @@ public class CoreService extends Service {
 
 		@Override
 		public void onAction(ProtocolService protocol, ItemAction action) {
-			/*for (int i = mAccounts.size() - 1; i >= 0; i--) {
-				AccountService acs = mAccounts.get(i);
-				if (acs != null && acs.getProtocolService().getProtocolServicePackageName().equals(protocol.getProtocolServicePackageName())) {
-					AccountService newAcs = initAccount(acs.getAccount());
-					mAccounts.set(i, newAcs);
-				}
-			}*/
-			
+			/*
+			 * for (int i = mAccounts.size() - 1; i >= 0; i--) { AccountService
+			 * acs = mAccounts.get(i); if (acs != null &&
+			 * acs.getProtocolService(
+			 * ).getProtocolServicePackageName().equals(protocol
+			 * .getProtocolServicePackageName())) { AccountService newAcs =
+			 * initAccount(acs.getAccount()); mAccounts.set(i, newAcs); } }
+			 */
+
 			if (!mAccountsReady) {
 				return;
 			}
 
-			switch(action) {
+			switch (action) {
 			case JOINED:
 				for (AccountService as : mAccounts) {
 					if (as != null && as.getProtocolService().getProtocolServicePackageName().equals(protocol.getProtocolServicePackageName())) {
@@ -139,7 +140,7 @@ public class CoreService extends Service {
 				}
 				break;
 			case LEFT:
-				//TODO notification
+				// TODO notification
 				break;
 			default:
 				if (mInterface != null) {
@@ -193,7 +194,7 @@ public class CoreService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		//uiVisible = true;
+		// uiVisible = true;
 		return mInterfaceBinder;
 	}
 
@@ -217,7 +218,7 @@ public class CoreService extends Service {
 	@Override
 	public boolean onUnbind(Intent intent) {
 		mInterface = null;
-		//uiVisible = false;
+		// uiVisible = false;
 		return false;
 	}
 
@@ -261,25 +262,16 @@ public class CoreService extends Service {
 		}
 
 		Executors.defaultThreadFactory().newThread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				String classNameExtra = intent.getStringExtra(Constants.INTENT_EXTRA_CLASS_NAME);
 				if (classNameExtra.equals(FileMessage.class.getName()) || classNameExtra.equals(ServiceMessage.class.getName())) {
 					Message m = intent.getParcelableExtra(Constants.INTENT_EXTRA_MESSAGE);
 					String accept = intent.getData().getHost();
-					try {
-						boolean doAcceptFile = accept.equals(getBaseContext().getString(android.R.string.ok));
-						mInterfaceBinder.respondMessage(m, doAcceptFile);
-						
-						AccountService acs = mAccounts.get(m.getServiceId());
-						
-						if (acs != null) {
-							acs.getProtocolService().getProtocol().messageResponse(m, doAcceptFile);
-						}
-					} catch (RemoteException e) {
-						Logger.log(e);
-					}
+					boolean doAcceptFile = accept.equals(getBaseContext().getString(android.R.string.ok));
+					
+					respondMessageInternal(m, doAcceptFile);
 				}
 			}
 		}).start();
@@ -319,12 +311,13 @@ public class CoreService extends Service {
 		List<Account> accounts = mStorage.getAccounts();
 
 		for (Account account : accounts) {
-			if (account == null || account.getProtocolUid() == null) continue;
+			if (account == null || account.getProtocolUid() == null)
+				continue;
 			AccountService acs = initAccount(account);
-			
+
 			boolean disabled = getSharedPreferences(account.getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.DISABLED.name(), false);
-			account.setEnabled(!disabled);			
-			
+			account.setEnabled(!disabled);
+
 			mAccounts.add(acs);
 			// test(account);
 		}
@@ -334,15 +327,15 @@ public class CoreService extends Service {
 
 	private AccountService initAccount(Account account) {
 		Logger.log("Init " + account.getAccountId(), LoggerLevel.VERBOSE);
-		
+
 		AccountService acc = ServiceUtils.makeAccount(account, mProtocolServiceManager);
-		
+
 		if (acc.getProtocolService() == null && !getBaseContext().getSharedPreferences(account.getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.DISABLED.getStringKey(), false)) {
 			account.setEnabled(false);
 			getBaseContext().getSharedPreferences(account.getAccountId(), ServiceUtils.getAccessMode()).edit().putBoolean(AccountOptionKeys.DISABLED.getStringKey(), true).commit();
 			mNotificator.processException(new AceImException(AceImExceptionReason.NO_PROTOCOL_FOUND), account);
 		}
-		
+
 		acc.setConnectionAttempts(sReconnectionAttempts);
 		return acc;
 	}
@@ -385,7 +378,7 @@ public class CoreService extends Service {
 				mNotificator.setVolumeLevel(level / 100f);
 				break;
 			case RECONNECTION_ATTEMPTS:
-				sReconnectionAttempts = Byte.parseByte(value);				
+				sReconnectionAttempts = Byte.parseByte(value);
 				break;
 			case STATUSBAR_NOTIFICATION_TYPE:
 				StatusBarNotificationMode barMode = StatusBarNotificationMode.valueOf(value);
@@ -395,7 +388,7 @@ public class CoreService extends Service {
 			case LOG_TO_FILE:
 				boolean logToFile = Boolean.parseBoolean(value);
 				Logger.logToFile = logToFile;
-				for (ProtocolService protocol: mProtocolServiceManager.getProtocolsList()) {
+				for (ProtocolService protocol : mProtocolServiceManager.getProtocolsList()) {
 					try {
 						protocol.getProtocol().logToFile(logToFile);
 					} catch (RemoteException e) {
@@ -414,31 +407,31 @@ public class CoreService extends Service {
 		@Override
 		public long sendMessage(Message message) throws RemoteException {
 			AccountService as = mAccounts.get(message.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return 0;
 			}
-			
+
 			Logger.log("UI sends message ", LoggerLevel.VERBOSE);
 			Buddy buddy = getBuddy(message.getServiceId(), message.getContactUid());
-			
+
 			if (buddy.getOnlineInfo().getFeatures().containsKey(ApiConstants.FEATURE_BUDDY_RESOURCE)) {
 				message.setContactDetail(buddy.getOnlineInfo().getFeatures().getString(ApiConstants.FEATURE_BUDDY_RESOURCE));
 			}
-			
+
 			long messageId = as.getProtocolService().getProtocol().sendMessage(message);
 			Logger.log("UI file sending got message ID #" + messageId);
-			
+
 			message.setMessageId(messageId);
-			
+
 			if (message instanceof FileMessage) {
-				FileProgress progress = new FileProgress(message.getServiceId(), messageId, ((FileMessage)message).getFiles().get(0).getFilename(), 0, 0, false, message.getContactUid(), null);
+				FileProgress progress = new FileProgress(message.getServiceId(), messageId, ((FileMessage) message).getFiles().get(0).getFilename(), 0, 0, false, message.getContactUid(), null);
 
 				if (mInterface != null) {
 					mInterface.onFileProgress(progress);
 				}
 			}
-			
+
 			mHistorySaver.saveMessage(buddy, message);
 			return messageId;
 		}
@@ -446,7 +439,7 @@ public class CoreService extends Service {
 		@Override
 		public Account createAccount(String protocolServiceClassName, List<ProtocolOption> options) throws RemoteException {
 			Logger.log("UI creates account " + protocolServiceClassName, LoggerLevel.VERBOSE);
-			
+
 			String protocolName = mProtocolServiceManager.getProtocolServiceByName(protocolServiceClassName).getProtocol().getProtocolName();
 			if (findAccountServiceByProtocolUidAndProtocolName(options.get(0).getValue(), protocolName) != null) {
 				ViewUtils.showAlertToast(getBaseContext(), android.R.drawable.ic_menu_info_details, R.string.simple_placeholder, options.get(0).getValue());
@@ -463,18 +456,18 @@ public class CoreService extends Service {
 		@Override
 		public void deleteAccount(Account account) throws RemoteException {
 			AccountService as = mAccounts.get(account.getServiceId());
-			
+
 			if (as == null) {
 				return;
 			}
-			
+
 			if (as.getProtocolService() != null && as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
 				as.getProtocolService().getProtocol().disconnect(account.getServiceId());
 			}
-			
+
 			mNotificator.removeAccountIcon(account);
 			mHistorySaver.removeAccount(account);
-			ViewUtils.removeAccountIcons(account, getBaseContext());			
+			ViewUtils.removeAccountIcons(account, getBaseContext());
 			mAccounts.set(account.getServiceId(), null);
 			mStorage.removeAccount(account);
 		}
@@ -482,13 +475,13 @@ public class CoreService extends Service {
 		@Override
 		public void editAccount(Account account, List<ProtocolOption> options, String protocolServicePackageName) throws RemoteException {
 			AccountService as = mAccounts.get(account.getServiceId());
-			
+
 			if (as == null) {
 				return;
 			}
-			
+
 			Logger.log("UI edits account " + account.getAccountId(), LoggerLevel.VERBOSE);
-			
+
 			if (account.getConnectionState() == ConnectionState.CONNECTED) {
 				mAccounts.get(account.getServiceId()).getProtocolService().getProtocol().disconnect(account.getServiceId());
 			}
@@ -497,10 +490,10 @@ public class CoreService extends Service {
 				Logger.log("Setting protocol class " + protocolServicePackageName + " to " + account.getAccountId(), LoggerLevel.VERBOSE);
 				account = new Account(account.getServiceId(), account.getProtocolUid(), account.getProtocolName(), protocolServicePackageName);
 				as = initAccount(account);
-				
+
 				mAccounts.set(account.getServiceId(), as);
 			}
-			
+
 			if (account.isEnabled()) {
 				mNotificator.onAccountStateChanged(mAccounts);
 			} else {
@@ -511,7 +504,7 @@ public class CoreService extends Service {
 			}
 
 			mStorage.saveAccount(account, options, false);
-			
+
 			if (mInterface != null) {
 				mInterface.onAccountUpdated(account, ItemAction.MODIFIED);
 			}
@@ -560,12 +553,12 @@ public class CoreService extends Service {
 		@Override
 		public void connect(byte serviceId) throws RemoteException {
 			Logger.log("UI requests connect " + serviceId, LoggerLevel.VERBOSE);
-			 connectInternal(serviceId);
+			connectInternal(serviceId);
 		}
 
 		@Override
 		public void connectAll() throws RemoteException {
-			for (byte i=0; i<mAccounts.size(); i++) {
+			for (byte i = 0; i < mAccounts.size(); i++) {
 				connectInternal(i);
 			}
 		}
@@ -584,14 +577,14 @@ public class CoreService extends Service {
 		@Override
 		public void resetUnread(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return;
 			}
-			
+
 			Logger.log("UI requests unreads reset for " + buddy, LoggerLevel.VERBOSE);
 			Account a = as.getAccount();
-			Buddy b = a.getBuddyByBuddyId(buddy.getId());
+			Buddy b = a.getBuddyByProtocolUid(buddy.getProtocolUid());
 
 			if (b != buddy && b.getUnread() > 0) {
 				b.setUnread((byte) 0);
@@ -603,22 +596,22 @@ public class CoreService extends Service {
 		@Override
 		public void addBuddy(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyAction(ItemAction.ADDED, buddy);
 		}
 
 		@Override
 		public void removeBuddy(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
-			}			
-			
+			}
+
 			if (buddy instanceof MultiChatRoom) {
 				as.getProtocolService().getProtocol().leaveChatRoom(buddy.getServiceId(), buddy.getProtocolUid());
 				as.getAccount().removeBuddyByUid(buddy.getProtocolUid());
@@ -631,112 +624,106 @@ public class CoreService extends Service {
 		@Override
 		public void renameBuddy(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyAction(ItemAction.MODIFIED, buddy);
 		}
 
 		@Override
 		public void moveBuddy(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyAction(ItemAction.MODIFIED, buddy);
 		}
 
 		@Override
 		public void addGroup(BuddyGroup group) throws RemoteException {
 			AccountService as = mAccounts.get(group.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyGroupAction(ItemAction.ADDED, group);
 		}
 
 		@Override
 		public void removeGroup(BuddyGroup group) throws RemoteException {
 			AccountService as = mAccounts.get(group.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyGroupAction(ItemAction.DELETED, group);
 		}
 
 		@Override
 		public void renameGroup(BuddyGroup group) throws RemoteException {
 			AccountService as = mAccounts.get(group.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyGroupAction(ItemAction.MODIFIED, group);
 		}
 
 		@Override
 		public void setGroupCollapsed(byte serviceId, String groupId, boolean collapsed) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null) {
 				return;
-			}			
-			
+			}
+
 			as.getAccount().getBuddyGroupByGroupId(groupId).setCollapsed(collapsed);
-			
+
 			mStorage.saveAccount(as.getAccount(), false);
 		}
 
 		@Override
 		public void requestBuddyShortInfo(byte serviceId, String uid) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().requestFullInfo(serviceId, uid, true);
 		}
 
 		@Override
 		public void requestBuddyFullInfo(byte serviceId, String uid) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().requestFullInfo(serviceId, uid, false);
 		}
 
 		@Override
 		public void respondMessage(Message msg, boolean accept) throws RemoteException {
-			AccountService as = mAccounts.get(msg.getServiceId());
-			
-			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
-				return;
-			}
-			
-			as.getProtocolService().getProtocol().messageResponse(msg, accept);
+			respondMessageInternal(msg, accept);
 		}
 
 		@Override
 		public void cancelFileTransfer(byte serviceId, long messageId) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().cancelFileFransfer(serviceId, messageId);
 		}
 
@@ -748,11 +735,11 @@ public class CoreService extends Service {
 		@Override
 		public void sendTyping(byte serviceId, String buddyUid) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("UI requests typing notification " + serviceId, LoggerLevel.VERBOSE);
 			as.getProtocolService().getProtocol().sendTypingNotification(serviceId, buddyUid);
 		}
@@ -760,22 +747,22 @@ public class CoreService extends Service {
 		@Override
 		public void editBuddy(Buddy buddy) throws RemoteException {
 			AccountService as = mAccounts.get(buddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().buddyAction(ItemAction.MODIFIED, buddy);
 		}
 
 		@Override
 		public void leaveChat(byte serviceId, String chatId) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().leaveChatRoom(serviceId, chatId);
 		}
 
@@ -783,21 +770,22 @@ public class CoreService extends Service {
 		public void joinChat(byte serviceId, String chatId) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
 			Account a = as.getAccount();
-			
+
 			if (as == null || !a.isEnabled() || a.getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
-			//The following actions are required in a case when user joins non-already-existing chat
+
+			// The following actions are required in a case when user joins
+			// non-already-existing chat
 			Buddy b = a.getBuddyByProtocolUid(chatId);
 			if (b == null) {
 				b = new MultiChatRoom(chatId, a.getProtocolUid(), a.getProtocolName(), a.getServiceId());
 				a.addBuddyToList(b);
 			}
-			
+
 			boolean loadIcons = getBaseContext().getSharedPreferences(a.getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
-			
+
 			as.getProtocolService().getProtocol().joinChatRoom(serviceId, chatId, loadIcons);
 		}
 
@@ -852,8 +840,10 @@ public class CoreService extends Service {
 			Logger.log("UI requests message notification: " + message, LoggerLevel.VERBOSE);
 			Account a = mAccounts.get(message.getServiceId()).getAccount();
 
-			Buddy b = a.getBuddyByBuddyId(buddy.getId());
-			// If we run CoreService in a different process, then buddy instances are different, so we need to update one within CoreService.
+			Buddy b = a.getBuddyByProtocolUid(buddy.getProtocolUid());
+			// If we run CoreService in a different process, then buddy
+			// instances are different, so we need to update one within
+			// CoreService.
 			if (b != buddy && b.getUnread() != buddy.getUnread()) {
 				b.setUnread(buddy.getUnread());
 			}
@@ -906,25 +896,25 @@ public class CoreService extends Service {
 		@Override
 		public void uploadAccountPhoto(byte serviceId, String filename) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().uploadAccountPhoto(serviceId, filename);
 		}
 
 		@Override
 		public void removeAccountPhoto(byte serviceId) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			as.getProtocolService().getProtocol().removeAccountPhoto(serviceId);
 			ViewUtils.removeIcon(getBaseContext(), as.getAccount().getFilename());
-			
+
 			if (mInterface != null) {
 				try {
 					mInterface.onAccountIcon(serviceId);
@@ -937,37 +927,37 @@ public class CoreService extends Service {
 		@Override
 		public void setFeature(String featureId, OnlineInfo info) throws RemoteException {
 			AccountService as = mAccounts.get(info.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Account account = as.getAccount();
-			
+
 			as.getProtocolService().getProtocol().setFeature(featureId, info);
-			
+
 			if (info.getProtocolUid().equals(account.getProtocolUid())) {
 				OnlineInfo onlineInfo = account.getOnlineInfo();
-				
+
 				if (onlineInfo != info) {
-					//TODO fix for other feature types
+					// TODO fix for other feature types
 					as.getAccount().getOnlineInfo().getFeatures().putByte(featureId, info.getFeatures().getByte(featureId));
 					onlineInfo.setXstatusName(info.getXstatusName());
 					onlineInfo.setXstatusDescription(info.getXstatusDescription());
 				}
-				
+
 				if (mInterface != null) {
 					mInterface.onAccountStateChanged(info);
 				}
-				
+
 				mStorage.saveAccount(account, true);
 			} else {
 				Buddy b = account.getBuddyByProtocolUid(info.getProtocolUid());
-				
+
 				if (b != null && b.getOnlineInfo() != info) {
 					b.getOnlineInfo().getFeatures().putByte(featureId, info.getFeatures().getByte(featureId));
 				}
-				
+
 				if (mInterface != null) {
 					mInterface.onBuddyStateChanged(Arrays.asList(b));
 				}
@@ -980,11 +970,11 @@ public class CoreService extends Service {
 		@Override
 		public void typingNotification(byte serviceId, String ownerUid) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Typing notification from: " + ownerUid, LoggerLevel.VERBOSE);
 			Account a = as.getAccount();
 			Buddy b = a.getBuddyByProtocolUid(ownerUid);
@@ -1012,34 +1002,35 @@ public class CoreService extends Service {
 		@Override
 		public void message(Message message) throws RemoteException {
 			AccountService as = mAccounts.get(message.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's message: " + message, LoggerLevel.VERBOSE);
-			
+
 			Account a = as.getAccount();
-			
+
 			while (a.getConnectionState() == ConnectionState.CONNECTING) {
 				try {
 					Thread.sleep(500);
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {
+				}
 			}
-			
+
 			onMessageInternal(message);
 		}
 
 		@Override
 		public void searchResult(byte serviceId, List<PersonalInfo> infoList) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Search result list for #" + serviceId + ": ", LoggerLevel.VERBOSE);
-			
+
 			if (mInterface != null) {
 				mInterface.onSearchResult(serviceId, infoList);
 			}
@@ -1048,12 +1039,11 @@ public class CoreService extends Service {
 		@Override
 		public void personalInfo(PersonalInfo info, boolean isShortInfo) throws RemoteException {
 			AccountService as = mAccounts.get(info.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
-			
+
 			if (info.getProtocolUid().equals(as.getAccount().getProtocolUid())) {
 				OnlineInfo aou = as.getAccount().getOnlineInfo();
 				String name = info.getProperties().getString(PersonalInfo.INFO_NICK);
@@ -1064,9 +1054,9 @@ public class CoreService extends Service {
 					}
 				}
 			} else {
-				//TODO use this somehow
-			}		
-			
+				// TODO use this somehow
+			}
+
 			if (!isShortInfo) {
 				if (mInterface != null) {
 					mInterface.onPersonalInfo(info);
@@ -1077,15 +1067,15 @@ public class CoreService extends Service {
 		@Override
 		public void notification(byte serviceId, final String message) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return;
 			}
-			
+
 			Account a = as.getAccount();
 			final Bitmap icon = ViewUtils.getIcon(getBaseContext(), a.getFilename());
 			mHandler.post(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					ViewUtils.showInformationToast(getBaseContext(), icon, R.string.simple_placeholder, message);
@@ -1096,11 +1086,11 @@ public class CoreService extends Service {
 		@Override
 		public void messageAck(byte serviceId, String ownerUid, long messageId, MessageAckState state) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's message ack " + state + " for " + ownerUid, LoggerLevel.VERBOSE);
 			if (mInterface != null) {
 				mInterface.onMessageAck(serviceId, messageId, ownerUid, state);
@@ -1110,21 +1100,21 @@ public class CoreService extends Service {
 		@Override
 		public void iconBitmap(final byte serviceId, final String ownerUid, byte[] data, String hash) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's icon for " + ownerUid, LoggerLevel.VERBOSE);
-			
+
 			Account a = as.getAccount();
 			if (a.getProtocolUid().equals(ownerUid)) {
 				ViewUtils.storeImageFile(getBaseContext(), data, a.getFilename(), hash, new Runnable() {
 
 					@Override
-					public void run() {						
+					public void run() {
 						BitmapAjaxCallback.clearCache();
-						
+
 						if (mInterface != null) {
 							try {
 								mInterface.onAccountIcon(serviceId);
@@ -1143,7 +1133,7 @@ public class CoreService extends Service {
 						@Override
 						public void run() {
 							BitmapAjaxCallback.clearCache();
-							
+
 							if (mInterface != null) {
 								try {
 									mInterface.onBuddyIcon(serviceId, ownerUid);
@@ -1163,16 +1153,16 @@ public class CoreService extends Service {
 		@Override
 		public void groupAction(ItemAction action, final BuddyGroup newGroup) throws RemoteException {
 			AccountService as = mAccounts.get(newGroup.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			final Account account = as.getAccount();
 			BuddyGroup group = account.getBuddyGroupByGroupId(newGroup.getId());
-			
+
 			int textId = 0;
-			switch(action) {
+			switch (action) {
 			case DELETED:
 				if (group != null) {
 					account.getBuddyGroupList().remove(group);
@@ -1181,7 +1171,7 @@ public class CoreService extends Service {
 				break;
 			case ADDED:
 				if (group != null) {
-					Logger.log("Group with id #"+newGroup.getId()+" already exists", LoggerLevel.WARNING);
+					Logger.log("Group with id #" + newGroup.getId() + " already exists", LoggerLevel.WARNING);
 				} else {
 					account.getBuddyGroupList().add(newGroup);
 					textId = R.string.X_added;
@@ -1192,35 +1182,35 @@ public class CoreService extends Service {
 					group.setName(newGroup.getName());
 					textId = R.string.X_modified;
 				} else {
-					Logger.log("Group with id #"+newGroup.getId()+" not found", LoggerLevel.WARNING);
+					Logger.log("Group with id #" + newGroup.getId() + " not found", LoggerLevel.WARNING);
 				}
 				break;
 			default:
-				Logger.log("Unsupported group action: "+action, LoggerLevel.INFO);
+				Logger.log("Unsupported group action: " + action, LoggerLevel.INFO);
 			}
-			
+
 			if (textId != 0) {
 				final int id = textId;
 				mHandler.post(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						ViewUtils.showInformationToast(getBaseContext(), ViewUtils.getIcon(getBaseContext(), account.getFilename()), id, newGroup.getName());
 					}
 				});
 			}
-			
+
 			onContactListUpdated(account);
 		}
 
 		@Override
 		public void fileProgress(FileProgress fp) throws RemoteException {
 			AccountService as = mAccounts.get(fp.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			mNotificator.onFileTransferProgress(fp);
 
 			if (mInterface != null) {
@@ -1231,20 +1221,20 @@ public class CoreService extends Service {
 		@Override
 		public void connectionStateChanged(byte serviceId, ConnectionState connState, int extraParameter) throws RemoteException {
 			Logger.log("Protocol's connection state " + connState + " for account #" + serviceId, LoggerLevel.VERBOSE);
-			
+
 			if (mExiting || serviceId >= mAccounts.size()) {
 				Logger.log("Service is not yet inited", LoggerLevel.INFO);
 				return;
 			}
 
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return;
 			}
-			
+
 			final Account account = as.getAccount();
-			
+
 			if (connState != ConnectionState.CONNECTED) {
 				for (Buddy b : account.getBuddyList()) {
 					ViewUtils.resetFeaturesForOffline(b.getOnlineInfo(), as.getProtocolService().getResources(false), true);
@@ -1252,7 +1242,7 @@ public class CoreService extends Service {
 			}
 
 			if (connState == ConnectionState.DISCONNECTED) {
-				
+
 				if (account.getConnectionState() != ConnectionState.DISCONNECTED && account.getConnectionState() != ConnectionState.DISCONNECTING) {
 					byte reconnectionAttempts = as.getConnectionAttempts();
 					if (reconnectionAttempts > 0) {
@@ -1260,17 +1250,17 @@ public class CoreService extends Service {
 						mScheduledExecutor.schedule(new ReconnectionTask(account.getServiceId()), 5, TimeUnit.SECONDS);
 					}
 				}
-				
+
 				if (extraParameter > -1) {
 					final ProtocolException e = new ProtocolException(Cause.values()[extraParameter]);
-					mNotificator.processException(e, account);	
+					mNotificator.processException(e, account);
 				}
 			}
-			
+
 			account.setConnectionState(connState);
 
 			mNotificator.onAccountStateChanged(mAccounts);
-			
+
 			if (connState == ConnectionState.CONNECTED) {
 				mStorage.saveServiceState(mAccounts);
 				as.setConnectionAttempts(sReconnectionAttempts);
@@ -1291,19 +1281,18 @@ public class CoreService extends Service {
 			if (infos == null || infos.size() < 1) {
 				return;
 			}
-			
+
 			AccountService as = mAccounts.get(infos.get(0).getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's buddy state " + infos, LoggerLevel.VERBOSE);
-			
-			boolean loadIcons = getBaseContext().getSharedPreferences(
-					as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+
+			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
-			
+
 			List<Buddy> affectedBuddies = new ArrayList<Buddy>(infos.size());
 			for (OnlineInfo info : infos) {
 				Buddy buddy = as.getAccount().getBuddyByProtocolUid(info.getProtocolUid());
@@ -1311,14 +1300,14 @@ public class CoreService extends Service {
 					Logger.log("Cannot find buddy for online info #" + info.getProtocolUid(), LoggerLevel.WARNING);
 				} else {
 					buddy.getOnlineInfo().merge(info);
-					
+
 					affectedBuddies.add(buddy);
 					if (loadIcons) {
 						checkIcon(buddy.getFilename(), buddy.getOnlineInfo(), as);
 					}
 				}
 			}
-			
+
 			if (mInterface != null) {
 				mInterface.onBuddyStateChanged(affectedBuddies);
 			}
@@ -1327,37 +1316,38 @@ public class CoreService extends Service {
 		@Override
 		public void buddyListUpdated(byte serviceId, List<BuddyGroup> buddyList) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's buddy list updated for account #" + serviceId, LoggerLevel.VERBOSE);
-			
-			boolean saveNotInList = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.SAVE_NOT_IN_LIST.name(), Boolean.parseBoolean(getBaseContext().getString(R.string.default_save_not_in_list)));
+
+			boolean saveNotInList = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.SAVE_NOT_IN_LIST.name(),
+					Boolean.parseBoolean(getBaseContext().getString(R.string.default_save_not_in_list)));
 			as.getAccount().removeAllBuddies(saveNotInList);
 			as.getAccount().setBuddyList(buddyList);
 
 			onContactListUpdated(as.getAccount());
-			
+
 			Executors.defaultThreadFactory().newThread(new IconChecker(as)).start();
 		}
 
 		@Override
 		public void buddyAction(ItemAction action, Buddy newBuddy) throws RemoteException {
 			AccountService as = mAccounts.get(newBuddy.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
-			Logger.log("Buddy #" + newBuddy + " with action: " + action, LoggerLevel.VERBOSE);			
-			
+
+			Logger.log("Buddy #" + newBuddy + " with action: " + action, LoggerLevel.VERBOSE);
+
 			final Account account = as.getAccount();
 			Buddy oldBuddy = account.getBuddyByProtocolUid(newBuddy.getProtocolUid());
-			
+
 			int textId = 0;
-			switch(action){
+			switch (action) {
 			case ADDED:
 				textId = R.string.X_added;
 			case MODIFIED:
@@ -1366,7 +1356,7 @@ public class CoreService extends Service {
 				}
 			case JOINED:
 				if (oldBuddy != null) {
-					//account.removeBuddyByUid(newBuddy.getProtocolUid());
+					// account.removeBuddyByUid(newBuddy.getProtocolUid());
 					oldBuddy.merge(newBuddy);
 					newBuddy = oldBuddy;
 				} else {
@@ -1375,7 +1365,7 @@ public class CoreService extends Service {
 						final int id = textId;
 						final String param1 = newBuddy.getSafeName();
 						mHandler.post(new Runnable() {
-							
+
 							@Override
 							public void run() {
 								ViewUtils.showInformationToast(getBaseContext(), ViewUtils.getIcon(getBaseContext(), account.getFilename()), id, param1);
@@ -1383,10 +1373,10 @@ public class CoreService extends Service {
 						});
 					}
 				}
-				
+
 				if (newBuddy instanceof MultiChatRoom) {
 					MultiChatRoom mcr = (MultiChatRoom) newBuddy;
-					
+
 					for (BuddyGroup occupantsGroup : mcr.getOccupants()) {
 						for (Buddy occupant : occupantsGroup.getBuddyList()) {
 							if (occupant.getProtocolUid().equals(account.getProtocolUid())) {
@@ -1400,19 +1390,19 @@ public class CoreService extends Service {
 						}
 					}
 				}
-				
+
 				if (mInterface != null) {
 					mInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
 				}
-				
+
 				break;
 			case LEFT:
 				if (oldBuddy != null) {
-					//account.removeBuddyByUid(newBuddy.getProtocolUid());
+					// account.removeBuddyByUid(newBuddy.getProtocolUid());
 					oldBuddy.merge(newBuddy);
 					newBuddy = oldBuddy;
 					newBuddy.getOnlineInfo().getFeatures().remove(ApiConstants.FEATURE_STATUS);
-					
+
 					if (mInterface != null) {
 						mInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
 					}
@@ -1424,7 +1414,7 @@ public class CoreService extends Service {
 					oldGroup.getBuddyList().remove(oldBuddy);
 					final String param2 = newBuddy.getSafeName();
 					mHandler.post(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							ViewUtils.showInformationToast(getBaseContext(), ViewUtils.getIcon(getBaseContext(), account.getFilename()), R.string.X_deleted, param2);
@@ -1433,7 +1423,7 @@ public class CoreService extends Service {
 				}
 				break;
 			}
-			
+
 			onContactListUpdated(account);
 		}
 
@@ -1444,22 +1434,21 @@ public class CoreService extends Service {
 			}
 
 			AccountService as = mAccounts.get(info.getServiceId());
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
 			}
-			
+
 			Logger.log("Protocol's account state " + info, LoggerLevel.VERBOSE);
-			
+
 			Account account = as.getAccount();
-			
+
 			account.setOwnName(info.getName());
 			account.getOnlineInfo().merge(info);
 
 			mInterface.onAccountUpdated(account, ItemAction.MODIFIED);
 
-			boolean loadIcons = getBaseContext().getSharedPreferences(
-					as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
 			if (loadIcons) {
 				checkIcon(account.getFilename(), account.getOnlineInfo(), as);
@@ -1469,11 +1458,11 @@ public class CoreService extends Service {
 		@Override
 		public String requestPreference(byte serviceId, String preferenceName) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled()) {
 				return null;
 			}
-			
+
 			Logger.log("Protocol requests value of " + preferenceName + " for account #" + serviceId, LoggerLevel.VERBOSE);
 			return mStorage.getProtocolOptionValue(preferenceName, as.getAccount());
 		}
@@ -1487,17 +1476,17 @@ public class CoreService extends Service {
 		@Override
 		public void multiChatParticipants(byte serviceId, String chatUid, List<BuddyGroup> participantList) throws RemoteException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void showFeatureInputForm(byte serviceId, String uid, InputFormFeature feature) throws RemoteException {
 			AccountService as = mAccounts.get(serviceId);
-			
+
 			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 				return;
-			}			
-			
+			}
+
 			if (mInterface != null) {
 				mInterface.showFeatureInputForm(serviceId, uid, feature);
 			}
@@ -1507,33 +1496,59 @@ public class CoreService extends Service {
 	public void exitService(boolean terminate) {
 		Logger.log("Preparing exit", LoggerLevel.VERBOSE);
 		mExiting = true;
-		
-		disconnectAllInternal(terminate);		
-		cleanupResources();		
-		
+
+		disconnectAllInternal(terminate);
+		cleanupResources();
+
 		if (!terminate) {
 			Executors.defaultThreadFactory().newThread(mSaveAccountsRunnable).start();
 		}
-		
+
 		mServiceHelper.doStopForeground();
 		stopSelf();
 	}
 
-	private void disconnectInternal(byte serviceId) {
-		AccountService as = mAccounts.get(serviceId);
-		
-		if (as == null 
-				|| as.getAccount().getConnectionState() == ConnectionState.DISCONNECTED 
-				|| as.getAccount().getConnectionState() == ConnectionState.DISCONNECTING) {
+	private void respondMessageInternal(Message msg, boolean accept) {
+		AccountService as = mAccounts.get(msg.getServiceId());
+
+		if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
 			return;
 		}
-		
+
+		try {
+			if (msg instanceof FileMessage) {
+				if (!accept) {
+					FileProgress initFp = new FileProgress(msg.getServiceId(), msg.getMessageId(), ((FileMessage) msg).getFiles().get(0).getFilename(), 0, 0, true, as.getAccount().getProtocolUid(), null);
+
+					mNotificator.onFileTransferProgress(initFp);
+
+					if (mInterface != null) {
+						mInterface.onFileProgress(initFp);
+					}
+				} else {
+					mNotificator.removeFileNotification(msg.getMessageId());
+				}
+			}
+
+			as.getProtocolService().getProtocol().messageResponse(msg, accept);
+		} catch (RemoteException e) {
+			Logger.log(e);
+		}
+	}
+
+	private void disconnectInternal(byte serviceId) {
+		AccountService as = mAccounts.get(serviceId);
+
+		if (as == null || as.getAccount().getConnectionState() == ConnectionState.DISCONNECTED || as.getAccount().getConnectionState() == ConnectionState.DISCONNECTING) {
+			return;
+		}
+
 		try {
 			as.getAccount().setConnectionState(ConnectionState.DISCONNECTED);
 			as.resetConnectionTimeout();
-			
+
 			as.getProtocolService().getProtocol().disconnect(serviceId);
-			
+
 			if (mInterface != null) {
 				try {
 					mInterface.onConnectionStateChanged(as.getAccount().getServiceId(), as.getAccount().getConnectionState(), -1);
@@ -1550,15 +1565,15 @@ public class CoreService extends Service {
 
 	private void connectInternal(byte serviceId) {
 		AccountService as = mAccounts.get(serviceId);
-		
+
 		if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
 			Logger.log("Trying to connect disabled or already connected account " + as.getAccount().getAccountId(), LoggerLevel.INFO);
 			return;
 		}
-		
+
 		try {
 			as.getProtocolService().getProtocol().connect(as.getAccount().getOnlineInfo());
-			
+
 			as.setConnectionTimeoutAction(mScheduledExecutor.schedule(new ConnectionTimeoutTask(as), 120, TimeUnit.SECONDS));
 		} catch (RemoteException e) {
 			Logger.log(e);
@@ -1574,11 +1589,11 @@ public class CoreService extends Service {
 	}
 
 	private void disconnectAllInternal(boolean doNotSave) {
-		
-		for (byte i=0; i<mAccounts.size(); i++) {
+
+		for (byte i = 0; i < mAccounts.size(); i++) {
 			disconnectInternal(i);
 		}
-		
+
 		if (!doNotSave) {
 			mStorage.saveServiceState(mAccounts);
 		}
@@ -1593,13 +1608,13 @@ public class CoreService extends Service {
 			powerLock.release();
 			powerLock = null;
 		}
-		
+
 		mNotificator.removeAppIcon();
 
 		for (AccountService as : mAccounts) {
 			mNotificator.removeAccountIcon(as.getAccount());
 		}
-		
+
 		mProtocolServiceManager.onExit();
 
 		LocalBroadcastManager.getInstance(getBaseContext()).unregisterReceiver(mOptionsReceiver);
@@ -1644,11 +1659,11 @@ public class CoreService extends Service {
 				mNotificator.onMessage(message, as.getAccount());
 			}
 		}
-		
+
 		if (buddy instanceof MultiChatRoom && buddy.getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
 			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
-			
+
 			try {
 				as.getProtocolService().getProtocol().joinChatRoom(message.getServiceId(), buddy.getProtocolUid(), loadIcons);
 			} catch (RemoteException e) {
@@ -1680,10 +1695,10 @@ public class CoreService extends Service {
 
 		return null;
 	}
-	
+
 	private void checkIcon(String filename, OnlineInfo info, AccountService accountService) {
 		String hash = ViewUtils.getIconHash(getBaseContext(), filename);
-		
+
 		if (TextUtils.isEmpty(hash) || !hash.equals(info.getIconHash())) {
 			try {
 				accountService.getProtocolService().getProtocol().requestIcon(info.getServiceId(), info.getProtocolUid());
@@ -1692,14 +1707,14 @@ public class CoreService extends Service {
 			}
 		}
 	}
-	
+
 	private AccountService findAccountServiceByProtocolUidAndProtocolName(String protocolUid, String protocolName) {
 		for (AccountService as : mAccounts) {
 			if (as != null && as.getAccount().getProtocolUid().equals(protocolUid) && as.getAccount().getProtocolName().equals(protocolName)) {
 				return as;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -1726,12 +1741,13 @@ public class CoreService extends Service {
 				ViewUtils.showInformationToast(getBaseContext(), android.R.drawable.ic_menu_myplaces, R.string.simple_placeholder, a.getProtocolUid());
 			} else {
 				mAccounts.add(initAccount(a));
-			}			
+			}
 		}
-		
-		mStorage.saveServiceState(mAccounts);;
+
+		mStorage.saveServiceState(mAccounts);
+		;
 	}
-	
+
 	private final class ReconnectionTask implements Runnable {
 
 		private final byte serviceId;
@@ -1739,15 +1755,15 @@ public class CoreService extends Service {
 		private ReconnectionTask(byte serviceId) {
 			this.serviceId = serviceId;
 		}
-		
+
 		@Override
 		public void run() {
 			connectInternal(serviceId);
-		}		
+		}
 	}
-	
+
 	private final class ConnectionTimeoutTask implements Runnable {
-		
+
 		private final AccountService mAccountService;
 
 		private ConnectionTimeoutTask(AccountService as) {
@@ -1760,16 +1776,16 @@ public class CoreService extends Service {
 				if (mAccountService.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
 					mAccountService.getProtocolService().getProtocol().disconnect(mAccountService.getAccount().getServiceId());
 				}
-				
+
 				connectInternal(mAccountService.getAccount().getServiceId());
 			} catch (RemoteException e) {
 				Logger.log(e);
 			}
-		}		
+		}
 	}
-	
+
 	private final class IconChecker implements Runnable {
-		
+
 		private final AccountService accountService;
 
 		IconChecker(AccountService accountService) {
@@ -1778,14 +1794,13 @@ public class CoreService extends Service {
 
 		@Override
 		public void run() {
-			boolean loadIcons = getBaseContext().getSharedPreferences(
-					accountService.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
+			boolean loadIcons = getBaseContext().getSharedPreferences(accountService.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
 			if (loadIcons) {
 				for (Buddy b : accountService.getAccount().getBuddyList()) {
 					checkIcon(b.getFilename(), b.getOnlineInfo(), accountService);
 				}
-			}			
+			}
 		}
 	}
 }

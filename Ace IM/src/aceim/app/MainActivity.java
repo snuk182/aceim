@@ -122,7 +122,10 @@ public class MainActivity extends AceIMActivity {
 	protected void onResume() {
 		super.onResume();
 		mActivityVisible = true;
-		mScreen.setSelectedPage(mScreen.getSelectedPage().getPageId());
+		
+		//mScreen.setSelectedPage(mScreen.getSelectedPage().getPageId());
+		
+		mScreen.getSelectedPage().onSetMeSelected();
 	}
 	
 	@Override

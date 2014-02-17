@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@android:drawable/menuitem_background">
     
-    <aceim.app.styleable.widgets.StyleableImageView
+    <aceim.app.themeable.widgets.StyleableImageView
         android:id="@+id/left_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:paddingBottom="@dimen/default_padding"
         styleableWidth="?attr/grid_item_size"
         styleableHeight="?attr/grid_item_size"/>
-    <aceim.app.styleable.widgets.StyleableImageView 
+    <aceim.app.themeable.widgets.StyleableImageView 
         android:id="@+id/right_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -74,7 +74,6 @@
 		android:layout_toLeftOf="@id/right_icon"
 		android:layout_toRightOf="@id/left_icon"
 		android:layout_below="@id/right_arrow"
-		android:layout_alignBottom="@id/left_icon"
 		android:paddingLeft="@dimen/default_padding"
 		android:paddingRight="@dimen/default_padding"
         android:paddingBottom="@dimen/default_padding"/>

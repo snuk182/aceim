@@ -8,7 +8,7 @@
         <item name="top_bar_background">@color/transparent</item>
         <item name="bottom_bar_background">@color/transparent</item>
         <item name="bottom_bar_button_background">@android:drawable/menuitem_background</item>
-        <item name="list_item_height">50dip</item>
+        <item name="list_item_height">@dimen/default_contact_list_plain_item_height</item>
         <item name="grid_item_size">@dimen/default_contact_list_grid_item_size</item>
     </style>
 </resources>

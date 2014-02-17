@@ -11,6 +11,7 @@ public class ChatMessageItemThemeResource extends ThemeResource {
 	private final int messageTextViewId;
 	private final int checkboxId;
 	private final int iconImageViewId;
+	private final int attachmentsListViewId;
 
 	public ChatMessageItemThemeResource(Context context, int id) {
 		super(context, id);
@@ -21,6 +22,7 @@ public class ChatMessageItemThemeResource extends ThemeResource {
 		timeTextViewId = getContext().getResources().getIdentifier("time", "id", getContext().getPackageName());
 		checkboxId = getContext().getResources().getIdentifier("checkbox", "id", getContext().getPackageName());
 		iconImageViewId = getContext().getResources().getIdentifier("icon", "id", getContext().getPackageName());
+		attachmentsListViewId = getContext().getResources().getIdentifier("attachments", "id", getContext().getPackageName());
 	}
 
 	/**
@@ -63,6 +65,13 @@ public class ChatMessageItemThemeResource extends ThemeResource {
 	 */
 	public int getIconImageViewId() {
 		return iconImageViewId;
+	}
+
+	/**
+	 * @return the attachmentsListViewId
+	 */
+	public int getAttachmentsListViewId() {
+		return attachmentsListViewId;
 	}
 
 }

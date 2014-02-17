@@ -33,11 +33,6 @@ public class GlobalOptions extends OptionsPage  {
 	}
 
 	@Override
-	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		return onPreferenceChangeInternal(preference, newValue);
-	}
-
-	@Override
 	public void onPreferenceAttached(PreferenceScreen root, int xmlId) {
 		onPreferenceAttached(root, xmlId, GlobalOptionKeys.values());
 	}
@@ -76,7 +71,8 @@ public class GlobalOptions extends OptionsPage  {
 		listPref.setEntryValues(values);
 	}
 	
-	private boolean onPreferenceChangeInternal(Preference p, Object newValue){
+	@Override
+	protected boolean onPreferenceChangeInternal(Preference p, Object newValue){
 		Intent i = new Intent(getActivity(), OptionsReceiver.class);
 		i.putExtra(Constants.INTENT_EXTRA_OPTION_VALUE, newValue.toString());
 		i.putExtra(Constants.INTENT_EXTRA_OPTION_KEY, (Parcelable)GlobalOptionKeys.valueOf(p.getKey()));

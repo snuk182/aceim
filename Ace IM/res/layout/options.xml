@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<aceim.app.themeable.widgets.StyleableRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
+    aceim:styleableBackground="?attr/screen_background"
+   	android:layout_width="match_parent"
     android:layout_height="match_parent" 
     android:background="?attr/screen_background">
     
-    <RelativeLayout android:id="@+id/top_bar"
+    <aceim.app.themeable.widgets.StyleableRelativeLayout android:id="@+id/top_bar"
+        aceim:styleableBackground="?attr/top_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bottom_bar_height"
         android:layout_alignParentLeft="true"
@@ -28,7 +32,7 @@
             android:layout_toRightOf="@id/icon"
             android:gravity="center_vertical|left"
             android:text="Lorem ipsum"/>
-    </RelativeLayout>
+    </aceim.app.themeable.widgets.StyleableRelativeLayout>
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
@@ -39,4 +43,4 @@
         android:layout_below="@id/top_bar"
         android:layout_centerVertical="true"
         android:layout_gravity="center" /> 
-</RelativeLayout>
+</aceim.app.themeable.widgets.StyleableRelativeLayout>

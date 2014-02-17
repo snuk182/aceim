@@ -34,8 +34,8 @@ public abstract class Screen extends FrameLayout {
 	
 	public Screen(MainActivity activity) {
 		super(activity);
-		ViewUtils.setWallpaperMode(getActivity(), this);
 		
+		ViewUtils.setWallpaperMode(getActivity(), this);
 		requireDirtyMenuButtonHack = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && (activity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 	}
 

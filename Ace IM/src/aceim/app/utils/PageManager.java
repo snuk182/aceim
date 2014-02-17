@@ -60,7 +60,7 @@ public final class PageManager {
 		mSelectedPage = newPage;
 		ft.replace(mPageHolderId, mSelectedPage);
 		
-		ft.commit();
+		ft.commitAllowingStateLoss();
 	}
 	
 	public void onPageRemoved(Page page){

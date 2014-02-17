@@ -103,11 +103,11 @@ public class Notificator {
 
 			builder.setSmallIcon(R.drawable.ic_message);
 		} else if (message instanceof FileMessage || ((message instanceof ServiceMessage) && ((ServiceMessage)message).isRequireAcceptDeclineAnswer())) {
-			Intent acceptIntent = new Intent(mContext, CoreService.class);
+			Intent acceptIntent = new Intent(mContext.getApplicationContext(), CoreService.class);
 			fillMessageIntent(acceptIntent, account, buddy, message);
 			acceptIntent.setData(ViewUtils.stringAsIntentDataUri(mContext.getString(android.R.string.ok)));
 
-			Intent declineIntent = new Intent(mContext, CoreService.class);
+			Intent declineIntent = new Intent(mContext.getApplicationContext(), CoreService.class);
 			fillMessageIntent(declineIntent, account, buddy, message);
 			declineIntent.setData(ViewUtils.stringAsIntentDataUri(mContext.getString(android.R.string.cancel)));
 

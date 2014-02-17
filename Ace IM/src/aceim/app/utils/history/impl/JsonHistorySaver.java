@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +25,8 @@ import aceim.api.dataentity.FileMessage;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
+import aceim.api.dataentity.tkv.MessageAttachment;
+import aceim.api.dataentity.tkv.MessageAttachment.MessageAttachmentType;
 import aceim.api.utils.Logger;
 import aceim.app.dataentity.Account;
 import aceim.app.utils.history.HistorySaver;
@@ -233,6 +236,22 @@ public final class JsonHistorySaver implements HistorySaver {
 			o.put("message-id", message.getMessageId());
 			o.put("time", message.getTime());
 			
+			if (message instanceof TextMessage) {
+				JSONArray array = new JSONArray();
+				for (MessageAttachment a : ((TextMessage)message).getAttachments()) {
+					JSONObject ao = new JSONObject();
+					ao.put("type", a.getType().name());
+					ao.put("src", a.getSource());
+					if (a.getTitle() != null) {
+						ao.put("title", a.getTitle());
+					}
+					
+					array.put(ao);
+				}
+				
+				o.put("attachments", array);
+			}
+			
 			return o;
 		}
 		
@@ -252,6 +271,23 @@ public final class JsonHistorySaver implements HistorySaver {
 			m.setText(text);
 			m.setMessageId(messageId);
 			m.setTime(time);
+			
+			if (m instanceof TextMessage) {
+				JSONArray array = optJSONArray("attachments");
+				
+				if (array != null) {
+					for (int i=0; i<array.length(); i++) {
+						JSONObject o = array.optJSONObject(i);
+						
+						if (o != null) {
+							MessageAttachmentType atype = MessageAttachmentType.valueOf(o.getString("type"));							
+							MessageAttachment a = new MessageAttachment(atype, o.optString("title"), o.optString("src"));
+							
+							((TextMessage)m).getAttachments().add(a);
+						}
+					}
+				}
+			}
 			
 			return m;
 		}

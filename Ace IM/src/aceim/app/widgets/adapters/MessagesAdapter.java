@@ -17,6 +17,8 @@ import aceim.api.dataentity.MessageAckState;
 import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.dataentity.ServiceMessage;
 import aceim.api.dataentity.TextMessage;
+import aceim.api.dataentity.tkv.MessageAttachment;
+import aceim.api.dataentity.tkv.MessageAttachment.MessageAttachmentType;
 import aceim.api.utils.Logger;
 import aceim.app.MainActivity;
 import aceim.app.R;
@@ -25,11 +27,14 @@ import aceim.app.themeable.dataentity.ChatMessageItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
 import aceim.app.view.page.chat.ChatMessageTimeFormat;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ImageSpan;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -128,7 +133,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		View v = convertView;
 		
 		ChatMessageHolder holder = getItem(position);
-
+		
 		mAq.id(messageItemLayout.getIconImageViewId()).visibility(copyModeStarter != null ? View.GONE : View.VISIBLE);
 		
 		String filename;
@@ -163,8 +168,6 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			v.setOnClickListener(mCheckForCopyClickListener);
 		}
 		
-		v.setTag(holder);
-		
 		if (holder.getMessage().getMessageId() == 0) {
 			v.setBackgroundDrawable(parent.getContext().getResources().getDrawable(R.color.transparent));
 		} else {
@@ -175,9 +178,81 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		
 		setTextAndFormat(getMainActivity(), mAq.id(messageItemLayout.getMessageTextViewId()).getTextView(), holder, mDontDrawSmilies);
 		
+		if (v.getTag() == null || v.getTag() != holder) {
+			if (hasAttachments(holder)) {
+				fillAttachments(mAq, holder);
+			} else {
+				mAq.id(messageItemLayout.getAttachmentsListViewId()).gone();
+			}
+		}
+		
+		v.setTag(holder);
+				
 		return v;
 	}
 	
+	private void fillAttachments(AQuery aq, ChatMessageHolder holder) {
+		ViewGroup attachmentsContainer = (ViewGroup) aq.id(messageItemLayout.getAttachmentsListViewId()).getView();
+		
+		if (attachmentsContainer == null) {
+			return;
+		}
+		
+		attachmentsContainer.removeAllViews();
+		aq.visible();
+		
+		for (MessageAttachment a : ((TextMessage)holder.getMessage()).getAttachments()) {
+			View attachmentView = constructAttachmentView(aq, a);
+			attachmentsContainer.addView(attachmentView);
+		}
+	}
+
+	private View constructAttachmentView(AQuery aq, final MessageAttachment attachment) {
+		View attachmentView = LayoutInflater.from(getContext()).inflate(R.layout.message_attachment, null);
+		aq.recycle(attachmentView);
+		
+		aq.id(R.id.title).text(attachment.getTitle());
+		aq.id(R.id.source).text(attachment.getSource());
+		
+		switch (attachment.getType()) {
+		case AUDIO:
+		case VIDEO:
+			aq.id(R.id.source).gone();
+			aq.id(R.id.picture).gone().image((Drawable)null);
+			aq.id(R.id.play).visible().clicked(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					Intent i = new Intent();
+					i.setAction(Intent.ACTION_VIEW);
+					i.setDataAndType(Uri.parse(attachment.getSource()), attachment.getType() == MessageAttachmentType.AUDIO ? "audio/*" : "video/*");
+					getMainActivity().startActivity(i);
+				}
+			});
+			break;
+		case PHOTO:
+			aq.id(R.id.source).gone();
+			aq.id(R.id.play).gone().clicked(null);
+			aq.id(R.id.picture).visible().image(attachment.getSource(), true, true, 0, R.drawable.dummy_icon);
+			break;
+		default:
+			aq.id(R.id.source).visible().text(attachment.getSource());
+			aq.id(R.id.play).gone();
+			aq.id(R.id.picture).gone();
+			break;
+		}
+		
+		return attachmentView;
+	}
+
+	private boolean hasAttachments(ChatMessageHolder holder) {
+		return holder.getAttachmentsAdapter() == null 
+				&& holder.getMessage() != null 
+				&& holder.getMessage() instanceof TextMessage
+				&& ((TextMessage)holder.getMessage()).getAttachments().size() > 0;
+
+	}
+
 	//color sender label according to message type
 	//TODO maybe add styling support
 	private void colorSenderName(ChatMessageHolder holder, TextView sender) {
@@ -259,7 +334,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			return;
 		}
 		
-		ViewUtils.spanKnownUrls(spannable, text, activity);
+		//ViewUtils.spanKnownUrls(spannable, text, activity);
 
 		if (dontDrawSmileys) {
 			return;
