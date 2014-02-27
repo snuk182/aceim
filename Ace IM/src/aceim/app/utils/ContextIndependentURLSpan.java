@@ -1,6 +1,6 @@
 package aceim.app.utils;
 
-import aceim.app.MainActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
@@ -10,24 +10,21 @@ import android.view.View;
 
 public class ContextIndependentURLSpan extends URLSpan {
 	
-	private final MainActivity mActivity;
-
-	public ContextIndependentURLSpan(MainActivity activity, String url) {
+	public ContextIndependentURLSpan(String url) {
 		super(url);
-		this.mActivity = activity;
 	}
 
-	public ContextIndependentURLSpan(MainActivity activity, Parcel src) {
+	public ContextIndependentURLSpan(Parcel src) {
 		super(src);
-		this.mActivity = activity;
 	}
 
 	@Override
     public void onClick(View widget) {
-        Uri uri = Uri.parse(getURL());
-        
+		Uri uri = Uri.parse(getURL());
+        Context context = widget.getContext();
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, mActivity.getPackageName());
-        mActivity.startActivity(intent);
+        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+        intent.setFlags(intent.getFlags()|Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }

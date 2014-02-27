@@ -336,7 +336,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 			return;
 		}
 		
-		//ViewUtils.spanKnownUrls(spannable, text, activity);
+		ViewUtils.contextIndependentURLSpans(spannable);
 
 		if (dontDrawSmileys) {
 			return;

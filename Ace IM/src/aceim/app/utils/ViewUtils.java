@@ -50,7 +50,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
+import android.text.Spannable;
 import android.text.TextUtils;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -68,7 +70,8 @@ import com.androidquery.callback.BitmapAjaxCallback;
 
 public final class ViewUtils {
 
-	private ViewUtils() {}
+	private ViewUtils() {
+	}
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends Page>[] ALLOWED_PAGES_FOR_STORING = new Class[] { Chat.class, History.class, About.class };
@@ -309,7 +312,7 @@ public final class ViewUtils {
 	public static String getFormattedXStatus(OnlineInfo info, ConnectionState connectionState, Context context, ProtocolResources resources) {
 		try {
 			Resources res = resources.getNativeResourcesForProtocol(context.getPackageManager());
-			
+
 			byte value = -1;
 			if (info.getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) -1) < 0) {
 				if (connectionState != null && connectionState == ConnectionState.CONNECTED) {
@@ -433,15 +436,13 @@ public final class ViewUtils {
 	public static void fillBuddyPlaceholder(Context context, Buddy buddy, View container, ProtocolResources protocolResources, ContactThemeResource themeResources, int position, int groupPosition, AbsListView parent) {
 
 		AQuery aq = new AQuery(container);
-		
-		if (position < 0 || parent == null) {			
+
+		if (position < 0 || parent == null) {
 			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
 			return;
 		}
-		
-		boolean shouldDelay = parent instanceof ExpandableListView 
-				? aq.shouldDelay(groupPosition, position, true, container, parent, buddy.getFilename()) 
-						: aq.shouldDelay(position, container, parent, buddy.getFilename());
+
+		boolean shouldDelay = parent instanceof ExpandableListView ? aq.shouldDelay(groupPosition, position, true, container, parent, buddy.getFilename()) : aq.shouldDelay(position, container, parent, buddy.getFilename());
 
 		if (shouldDelay) {
 			aq.id(themeResources.getIconImageId()).image(null, 1f);
@@ -449,9 +450,11 @@ public final class ViewUtils {
 			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
 		}
 	}
-	
+
 	public static void fillBuddyPlaceholder(Context context, Buddy buddy, AQuery aq, ProtocolResources protocolResources, ContactThemeResource themeResources) {
-		//int[] extraImageIDs = new int[] { aceim.res.R.id.image_extra_1, aceim.res.R.id.image_extra_2, aceim.res.R.id.image_extra_3, aceim.res.R.id.image_extra_4 };
+		// int[] extraImageIDs = new int[] { aceim.res.R.id.image_extra_1,
+		// aceim.res.R.id.image_extra_2, aceim.res.R.id.image_extra_3,
+		// aceim.res.R.id.image_extra_4 };
 
 		aq.id(themeResources.getBuddyStatusImageId()).image(getBuddyStatusIcon(context, buddy, protocolResources));
 		aq.id(themeResources.getXstatusTextViewId()).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
@@ -465,7 +468,7 @@ public final class ViewUtils {
 		}
 
 		int imagesIndex = 0;
-		
+
 		int[] extraImageIDs = themeResources.getExtraImageIDs();
 
 		Bundle features = buddy.getOnlineInfo().getFeatures();
@@ -704,11 +707,8 @@ public final class ViewUtils {
 			BitmapAjaxCallback callback = new BitmapAjaxCallback();
 			File file = getBitmapFile(context, filename);
 			callback
-				// .animation(android.R.anim.slide_in_left)
-				.memCache(true)
-				.fallback(R.drawable.dummy_icon)
-				.file(file)
-				.url(filename);
+			// .animation(android.R.anim.slide_in_left)
+			.memCache(true).fallback(R.drawable.dummy_icon).file(file).url(filename);
 			aq.id(imageIcon).image(callback).tag(hash);
 		}
 	}
@@ -738,62 +738,53 @@ public final class ViewUtils {
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
 
-	/*public static void spanKnownUrls(Spannable spannable, String text, MainActivity activity) {
-		spanUrl("ftp", spannable, text, activity);
-		spanUrl("http", spannable, text, activity);
-		spanUrl("https", spannable, text, activity);
-		spanUrl("market", spannable, text, activity);
-	}
+	/*
+	 * public static void spanKnownUrls(Spannable spannable, String text,
+	 * MainActivity activity) { spanUrl("ftp", spannable, text, activity);
+	 * spanUrl("http", spannable, text, activity); spanUrl("https", spannable,
+	 * text, activity); spanUrl("market", spannable, text, activity); }
+	 * 
+	 * private static final void spanUrl(String protocol, Spannable spannable,
+	 * String text, MainActivity activity) { if (spannable == null ||
+	 * text.indexOf(protocol + "://") < 0) { return; }
+	 * 
+	 * int pos = 0;
+	 * 
+	 * while (pos > -1 && pos < text.length()) { pos = text.indexOf(protocol +
+	 * "://", pos);
+	 * 
+	 * if (pos > -1) { int spaceEndPos = text.indexOf(" ", pos); int endPos =
+	 * spaceEndPos > -1 ? spaceEndPos : text.length();
+	 * 
+	 * int nlEndPos = text.indexOf("\n", pos);
+	 * 
+	 * if (nlEndPos > pos && nlEndPos < endPos) { endPos = nlEndPos; }
+	 * 
+	 * String url = text.substring(pos, endPos); URLSpan urlSpan = new
+	 * ContextIndependentURLSpan(activity, url); spannable.setSpan(urlSpan, pos,
+	 * endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); byte[] replace = new
+	 * byte[endPos - pos]; Arrays.fill(replace, (byte) '_'); text =
+	 * text.replace(url, new String(replace)); pos = ++endPos; } else { break; }
+	 * } }
+	 */
 
-	private static final void spanUrl(String protocol, Spannable spannable, String text, MainActivity activity) {
-		if (spannable == null || text.indexOf(protocol + "://") < 0) {
-			return;
-		}
-
-		int pos = 0;
-
-		while (pos > -1 && pos < text.length()) {
-			pos = text.indexOf(protocol + "://", pos);
-
-			if (pos > -1) {
-				int spaceEndPos = text.indexOf(" ", pos);
-				int endPos = spaceEndPos > -1 ? spaceEndPos : text.length();
-
-				int nlEndPos = text.indexOf("\n", pos);
-
-				if (nlEndPos > pos && nlEndPos < endPos) {
-					endPos = nlEndPos;
-				}
-
-				String url = text.substring(pos, endPos);
-				URLSpan urlSpan = new ContextIndependentURLSpan(activity, url);
-				spannable.setSpan(urlSpan, pos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				byte[] replace = new byte[endPos - pos];
-				Arrays.fill(replace, (byte) '_');
-				text = text.replace(url, new String(replace));
-				pos = ++endPos;
-			} else {
-				break;
-			}
-		}
-	}*/
-	
-	public static boolean isSmileyReadOnly(String smiley){
+	public static boolean isSmileyReadOnly(String smiley) {
 		return smiley != null && smiley.startsWith("! ");
 	}
 
 	public static String escapeOmittableSmiley(String smiley) {
 		return isSmileyReadOnly(smiley) ? smiley.substring(2) : smiley;
 	}
-	
+
 	public static void insertToEditor(String text, EditText editor) {
-		if (editor == null || text == null) return;
-		
+		if (editor == null || text == null)
+			return;
+
 		int start = Math.max(editor.getSelectionStart(), 0);
 		int end = Math.max(editor.getSelectionEnd(), 0);
 		editor.getText().replace(Math.min(start, end), Math.max(start, end), text, 0, text.length());
-		
-		editor.setSelection(Math.max(start, end)+ text.length());
+
+		editor.setSelection(Math.max(start, end) + text.length());
 	}
 
 	public static ChatMessageHolder message2MessageHolder(Message message, Buddy buddy, Account account) {
@@ -803,7 +794,7 @@ public final class ViewUtils {
 				senderName = buddy.getSafeName();
 			} else {
 				if (buddy instanceof MultiChatRoom) {
-					Buddy b = ((MultiChatRoom)buddy).findOccupantByUid(message.getContactDetail());
+					Buddy b = ((MultiChatRoom) buddy).findOccupantByUid(message.getContactDetail());
 					if (b != null) {
 						senderName = b.getSafeName();
 					} else {
@@ -816,7 +807,23 @@ public final class ViewUtils {
 		} else {
 			senderName = account.getSafeName();
 		}
-		
+
 		return new ChatMessageHolder(message, senderName);
+	}
+
+	public static void contextIndependentURLSpans(Spannable spannable) {
+		if (spannable == null) {
+			return;
+		}
+
+		URLSpan[] spans = spannable.getSpans(0, spannable.length(), URLSpan.class);
+
+		for (URLSpan span : spans) {
+			int start = spannable.getSpanStart(span);
+			int end = spannable.getSpanEnd(span);
+
+			spannable.removeSpan(span);
+			spannable.setSpan(new ContextIndependentURLSpan(span.getURL()), start, end, 0);
+		}
 	}
 }
