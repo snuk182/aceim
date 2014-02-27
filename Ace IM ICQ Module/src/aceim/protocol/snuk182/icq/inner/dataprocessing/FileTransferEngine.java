@@ -1207,6 +1207,7 @@ public class FileTransferEngine {
 					List<File> files = message.getFileList();
 					createPeer(message, files);
 				} catch (IOException e) {
+					Logger.log(e);
 					connectProxy(message, activeTransfers.get(ProtocolUtils.bytes2LongBE(message.messageId, 0)));
 				}
 			}

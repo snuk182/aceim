@@ -158,7 +158,11 @@ public final class VkEntityAdapter {
 		for (VkMessageAttachment attachment : vkm.getAttachments()) {
 			if (attachment.getAuthorId() != 0) {
 				tm.setContactDetail(vkUid2ProtocolUid(attachment.getAuthorId(), vkUid, protocolUid));
-			}			
+			}	
+			
+			/*if (!TextUtils.isEmpty(attachment.getId())) {
+				tm.setText(vkm.getText() + "\n" + attachment.getId());
+			}*/
 		}
 		
 		return tm;

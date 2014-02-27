@@ -90,10 +90,6 @@ public class ProtocolResources extends PluginResources {
 		return 0;
 	}
 
-	public String getProtocolServicePackageName() {
-		return getPackageName();
-	}
-	
 	/**
 	 * @return the protocolName
 	 */

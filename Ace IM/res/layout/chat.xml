@@ -63,20 +63,12 @@
     		android:src="@android:drawable/ic_menu_upload"
     		android:visibility="gone"/>           
     </RelativeLayout>
-    <aceim.app.widgets.HorizontalListView android:id="@+id/smileys"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_above="@id/bottom_bar"
-        android:visibility="gone"
-        android:background="@drawable/top_bottom_bar_background"/>
-	<ExpandableListView android:id="@+id/chat_buddies"	    
+    <ExpandableListView android:id="@+id/chat_buddies"	    
 	    android:layout_width="@dimen/default_contact_list_grid_item_size"
 	    android:layout_height="match_parent"
 	    android:layout_alignParentTop="true"
 	    android:layout_alignParentRight="true"
-	    android:layout_above="@id/smileys"
+	    android:layout_above="@id/bottom_bar"
 	    android:divider="@android:color/transparent"
 	    android:dividerHeight="@dimen/contact_list_grid_items_spacing"
 	    android:childDivider="@android:color/transparent"/>
@@ -132,7 +124,7 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:layout_alignParentLeft="true"
-	    android:layout_above="@id/smileys"
+	    android:layout_above="@id/bottom_bar"
 	    android:layout_below="@id/label_xstatus"
 	    android:layout_toLeftOf="@id/chat_buddies"
 	    android:stackFromBottom="true"

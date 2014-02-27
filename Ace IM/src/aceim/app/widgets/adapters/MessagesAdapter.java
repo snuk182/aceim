@@ -3,6 +3,7 @@ package aceim.app.widgets.adapters;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,6 @@ import aceim.app.dataentity.Account;
 import aceim.app.themeable.dataentity.ChatMessageItemThemeResource;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.chat.ChatMessageHolder;
-import aceim.app.view.page.chat.ChatMessageTimeFormat;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -53,7 +53,6 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	
 	private DateFormat mDateFormat;
 	private DateFormat mTimeFormat;
-	private ChatMessageTimeFormat mTimeDisplayFormat;
 	
 	private boolean mDontDrawSmilies = false;
 	
@@ -73,37 +72,36 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 		}
 	};
 	
-	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, ChatMessageTimeFormat timeDisplayFormat) {
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout) {
 		super(activity, 0, 0);		
 		this.messageItemLayout = messageItemLayout;
 		this.mAccount = account;
 		this.mBuddy = buddy;
-		init(activity, timeDisplayFormat);
+		init(activity);
 	}
 
-	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, ChatMessageHolder[] objects, ChatMessageTimeFormat timeDisplayFormat) {
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, ChatMessageHolder[] objects) {
 		super(activity, 0, 0, objects);
 		this.messageItemLayout = messageItemLayout;
 		this.mAccount = account;
 		this.mBuddy = buddy;
-		init(activity, timeDisplayFormat);
+		init(activity);
 	}
 
-	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, List<ChatMessageHolder> objects, ChatMessageTimeFormat timeDisplayFormat) {
+	public MessagesAdapter(MainActivity activity, Account account, Buddy buddy, ChatMessageItemThemeResource messageItemLayout, List<ChatMessageHolder> objects) {
 		super(activity, 0, 0, objects);
 		this.messageItemLayout = messageItemLayout;
 		this.mAccount = account;
 		this.mBuddy = buddy;
-		init(activity, timeDisplayFormat);
+		init(activity);
 	}
 	
-	private void init(MainActivity activity, ChatMessageTimeFormat timeDisplayFormat){
-		mDateFormat = android.text.format.DateFormat.getMediumDateFormat(activity);
+	private void init(MainActivity activity){
+		mDateFormat = android.text.format.DateFormat.getLongDateFormat(activity);
 		mTimeFormat = android.text.format.DateFormat.getTimeFormat(activity);
-		mTimeDisplayFormat = timeDisplayFormat;
 		
 		if (sSmileys == null) {
-			sSmileys = Collections.synchronizedSortedMap(new TreeMap<String, Drawable>(activity.getManagedSmileys()));
+			sSmileys = Collections.synchronizedSortedMap(new TreeMap<String, Drawable>(activity.getSmileysManager().getManagedSmileys()));
 			
 			for (String smiley: new ArrayList<String>(sSmileys.keySet())) {
 				if (ViewUtils.isSmileyReadOnly(smiley)) {
@@ -121,7 +119,7 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = ViewUtils.fromThemeResource(messageItemLayout);
+			convertView = messageItemLayout.getView();
 		}
 		
 		if (mAq == null) {
@@ -268,17 +266,21 @@ public class MessagesAdapter extends ArrayAdapter<ChatMessageHolder> {
 	}
 
 	private String getFormattedMessageTime(ChatMessageHolder holder) {
-		Date time = new Date(holder.getMessage().getTime());
-		switch (mTimeDisplayFormat){
-		case DO_NOT_DISPLAY:
-			return "";
-		case TIME_ONLY:
-			return mTimeFormat.format(time);
-		default:
+		Calendar time = Calendar.getInstance();
+		time.setTimeInMillis(holder.getMessage().getTime());
+		
+		Calendar now = Calendar.getInstance();
+		now.setTimeInMillis(System.currentTimeMillis());
+		
+		if (now.get(Calendar.DATE) == time.get(Calendar.DATE)
+				&& now.get(Calendar.MONTH) == time.get(Calendar.MONTH)
+				&& now.get(Calendar.YEAR) == time.get(Calendar.YEAR)) {
+			return mTimeFormat.format(time.getTime());
+		} else {
 			StringBuilder sb = new StringBuilder();
-			sb.append(mTimeFormat.format(time))
+			sb.append(mTimeFormat.format(time.getTime()))
 					.append(" ")
-					.append(mDateFormat.format(time));
+					.append(mDateFormat.format(time.getTime()));
 			return sb.toString();
 		}
 	}

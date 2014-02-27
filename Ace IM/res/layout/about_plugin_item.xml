@@ -46,6 +46,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@id/apiVersion"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        android:autoLink="all"/>
 
 </RelativeLayout>

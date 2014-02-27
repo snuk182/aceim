@@ -7,7 +7,6 @@ import aceim.app.MainActivity;
 import aceim.app.dataentity.Account;
 import aceim.app.themeable.dataentity.HistoryMessageItemThemeResource;
 import aceim.app.view.page.chat.ChatMessageHolder;
-import aceim.app.view.page.chat.ChatMessageTimeFormat;
 import aceim.app.widgets.adapters.MessagesAdapter;
 import android.annotation.SuppressLint;
 import android.view.View;
@@ -23,17 +22,17 @@ class HistoryMessagesAdapter extends MessagesAdapter {
 	private final OnClickListener mButtonClickListener;
 
 	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, OnClickListener clickListener) {
-		super(activity, account, buddy, resource, ChatMessageTimeFormat.DATE_TIME);
+		super(activity, account, buddy, resource);
 		mButtonClickListener = clickListener;
 	}
 
 	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, ChatMessageHolder[] objects, OnClickListener clickListener) {
-		super(activity, account, buddy, resource, objects, ChatMessageTimeFormat.DATE_TIME);
+		super(activity, account, buddy, resource, objects);
 		mButtonClickListener = clickListener;
 	}
 
 	public HistoryMessagesAdapter(MainActivity activity, Account account, Buddy buddy, HistoryMessageItemThemeResource resource, List<ChatMessageHolder> objects, OnClickListener clickListener) {
-		super(activity, account, buddy, resource, objects, ChatMessageTimeFormat.DATE_TIME);
+		super(activity, account, buddy, resource, objects);
 		mButtonClickListener = clickListener;
 	}
 	

@@ -50,6 +50,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -159,7 +161,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 			
 			try {
 				if (mAccount == null) {
-					Account account = activity.getCoreService().createAccount(mSelectedResources.getProtocolServicePackageName(), mOptions);
+					Account account = activity.getCoreService().createAccount(mSelectedResources.getPackageId(), mOptions);
 					if (account == null) {
 						Logger.log("Cannot create account #" + mOptions.get(0).getValue(), LoggerLevel.INFO);
 						return;
@@ -167,7 +169,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 						activity.accountAdded(account);
 					}
 				} else {
-					activity.getCoreService().editAccount(mAccount, mOptions, mSelectedResources.getProtocolServicePackageName());
+					activity.getCoreService().editAccount(mAccount, mOptions, mSelectedResources.getPackageId());
 				}
 			} catch (RemoteException e) {
 				activity.onRemoteException(e);
@@ -224,7 +226,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		if (mAccount != null) {
 
 			for (int i = 0; i < mAdapter.getCount(); i++) {
-				if (mAdapter.getItem(i).getProtocolServicePackageName().equals(mAccount.getProtocolServicePackageName())) {
+				if (mAdapter.getItem(i).getPackageId().equals(mAccount.getProtocolServicePackageName())) {
 					protocolSpinner.setSelection(i);
 					break;
 				}
@@ -266,7 +268,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		Resources resources;
 		try {
 			resources = mSelectedResources.getNativeResourcesForProtocol(getMainActivity().getPackageManager());
-			mOptions = activity.getCoreService().getProtocolOptions(mSelectedResources.getProtocolServicePackageName(), mAccount!=null ? mAccount.getServiceId() : (byte)-1);
+			mOptions = activity.getCoreService().getProtocolOptions(mSelectedResources.getPackageId(), mAccount!=null ? mAccount.getServiceId() : (byte)-1);
 		} catch (RemoteException e) {
 			activity.onRemoteException(e);
 			return;
@@ -318,7 +320,7 @@ public class AccountEditor extends Page implements IHasFilePicker {
 					o.setValue(o.getDefaultValue());
 				}
 				cb.setChecked(b);
-				
+				cb.setOnCheckedChangeListener(new ToggleTKVChangedListener(o));
 				cb.setEnabled(mOptions.get(0) != o);
 			} else if (o.getTkv() instanceof StringTKV) {
 				StringTKV tkv = (StringTKV) o.getTkv();
@@ -497,6 +499,20 @@ public class AccountEditor extends Page implements IHasFilePicker {
 		@Override
 		public void onValuePicked(String value) {
 			saveValueToToption(value, option);
+		}
+	}
+	
+	private final class ToggleTKVChangedListener implements OnCheckedChangeListener {
+		
+		private final ProtocolOption o;
+
+		private ToggleTKVChangedListener(ProtocolOption o) {
+			this.o = o;
+		}
+		
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			o.setValue(Boolean.toString(isChecked));
 		}
 	}
 }

@@ -6,13 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
-
-import org.xmlpull.v1.XmlPullParser;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
@@ -33,7 +30,6 @@ import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.preference.OptionsActivity;
 import aceim.app.themeable.dataentity.ContactThemeResource;
-import aceim.app.themeable.dataentity.ThemeResource;
 import aceim.app.view.page.Page;
 import aceim.app.view.page.about.About;
 import aceim.app.view.page.chat.Chat;
@@ -54,18 +50,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
-import android.os.RemoteException;
-import android.text.Spannable;
 import android.text.TextUtils;
-import android.text.style.URLSpan;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
-import android.widget.AbsListView.LayoutParams;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -186,10 +178,10 @@ public final class ViewUtils {
 				return getConnectedStatusIcon(protocolResources, status, context);
 			case CONNECTING:
 			case DISCONNECTING:
-				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_CONNECTING, "drawable", protocolResources.getProtocolServicePackageName());
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_CONNECTING, "drawable", protocolResources.getPackageId());
 				break;
 			default:
-				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());
+				ic = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getPackageId());
 				break;
 			}
 
@@ -210,7 +202,7 @@ public final class ViewUtils {
 
 				return nRes.getDrawable(stIcons[status]);
 			} else {
-				int onlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_ONLINE, "drawable", protocolResources.getProtocolServicePackageName());
+				int onlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_ONLINE, "drawable", protocolResources.getPackageId());
 				return nRes.getDrawable(onlineIcon);
 			}
 		} catch (Exception e) {
@@ -286,7 +278,7 @@ public final class ViewUtils {
 			if (status > -1) {
 				return getConnectedStatusIcon(protocolResources, status, context);
 			} else {
-				int offlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getProtocolServicePackageName());
+				int offlineIcon = nRes.getIdentifier(ApiConstants.RESOURCE_DRAWABLE_OFFLINE, "drawable", protocolResources.getPackageId());
 				return nRes.getDrawable(offlineIcon);
 			}
 		} catch (Exception e) {
@@ -398,7 +390,7 @@ public final class ViewUtils {
 		}
 	}
 
-	public static Intent getOpenOptionsIntent(MainActivity mainActivity, Account account) throws RemoteException {
+	public static Intent getOpenOptionsIntent(MainActivity mainActivity, Account account) {
 		Intent i = new Intent(mainActivity, OptionsActivity.class);
 		if (account != null) {
 			i.putExtra(Constants.INTENT_EXTRA_ACCOUNT, account);
@@ -746,7 +738,7 @@ public final class ViewUtils {
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
 
-	public static void spanKnownUrls(Spannable spannable, String text, MainActivity activity) {
+	/*public static void spanKnownUrls(Spannable spannable, String text, MainActivity activity) {
 		spanUrl("ftp", spannable, text, activity);
 		spanUrl("http", spannable, text, activity);
 		spanUrl("https", spannable, text, activity);
@@ -784,7 +776,7 @@ public final class ViewUtils {
 				break;
 			}
 		}
-	}
+	}*/
 	
 	public static boolean isSmileyReadOnly(String smiley){
 		return smiley != null && smiley.startsWith("! ");
@@ -794,22 +786,16 @@ public final class ViewUtils {
 		return isSmileyReadOnly(smiley) ? smiley.substring(2) : smiley;
 	}
 	
-	public static View fromThemeResource(ThemeResource tr) {
-		XmlPullParser layoutParser = tr.getContext().getResources().getLayout(tr.getId());
-		XmlPullParser attrsParser = tr.getContext().getResources().getLayout(tr.getId());;
+	public static void insertToEditor(String text, EditText editor) {
+		if (editor == null || text == null) return;
 		
-		View view = LayoutInflater.from(tr.getContext()).inflate(layoutParser, null);
+		int start = Math.max(editor.getSelectionStart(), 0);
+		int end = Math.max(editor.getSelectionEnd(), 0);
+		editor.getText().replace(Math.min(start, end), Math.max(start, end), text, 0, text.length());
 		
-		try {
-			while (attrsParser.nextToken() != XmlPullParser.START_TAG) {}
-		} catch (Exception e) {
-			Logger.log(e);
-		}
-		view.setLayoutParams(new LayoutParams(tr.getContext(), (AttributeSet) attrsParser));
-		
-		return view;
+		editor.setSelection(Math.max(start, end)+ text.length());
 	}
-	
+
 	public static ChatMessageHolder message2MessageHolder(Message message, Buddy buddy, Account account) {
 		String senderName;
 		if (message.isIncoming()) {

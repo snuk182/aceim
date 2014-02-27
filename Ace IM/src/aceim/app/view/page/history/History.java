@@ -8,19 +8,15 @@ import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.MessageAckState;
 import aceim.api.utils.Logger;
-import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.Account;
-import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.listeners.IHasBuddy;
 import aceim.app.dataentity.listeners.IHasMessages;
 import aceim.app.service.ServiceUtils;
 import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
 import aceim.app.view.page.chat.ChatMessageHolder;
-import aceim.app.view.page.chat.ImageSmileyAdapter;
-import aceim.app.view.page.chat.TextSmileyAdapter;
 import aceim.app.widgets.adapters.MessagesAdapter;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import android.app.AlertDialog;
@@ -36,7 +32,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class History extends Page implements IHasMessages, IHasBuddy {
@@ -51,8 +46,6 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 	private final ArrayList<ChatMessageHolder> mMessageHolders = new ArrayList<ChatMessageHolder>(25);
 	private MessagesAdapter mMessageAdapter;
 	
-	private static ArrayAdapter<?> sSmileyAdapter;
-	private static TextSmileyAdapter sTextSmileyAdapter;
 	private static ChatMessageHolder sAddMoreButtonHolder;
 	
 	private ListView mMessages;
@@ -157,15 +150,11 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 			}
 		}
 		mMessages.setAdapter(mMessageAdapter);
-		if (sTextSmileyAdapter == null) {
-			sTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity());
-		}
 		
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
 		
 		mExportBtn.setVisibility(View.GONE);
 		
-		initPreferences();
 		initMessages(saved);
 		initClickListeners();
 		
@@ -281,18 +270,6 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 	@Override
 	public boolean hasMessagesOfBuddy(byte serviceId, String buddyProtocolUid) {
 		return serviceId == mBuddy.getServiceId() && buddyProtocolUid.equals(mBuddy.getProtocolUid());
-	}
-
-	private void initPreferences() {
-		MainActivity activity = getMainActivity();
-		if (sSmileyAdapter == null) {
-			boolean isTextSmileys = activity
-					.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
-					.getBoolean(GlobalOptionKeys.TEXT_SMILEYS.name(), 
-							Boolean.parseBoolean(activity.getString(R.string.default_text_smilies)));
-			
-			sSmileyAdapter = isTextSmileys ? sTextSmileyAdapter : ImageSmileyAdapter.fromActivity(activity);
-		}
 	}
 
 	@Override

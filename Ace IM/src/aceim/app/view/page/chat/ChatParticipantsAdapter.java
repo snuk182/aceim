@@ -119,7 +119,7 @@ public class ChatParticipantsAdapter extends BaseExpandableListAdapter {
 		View view = convertView;
 		
 		if (convertView == null) {
-			view = ViewUtils.fromThemeResource(itemResource);
+			view = itemResource.getView();
 		}
 		
 		if (view.getTag() == null || view.getTag() != buddy) {

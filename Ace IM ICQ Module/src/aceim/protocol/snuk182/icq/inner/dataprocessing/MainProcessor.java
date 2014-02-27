@@ -43,7 +43,7 @@ public class MainProcessor extends AbstractFlapProcessor {
 		
 		ICQOnlineInfo onlineInfo = service.getOnlineInfo();
 		if (onlineInfo.extendedStatusId > -1) {
-			sendXStatusChange(onlineInfo.qipStatus, onlineInfo.extendedStatusId, onlineInfo.personalText, onlineInfo.extendedStatus);
+			sendStatusChange(onlineInfo);
 		}
 	}
 
@@ -118,7 +118,11 @@ public class MainProcessor extends AbstractFlapProcessor {
 				service.log("server pause!");
 				break;
 			case ICQConstants.SNAC_GENERIC_OWNINFORES:
-				service.setOnlineInfo(service.getOnlineInfoEngine().parseOnlineInfo(snac, service.getOnlineInfo()).get(0));
+				int newUserStatus = service.getOnlineInfoEngine().parseOnlineInfo(snac, service.getOnlineInfo()).get(0).userStatus;
+				if (service.getOnlineInfo().userStatus != newUserStatus) {
+					sendStatusChange(service.getOnlineInfo());
+				}
+				
 				service.getServiceResponse().respond(ICQServiceResponse.RES_ACCOUNTUPDATED, service.getOnlineInfo());
 			case ICQConstants.SNAC_GENERIC_EXTSTATUSRES:
 				parseExternalStatus(snac);
@@ -210,8 +214,6 @@ public class MainProcessor extends AbstractFlapProcessor {
 			break;
 		}
 	}
-	
-	
 	
 	private void parseRedirectInfo(Snac snac) throws ICQException{
 		ServiceRedirect redirect = null;
@@ -477,9 +479,9 @@ public class MainProcessor extends AbstractFlapProcessor {
 		
 		return statusText;
 	}
-
-	public void sendXStatusChange(byte[] status, Byte xstatus, String args, String args2){
-		Flap flap1 = preparePlainStatusChange(service.getOnlineInfo().userStatus, new TLV[]{getICQMoodTLV()});
+	
+	public void sendStatusChange(ICQOnlineInfo onlineInfo) {
+		Flap flap1 = preparePlainStatusChange(onlineInfo.userStatus, new TLV[]{getICQMoodTLV()});
 		
 		Flap flap2 = new Flap();
 		flap2.channel = ICQConstants.FLAP_CHANNELL_DATA;
@@ -492,7 +494,7 @@ public class MainProcessor extends AbstractFlapProcessor {
 		TLV clsids = new TLV();
 		clsids.type = 0x5;
 		
-		byte[] rawData = new byte[(16*10) + (status!=null?16:0) + (xstatus>-1?16:0)];
+		byte[] rawData = new byte[(16*10) + (onlineInfo.qipStatus!=null?16:0) + (onlineInfo.extendedStatusId>-1?16:0)];
 		int i = 0;
 		System.arraycopy(ICQConstants.CLSID_UTF, 0, rawData, i, 16);
 		i+=16;
@@ -516,12 +518,12 @@ public class MainProcessor extends AbstractFlapProcessor {
 		i+=16;
 		System.arraycopy(ICQConstants.CLSID_XTRAZ, 0, rawData, i, 16);
 		i+=16;
-		if (xstatus>-1){
-			System.arraycopy(ICQConstants.XSTATUS_CLSIDS[xstatus], 0, rawData, i, 16);
+		if (onlineInfo.extendedStatusId>-1){
+			System.arraycopy(ICQConstants.XSTATUS_CLSIDS[onlineInfo.extendedStatusId], 0, rawData, i, 16);
 			i+=16;
 		}
-		if (status!=null){
-			System.arraycopy(status, 0, rawData, i, 16);
+		if (onlineInfo.qipStatus!=null){
+			System.arraycopy(onlineInfo.qipStatus, 0, rawData, i, 16);
 			i+=16;
 		}		
 		clsids.value = rawData;
@@ -531,7 +533,7 @@ public class MainProcessor extends AbstractFlapProcessor {
 		
 		service.getRunnableService().sendMultipleToSocket(new Flap[]{flap1, flap2});
 	}
-	
+
 	private TLV getStatusChangeTLV(int statusValue){
 		TLV status = new TLV();
 		status.type = 0x6;

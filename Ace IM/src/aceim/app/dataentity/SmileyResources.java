@@ -3,7 +3,6 @@ package aceim.app.dataentity;
 import aceim.api.utils.Logger;
 import aceim.app.AceImException;
 import aceim.app.AceImException.AceImExceptionReason;
-import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import android.content.Context;
@@ -15,13 +14,24 @@ import android.os.Parcelable;
 
 public class SmileyResources extends PluginResources {
 	
+	private final String smileyPackShortName;
+	/**
+	 * @return the smileyPackShortName
+	 */
+	public String getSmileyPackShortName() {
+		return smileyPackShortName;
+	}
+
 	private final String[] names;
 	private final int[] drawableIDs;
 
-	private SmileyResources(String[] names, int[] drawableIDs, Resources resources) {
-		super(Constants.SMILEY_PLUGIN_PREFIX, resources);
+	private SmileyResources(String packageName, String[] names, int[] drawableIDs, String pluginName, String smileyPackShortName, Resources resources) {
+		super(packageName, resources);
 		this.names = names;
 		this.drawableIDs = drawableIDs;
+		this.smileyPackShortName = smileyPackShortName;
+		
+		setPluginName(pluginName);
 	}
 
 	public SmileyResources(Parcel in) {
@@ -29,6 +39,7 @@ public class SmileyResources extends PluginResources {
 		
 		names = in.createStringArray();
 		drawableIDs = in.createIntArray();
+		smileyPackShortName = in.readString();
 	}
 
 	public void writeToParcel(Parcel out, int flags) {
@@ -36,6 +47,7 @@ public class SmileyResources extends PluginResources {
 		
 		out.writeStringArray(names);
 		out.writeIntArray(drawableIDs);
+		out.writeString(smileyPackShortName);
 	}
 
 	public static final Parcelable.Creator<SmileyResources> CREATOR = new Parcelable.Creator<SmileyResources>() {
@@ -50,10 +62,14 @@ public class SmileyResources extends PluginResources {
 	};
 	
 	public static SmileyResources mySmileys(MainActivity activity) {
-		String[] names = activity.getResources().getStringArray(R.array.smiley_names);		
-		int[] values = getValuesInternal(activity.getResources(), R.array.smiley_values);
+		Resources r = activity.getResources();
+		String[] names = r.getStringArray(R.array.smiley_names);		
+		int[] values = getValuesInternal(r, R.array.smiley_values);
+		String smileyPackShortName = r.getString(R.string.smileys);
 		
-		return new SmileyResources(names, values, activity.getResources());
+		String pluginName = r.getString(activity.getApplicationInfo().labelRes);
+		
+		return new SmileyResources(activity.getPackageName(), names, values, pluginName, smileyPackShortName, r);
 	}
 	
 	public static SmileyResources fromPackageName(String packageName, Context context) {
@@ -63,6 +79,7 @@ public class SmileyResources extends PluginResources {
 			
 			int namesId = r.getIdentifier("smiley_names", "array", packageName);
 			int valuesId = r.getIdentifier("smiley_values", "array", packageName);
+			int shortNameId = r.getIdentifier("short_name", "string", packageName);
 			
 			if (namesId == 0 || valuesId == 0) {
 				throw new AceImException(packageName, AceImExceptionReason.RESOURCE_NOT_INITIALIZED);
@@ -71,7 +88,10 @@ public class SmileyResources extends PluginResources {
 			String[] names = r.getStringArray(namesId);			
 			int[] values = getValuesInternal(r, valuesId);
 			
-			return new SmileyResources(names, values, r);
+			String pluginName = r.getString(context.getPackageManager().getApplicationInfo(packageName, 0).labelRes); 
+			String smileyShortName = r.getString(shortNameId);
+			
+			return new SmileyResources(packageName, names, values, pluginName, smileyShortName, r);
 		} catch (Exception e) {
 			Logger.log(e);
 		}

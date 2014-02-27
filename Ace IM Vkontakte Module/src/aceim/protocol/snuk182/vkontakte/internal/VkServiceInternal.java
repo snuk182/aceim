@@ -21,6 +21,8 @@ import aceim.api.dataentity.MessageAckState;
 import aceim.api.dataentity.MultiChatRoom;
 import aceim.api.dataentity.OnlineInfo;
 import aceim.api.dataentity.TextMessage;
+import aceim.api.dataentity.tkv.MessageAttachment;
+import aceim.api.dataentity.tkv.MessageAttachment.MessageAttachmentType;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
@@ -35,6 +37,7 @@ import aceim.protocol.snuk182.vkontakte.model.VkBuddy;
 import aceim.protocol.snuk182.vkontakte.model.VkBuddyGroup;
 import aceim.protocol.snuk182.vkontakte.model.VkChat;
 import aceim.protocol.snuk182.vkontakte.model.VkMessage;
+import aceim.protocol.snuk182.vkontakte.model.VkMessageAttachment;
 import aceim.protocol.snuk182.vkontakte.model.VkOnlineInfo;
 import android.content.Context;
 import android.content.Intent;
@@ -91,10 +94,14 @@ public class VkServiceInternal {
 				service.getCoreService().messageAck(Long.toString(vkm.getPartnerId()), vkm.getMessageId(), ackState);			
 			} else {
 				Message message = VkEntityAdapter.vkMessage2Message(vkm, service.getServiceId(), service.getProtocolUid(), accessToken.getUserID());
-
+				
 				if ((isChatUid(vkm.getPartnerId()) && !isChatJoined(vkm.getPartnerId())) // the case chat exists but not joined
 						|| message.getContactDetail() != null) { // the case chat has just been created
 					joinChatInternal(message.getContactUid(), false);
+				}
+				
+				if (message instanceof TextMessage) {
+					processAttachments((TextMessage) message, vkm.getAttachments());
 				}
 				
 				service.getCoreService().message(message);
@@ -162,6 +169,64 @@ public class VkServiceInternal {
 
 	public VkServiceInternal(VkService service) {
 		this.service = service;
+	}
+
+	private void processAttachments(TextMessage message, VkMessageAttachment[] vkAttachments) {
+		if (vkAttachments == null || vkAttachments.length < 1) {
+			return;
+		}
+		
+		List<String> photos = new ArrayList<String>(vkAttachments.length);
+		List<String> audios = new ArrayList<String>(vkAttachments.length);
+		List<String> videos = new ArrayList<String>(vkAttachments.length);
+		List<String> docs = new ArrayList<String>(vkAttachments.length);
+		
+		for (VkMessageAttachment attachment : vkAttachments) {
+			switch (attachment.getType()) {
+			case AUDIO:
+				audios.add(attachment.getId());
+				break;
+			case PHOTO:
+				photos.add(attachment.getId());
+				break;
+			case VIDEO:
+				videos.add(attachment.getId());
+				break;
+			case DOC:
+				docs.add(attachment.getId());
+				break;
+			default:
+				break;
+			}
+		}
+		
+		List<MessageAttachment> attachments = message.getAttachments();
+		try {
+			if (photos.size() > 0) {
+				fillAttachments(engine.getPhotosById(photos.toArray(new String[photos.size()])), attachments, MessageAttachmentType.PHOTO);				
+			}
+			if (videos.size() > 0) {
+				//Vkontakte does not provide direct video links, but links to a page with video player. We cannot process it as VIDEO attachment type
+				fillAttachments(engine.getVideosById(videos.toArray(new String[videos.size()])), attachments, MessageAttachmentType.OTHER); //MessageAttachmentType.VIDEO);
+			}
+			if (docs.size() > 0) {
+				fillAttachments(engine.getDocsById(docs.toArray(new String[docs.size()])), attachments, MessageAttachmentType.OTHER);
+			}
+			if (audios.size() > 0) {
+				fillAttachments(engine.getAudiosById(audios.toArray(new String[audios.size()])), attachments, MessageAttachmentType.AUDIO);
+			}
+		} catch (RequestFailedException e) {
+			onRequestFailed(e);
+		}
+	}
+	
+	private void fillAttachments(Map<String, String> source, List<MessageAttachment> attachments, MessageAttachmentType type) {
+		for (String src : source.keySet()) {
+			String title = source.get(src);
+			
+			MessageAttachment attachment = new MessageAttachment(type, title, src);
+			attachments.add(attachment);
+		}
 	}
 
 	public void login(OnlineInfo info) {

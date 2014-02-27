@@ -36,7 +36,7 @@ class GroupItemsAdapter extends ArrayAdapter<Buddy> {
 		View view = convertView;
 		
 		if (convertView == null) {
-			view = ViewUtils.fromThemeResource(itemLayoutResource);
+			view = itemLayoutResource.getView();
 		}
 		
 		if (view.getTag() == null || view.getTag() != buddy) {

@@ -1,6 +1,8 @@
 package aceim.app;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,22 +13,24 @@ import java.util.TreeMap;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.dataentity.SmileyResources;
-import aceim.app.utils.LinqRules.PageWithSmileysLinqRule;
 import aceim.app.utils.PluginsManager;
-import aceim.app.view.page.Page;
+import aceim.app.view.page.chat.SmileysPopup;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.widget.EditText;
 
-class SmileysManager extends PluginsManager {
+public class SmileysManager extends PluginsManager {
 	
 	private SortedMap<String, Drawable> mManagedSmileysCache = null;
 	private final Map<String, SmileyResources> mResources = new LinkedHashMap<String, SmileyResources>(); 
 	
+	private static SmileysPopup sSmileysPopup;
+	
 	public SmileysManager(MainActivity activity) {
 		super(activity, Constants.SMILEY_PLUGIN_PREFIX);
-		mResources.put(getClass().getPackage().getName(), SmileyResources.mySmileys(activity));
+		mResources.put(activity.getPackageName(), SmileyResources.mySmileys(activity));
 		initSmileys();
 	}
 	
@@ -47,18 +51,12 @@ class SmileysManager extends PluginsManager {
 	@Override
 	protected void onPackageAdded(String packageName) {
 		addSmileyPackage(packageName);
+		resetSmileysPopup();
 	}
 
 	private void removeSmileyPackage(String packageName) {
-		MainActivity a = getMainActivity();
-		
-		List<Page> pages = a.getScreen().findPagesByRule(new PageWithSmileysLinqRule());
-		
-		for (Page p : pages) {
-			a.getScreen().removePage(p);
-		}
-		
 		mResources.remove(packageName);
+		resetSmileysPopup();
 	}
 
 	private void addSmileyPackage(String packageName) {
@@ -86,7 +84,7 @@ class SmileysManager extends PluginsManager {
 		return mResources;
 	}
 
-	public SortedMap<String, Drawable> manageSmileys() {
+	private SortedMap<String, Drawable> manageSmileys() {
 		if (mManagedSmileysCache == null) {
 			mManagedSmileysCache = new TreeMap<String, Drawable>(new StringLengthComparator());
 			
@@ -111,6 +109,41 @@ class SmileysManager extends PluginsManager {
 		return mManagedSmileysCache;
 	}
 	
+	/**
+	 * @return the sSmileysPopup
+	 */
+	public SmileysPopup getSmileysPopup() {
+		if (sSmileysPopup == null) {
+			sSmileysPopup = new SmileysPopup((MainActivity) mContext);
+		}
+		
+		return sSmileysPopup;
+	}
+
+	public void resetSmileysPopup() {
+		if (sSmileysPopup != null) {
+			sSmileysPopup.hide();
+			sSmileysPopup = null;
+		}
+	}
+	
+	/**
+	 * @return the mSmileysManager
+	 */
+	public Collection<SmileyResources> getUnmanagedSmileys() {
+		return getResources().values();
+	}
+	
+	public SortedMap<String, Drawable> getManagedSmileys() {
+		return manageSmileys();
+	}
+	
+	public Collection<SmileyResources> getThirdPartySmileys() {
+		List<SmileyResources> unmanaged = new ArrayList<SmileyResources>(getUnmanagedSmileys());
+		unmanaged.remove(0);
+		return Collections.unmodifiableList(unmanaged);
+	}
+
 	private static final class StringLengthComparator implements Comparator<String> {
 
 		@Override
@@ -125,5 +158,23 @@ class SmileysManager extends PluginsManager {
 				return lhs != null ? 1 : -1;
 			}
 		}		
+	}
+
+	public boolean isPopupShown() {
+		return sSmileysPopup != null && sSmileysPopup.isShown();
+	}
+
+	public void hidePopup() {
+		if (isPopupShown()) {
+			sSmileysPopup.hide(); 
+		}
+	}
+
+	public void showPopup(EditText mEditor) {
+		if (sSmileysPopup == null) {
+			sSmileysPopup = new SmileysPopup(getMainActivity());
+		}
+		
+		sSmileysPopup.show(mEditor);
 	}
 }

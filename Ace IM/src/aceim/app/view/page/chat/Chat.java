@@ -24,13 +24,12 @@ import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.api.utils.Utils;
-import aceim.app.Constants;
 import aceim.app.MainActivity;
 import aceim.app.R;
+import aceim.app.SmileysManager;
 import aceim.app.dataentity.Account;
 import aceim.app.dataentity.AccountOptionKeys;
 import aceim.app.dataentity.ActivityResult;
-import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
 import aceim.app.dataentity.listeners.IHasAccount;
 import aceim.app.dataentity.listeners.IHasBuddy;
@@ -38,20 +37,15 @@ import aceim.app.dataentity.listeners.IHasFilePicker;
 import aceim.app.dataentity.listeners.IHasMessages;
 import aceim.app.service.ServiceUtils;
 import aceim.app.themeable.dataentity.ContactThemeResource;
-import aceim.app.utils.DialogUtils;
 import aceim.app.utils.LinqRules.BuddyLinqRule;
 import aceim.app.utils.ViewUtils;
 import aceim.app.utils.linq.KindaLinq;
 import aceim.app.view.page.Page;
-import aceim.app.widgets.HorizontalListView;
 import aceim.app.widgets.ResizeableRelativeLayout;
 import aceim.app.widgets.ResizeableRelativeLayout.OnResizeListener;
 import aceim.app.widgets.adapters.MessagesAdapter;
-import aceim.app.widgets.adapters.SingleViewAdapter;
-import aceim.app.widgets.adapters.SingleViewAdapter.OnSingleViewAdapterItemClickListener;
 import aceim.app.widgets.bottombar.BottomBarButton;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -79,10 +73,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout.LayoutParams;
@@ -109,10 +101,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	private final ArrayList<ChatMessageHolder> mMessageHolders = new ArrayList<ChatMessageHolder>(25);
 	private MessagesAdapter mMessageAdapter;
 	
-	private ArrayAdapter<?> mSmileyAdapter;
-	private TextSmileyAdapter mTextSmileyAdapter;
-	private Dialog mSmileyDialog;
-	
 	private CharSequence mEditorUnsavedContent = null;
 	private Uri mAwaitingUri;
 	
@@ -124,7 +112,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	private BottomBarButton mCancelBtn;
 	
 	private ListView mMessages;
-	private HorizontalListView mSmileys;
 	private ExpandableListView mChatBuddies;
 	
 	private ImageView mStatus;
@@ -178,7 +165,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		public void onClick(View v) {
 			
 			String selectedText = mMessageAdapter.grabSelectedText(mMessages);			
-			insertToEditor(selectedText);
+			ViewUtils.insertToEditor(selectedText, mEditor);
 			readWriteMode();
 		}
 	};
@@ -240,30 +227,12 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		@Override
 		public void onClick(View v) {
-			//if there is an option "show smileys in separate dialog" set,
-			//there should be no adapter in in-built smiley view
-			if (mSmileys.getAdapter() == null) { 
-				mSmileys.setVisibility(View.GONE);
-				
-				showSmileysDialogWindow();
-			} else {
-				mSmileys.setVisibility(mSmileys.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-			}
-		}
-	};
-	
-	private final OnSingleViewAdapterItemClickListener mSmileyClicklistener = new OnSingleViewAdapterItemClickListener() {
-
-		@Override
-		public void onItemClick(SingleViewAdapter<?, ?> adapter, int position) {
-			if (adapter == mTextSmileyAdapter) {
-				insertToEditor(mTextSmileyAdapter.getItem(position));				
-			} else {
-				insertToEditor(((ImageSmileyAdapter)adapter).getItemName(position));
-			}
+			SmileysManager sm = getMainActivity().getSmileysManager();
 			
-			if (mSmileyDialog != null) {
-				mSmileyDialog.dismiss();
+			if (sm.isPopupShown()) {
+				sm.hidePopup();
+			} else {
+				sm.showPopup(mEditor);
 			}
 		}
 	};
@@ -274,6 +243,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		public void onClick(View v) {
 			sendMessage(mEditor.getText().toString());
 			mEditor.setText(null);
+			getMainActivity().getSmileysManager().hidePopup();
+			getMainActivity().runOnUiThread(mScrollToEndRunnable);
 		}
 	};
 	
@@ -313,30 +284,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		this.mProtocolResources = resources;
 	}
 
-	private void insertToEditor(String text) {
-		int start = Math.max(mEditor.getSelectionStart(), 0);
-		int end = Math.max(mEditor.getSelectionEnd(), 0);
-		mEditor.getText().replace(Math.min(start, end), Math.max(start, end), text, 0, text.length());
-		
-		mEditor.setSelection(Math.max(start, end)+ text.length());
-	}
-
-	private void showSmileysDialogWindow() {
-		if (mSmileyDialog == null) {
-			mSmileyDialog = new Dialog(getMainActivity());
-			mSmileyDialog.setTitle(R.string.smileys);
-			mSmileyDialog.setContentView(R.layout.grid_dialog);
-			final GridView grid = (GridView) mSmileyDialog.findViewById(R.id.grid);
-			grid.setColumnWidth(getMainActivity().getResources().getDimensionPixelSize(R.dimen.smiley_column_width));
-			
-			grid.setAdapter(mSmileyAdapter);
-			grid.setOnItemClickListener(mSmileyClicklistener);
-			
-			mSmileyAdapter.notifyDataSetInvalidated();
-		}
-		DialogUtils.showBrandedDialog(mSmileyDialog);
-	}
-	
 	private void sendMessage(final String text) {
 		if (text == null || text.length() < 1)
 			return;
@@ -355,7 +302,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		prohibitTypingNotificationSending();
 		
 		mMessageAdapter.add(ViewUtils.message2MessageHolder(message, mBuddy, mAccount));
-		getMainActivity().runOnUiThread(mScrollToEndRunnable);
 		
 		AsyncTask<Message, Void, Long> messageSender = new AsyncTask<Message, Void, Long>() {
 
@@ -393,7 +339,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		mCancelBtn = (BottomBarButton) view.findViewById(R.id.cancel);
 		
 		mMessages = (ListView) view.findViewById(R.id.messages);
-		mSmileys = (HorizontalListView) view.findViewById(R.id.smileys);
 		mChatBuddies = (ExpandableListView) view.findViewById(R.id.chat_buddies);
 		mXStatusText = (TextView) view.findViewById(R.id.label_xstatus);
 		
@@ -416,14 +361,10 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		}
 		
 		if (mMessageAdapter == null) {
-			mMessageAdapter = new MessagesAdapter(getMainActivity(), mAccount, mBuddy, getMainActivity().getThemesManager().getViewResources().getChatMessageItemLayout(), mMessageHolders, ChatMessageTimeFormat.DATE_TIME);
+			mMessageAdapter = new MessagesAdapter(getMainActivity(), mAccount, mBuddy, getMainActivity().getThemesManager().getViewResources().getChatMessageItemLayout(), mMessageHolders);
 		}
 		mMessages.setAdapter(mMessageAdapter);
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
-		
-		if (mTextSmileyAdapter == null) {
-			mTextSmileyAdapter = TextSmileyAdapter.fromTypedArray(getMainActivity());
-		}
 		
 		mXStatusText.setOnClickListener(mXStatusTextClickListener);
 		
@@ -444,7 +385,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		((ResizeableRelativeLayout)view).setResizeListener(mResizeListener);
 		
-		initPreferences();		
 		onBuddyStateChanged(Arrays.asList(mBuddy));
 		onAccountIcon(mAccount.getServiceId());
 		initMessages(saved);
@@ -514,30 +454,6 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		getMainActivity().resetUnread(mBuddy);
 	}
 
-	private void initPreferences() {
-		MainActivity activity = getMainActivity();
-		if (mSmileyAdapter == null) {
-			boolean isTextSmileys = activity
-					.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
-					.getBoolean(GlobalOptionKeys.TEXT_SMILEYS.name(), 
-							Boolean.parseBoolean(activity.getString(R.string.default_text_smilies)));
-			
-			mSmileyAdapter = isTextSmileys ? mTextSmileyAdapter : ImageSmileyAdapter.fromActivity(activity);
-			((SingleViewAdapter<?, ?>)mSmileyAdapter).setOnItemClickListener(mSmileyClicklistener);
-			mMessageAdapter.setDontDrawSmilies(isTextSmileys);
-		}
-		
-		boolean showSmileysInSeparateDialog = activity
-				.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
-				.getBoolean(GlobalOptionKeys.SMILEYS_IN_DIALOG.name(),
-						Boolean.parseBoolean(activity.getString(R.string.default_smilies_in_separate_dialog)));
-		
-		if (!showSmileysInSeparateDialog) {
-			mSmileys.setAdapter(mSmileyAdapter);
-			mSmileyAdapter.notifyDataSetInvalidated();
-		}
-	}
-
 	private void initMessages(final Bundle saved) {
 		if (mMessageHolders.size() > 0) {
 			return;
@@ -552,7 +468,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 				try {
 					if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
 						result = saved.getParcelableArrayList(SAVE_PARAM_MESSAGES);
-					} else if (mMessageAdapter.getCount() < 1) {
+					} else if (mMessageHolders.size() < 1) {
 						List<Message> lastMessages = getMainActivity().getCoreService().getLastMessages(mBuddy);
 						
 						result = ViewUtils.wrapMessages(mBuddy, mAccount, lastMessages);						
@@ -885,8 +801,12 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	public boolean onKeyDown(int i, KeyEvent event) {
 		
 		if (i == KeyEvent.KEYCODE_BACK) {
-			onLeaveMe();
-			Page.getContactListPage(getMainActivity(), mAccount);
+			if (getMainActivity().getSmileysManager().getSmileysPopup().isShown()) {
+				getMainActivity().getSmileysManager().getSmileysPopup().hide();
+			} else {
+				onLeaveMe();
+				Page.getContactListPage(getMainActivity(), mAccount);				
+			}
 			return true;
 		}
 		
@@ -896,6 +816,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	@Override
 	public void onLeaveMe() {
 		sInputMethodManager.hideSoftInputFromWindow(mEditor.getWindowToken(), 0);
+		
+		getMainActivity().getSmileysManager().getSmileysPopup().hide();
 	}
 
 	@Override

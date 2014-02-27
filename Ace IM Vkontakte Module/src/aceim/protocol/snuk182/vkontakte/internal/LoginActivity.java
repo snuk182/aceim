@@ -90,7 +90,7 @@ public class LoginActivity extends Activity {
 		
 		String url = 
 				"?client_id=" + VkApiConstants.API_ID
-				+ "&scope=friends,status,messages,offline" 
+				+ "&scope=friends,status,messages,photos,audio,video,docs,notifications,offline" 
 				+ "&redirect_uri=" + VkConstants.OAUTH_REDIRECT_URL
 				+ "&display=popup"
 				+ "&response_type=token";

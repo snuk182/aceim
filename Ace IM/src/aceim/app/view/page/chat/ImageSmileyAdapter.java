@@ -1,16 +1,18 @@
 package aceim.app.view.page.chat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import aceim.app.MainActivity;
+import aceim.api.utils.Logger;
+import aceim.app.dataentity.SmileyResources;
 import aceim.app.utils.ViewUtils;
 import aceim.app.widgets.adapters.SingleViewAdapter;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -30,24 +32,33 @@ public class ImageSmileyAdapter extends SingleViewAdapter<Drawable, ImageView> {
 		view.setScaleType(ScaleType.CENTER_INSIDE);
 	}
 
-	public static final ImageSmileyAdapter fromActivity(MainActivity activity){
+	public static final ImageSmileyAdapter fromSmileyResources(Context context, SmileyResources resources){
 		
-		Map<String, Drawable> smileys = activity.getManagedSmileys();
-		
-		List<Drawable> dlist = new ArrayList<Drawable>();
-		List<String> slist = new ArrayList<String>(smileys.keySet());
-		
-		for (Iterator<String> i = slist.iterator(); i.hasNext();) {
-			String smiley = i.next();
+		try {
+			Resources r = resources.getNativeResourcesForProtocol(context.getPackageManager());
 			
-			if (ViewUtils.isSmileyReadOnly(smiley)) {
-				i.remove();
-			} else {
-				dlist.add(smileys.get(smiley));
+			List<Drawable> dlist = new ArrayList<Drawable>();
+			List<String> slist = new ArrayList<String>(Arrays.asList(resources.getNames()));
+			
+			int index = 0;
+			for (Iterator<String> i = slist.iterator(); i.hasNext();) {
+				String smiley = i.next();
+				
+				if (ViewUtils.isSmileyReadOnly(smiley)) {
+					i.remove();
+				} else {
+					dlist.add(r.getDrawable(resources.getDrawableIDs()[index]));
+				}
+				
+				index++;
 			}
+			
+			return new ImageSmileyAdapter(context, dlist, slist);
+		} catch (Exception e) {
+			Logger.log(e);
 		}
 		
-		return new ImageSmileyAdapter(activity, dlist, slist);
+		return null;
 	}
 	
 	@Override

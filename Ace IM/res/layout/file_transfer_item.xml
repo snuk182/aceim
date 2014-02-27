@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/default_contact_list_plain_item_height"
     android:background="@android:drawable/menuitem_background">
     
     <aceim.app.themeable.widgets.StyleableImageView
         android:id="@+id/left_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/default_contact_list_plain_item_height"
+        android:layout_height="@dimen/default_contact_list_plain_item_height"
         android:src="@drawable/dummy_icon"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -18,8 +18,8 @@
         styleableHeight="?attr/grid_item_size"/>
     <aceim.app.themeable.widgets.StyleableImageView 
         android:id="@+id/right_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/default_contact_list_plain_item_height"
+        android:layout_height="@dimen/default_contact_list_plain_item_height"
         android:src="@drawable/dummy_icon"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
@@ -74,6 +74,7 @@
 		android:layout_toLeftOf="@id/right_icon"
 		android:layout_toRightOf="@id/left_icon"
 		android:layout_below="@id/right_arrow"
+		android:layout_alignBottom="@id/left_icon"
 		android:paddingLeft="@dimen/default_padding"
 		android:paddingRight="@dimen/default_padding"
         android:paddingBottom="@dimen/default_padding"/>

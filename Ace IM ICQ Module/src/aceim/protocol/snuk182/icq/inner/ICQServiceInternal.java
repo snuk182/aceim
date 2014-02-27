@@ -603,15 +603,16 @@ public class ICQServiceInternal {
 				int status = (Integer) args[0];
 				if (args.length < 2) {
 					onlineInfo.userStatus = status;
-					((MainProcessor) processor).sendXStatusChange(null, onlineInfo.extendedStatusId, onlineInfo.personalText, onlineInfo.extendedStatus);
+					onlineInfo.qipStatus = null;
 				} else {
 					byte[] qipStatus = (byte[]) args[1];
 					if (qipStatus != null) {
 						onlineInfo.userStatus = ICQConstants.STATUS_ONLINE;
 						onlineInfo.qipStatus = qipStatus;
-						((MainProcessor) processor).sendXStatusChange(qipStatus, onlineInfo.extendedStatusId, onlineInfo.personalText, onlineInfo.extendedStatus);
 					}
 				}
+				
+				((MainProcessor) processor).sendStatusChange(onlineInfo);
 			}
 			break;
 		case REQ_SETEXTENDEDSTATUS:
@@ -622,7 +623,7 @@ public class ICQServiceInternal {
 				onlineInfo.personalText = nfo.personalText;
 				onlineInfo.qipStatus = nfo.qipStatus;
 
-				((MainProcessor) processor).sendXStatusChange(onlineInfo.qipStatus, onlineInfo.extendedStatusId, onlineInfo.personalText, onlineInfo.extendedStatus);
+				((MainProcessor) processor).sendStatusChange(onlineInfo);
 			}
 			break;
 		case REQ_AUTHREQUEST:

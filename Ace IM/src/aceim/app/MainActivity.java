@@ -2,11 +2,9 @@ package aceim.app;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.concurrent.Executors;
 
 import aceim.api.dataentity.Buddy;
@@ -27,7 +25,6 @@ import aceim.app.dataentity.Account;
 import aceim.app.dataentity.ActivityResult;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.dataentity.ProtocolResources;
-import aceim.app.dataentity.SmileyResources;
 import aceim.app.dataentity.listeners.IHasAccount;
 import aceim.app.dataentity.listeners.IHasAccountList;
 import aceim.app.dataentity.listeners.IHasBuddy;
@@ -99,6 +96,7 @@ public class MainActivity extends AceIMActivity {
 		Page.addSplash(mScreen);
 
 		mSmileysManager = new SmileysManager(this);
+		mSmileysManager.resetSmileysPopup();
 		
 		initCoreService();
 	}
@@ -141,7 +139,7 @@ public class MainActivity extends AceIMActivity {
 			try {
 				List<ProtocolResources> protocols = mCoreService.getAllProtocolResources(false);
 				for (ProtocolResources r : protocols) {
-					mProtocolResources.put(r.getProtocolServicePackageName(), r);
+					mProtocolResources.put(r.getPackageId(), r);
 				}
 				runOnUiThread(mContinueCreating);
 			} catch (RemoteException e) {
@@ -443,20 +441,20 @@ public class MainActivity extends AceIMActivity {
 		public void onProtocolUpdated(ProtocolResources resources, ItemAction action) throws RemoteException {
 			switch (action) {
 			case ADDED:
-				mProtocolResources.put(resources.getProtocolServicePackageName(), resources);
+				mProtocolResources.put(resources.getPackageId(), resources);
 				break;
 			case MODIFIED:
-				mProtocolResources.put(resources.getProtocolServicePackageName(), resources);
-				for (Page p : mScreen.findPagesByRule(new ProtocolAccountPageLinqRule(resources.getProtocolServicePackageName()))) {
+				mProtocolResources.put(resources.getPackageId(), resources);
+				for (Page p : mScreen.findPagesByRule(new ProtocolAccountPageLinqRule(resources.getPackageId()))) {
 					Account account = ((IHasAccount) p).getAccount();
 					((IHasAccount) p).onConnectionStateChanged(account.getConnectionState(), -1);
 				}
 				break;
 			case DELETED:
-				for (Page p : mScreen.findPagesByRule(new ProtocolAccountPageLinqRule(resources.getProtocolServicePackageName()))) {
+				for (Page p : mScreen.findPagesByRule(new ProtocolAccountPageLinqRule(resources.getPackageId()))) {
 					mScreen.removePage(p);
 				}
-				mProtocolResources.remove(resources.getProtocolServicePackageName());
+				mProtocolResources.remove(resources.getPackageId());
 				break;
 			default:
 				Logger.log("Unsupportable action: " + action, LoggerLevel.DEBUG);
@@ -734,6 +732,24 @@ public class MainActivity extends AceIMActivity {
 		mCoreService = null;
 		finish();
 	}
+	
+	public void openOptions(Account mAccount) {
+		Intent i = ViewUtils.getOpenOptionsIntent(this, mAccount);
+		startActivity(i);
+		
+		//We need delay to smoother activities change
+		getScreen().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				finish();
+				
+				//Forcing MainActivity to die, as of its "singleTask" lifecycle, 
+				//which does not guarantee destroying with simple finish().
+				android.os.Process.killProcess(android.os.Process.myPid());				
+			}
+		}, 500);
+	}
 
 	public void accountAdded(Account account) {
 		Page.getContactListPage(this, account);
@@ -895,17 +911,10 @@ public class MainActivity extends AceIMActivity {
 		}
 	}
 
-	/**
-	 * @return the mSmileysManager
-	 */
-	public Collection<SmileyResources> getUnmanagedSmileys() {
-		return mSmileysManager.getResources().values();
+	public SmileysManager getSmileysManager() {
+		return mSmileysManager;
 	}
 	
-	public SortedMap<String, Drawable> getManagedSmileys() {
-		return mSmileysManager.manageSmileys();
-	}
-
 	/**
 	 * @return the mActivityVisible
 	 */

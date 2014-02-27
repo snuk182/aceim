@@ -26,13 +26,13 @@
 	    	android:icon="@drawable/ic_launcher" 
 	    	android:label="@string/app_name" 
 	    	android:name="aceim.api.application.AceIMBaseApplication" 
-	    	android:hardwareAccelerated="true"
 	    	android:allowBackup="true">
 		<activity android:name="aceim.app.MainActivity" 
-			android:multiprocess="false"
+			android:process=":ui"
 			android:label="@string/app_name" 
-			android:launchMode="singleTop" 
-			android:configChanges="keyboardHidden">
+			android:launchMode="singleTask"
+			android:noHistory="true"
+			android:windowSoftInputMode="adjustResize">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -40,11 +40,13 @@
 		</activity>
 		<activity android:name="aceim.app.preference.OptionsActivity"
 		    android:parentActivityName="aceim.app.MainActivity"
+		    android:exported="false"
+		    android:noHistory="true"
+		    android:stateNotNeeded="true"
 		    android:launchMode="standard">
 		</activity>
 		<service android:name=".service.CoreService" 
-		    android:exported="false"
-		    android:process="aceim.core">
+		    android:exported="false">
 			<intent-filter>
 				<action android:name="aceim.app.service.CoreService" />
 				<category android:name="android.intent.category.DEFAULT" />

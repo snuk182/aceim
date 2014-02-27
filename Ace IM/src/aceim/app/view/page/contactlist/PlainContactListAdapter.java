@@ -31,7 +31,7 @@ public class PlainContactListAdapter extends ContactListAdapter {
 		View view = convertView;
 		
 		if (convertView == null) {
-			view = ViewUtils.fromThemeResource(ctr);
+			view = ctr.getView();
 		}		
 		
 		if (view.getTag() == null || view.getTag() != buddy) {

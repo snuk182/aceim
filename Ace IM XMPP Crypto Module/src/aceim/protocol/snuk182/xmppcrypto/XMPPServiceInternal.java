@@ -96,31 +96,10 @@ public class XMPPServiceInternal implements ConnectionListener {
 
 	private EncryptedDataProvider edProvider = null;
 	private final XMPPRosterListener mRosterListener = new XMPPRosterListener(this);
-	/**
-	 * @return the mRosterListener
-	 */
-	XMPPRosterListener getRosterListener() {
-		return mRosterListener;
-	}
-
-	/**
-	 * @return the mChatListener
-	 */
-	XMPPChatListener getChatListener() {
-		return mChatListener;
-	}
-
-	/**
-	 * @return the mFileTransferListener
-	 */
-	XMPPFileTransferListener getFileTransferListener() {
-		return mFileTransferListener;
-	}
-
 	private final XMPPChatListener mChatListener = new XMPPChatListener(this);
 	private final XMPPFileTransferListener mFileTransferListener = new XMPPFileTransferListener(this);
 	
-	private boolean secureConnection = false;
+	private boolean secureConnection = true;
 
 	private ServiceDiscoveryManager mServiceDiscoveryManager;
 
@@ -735,5 +714,26 @@ public class XMPPServiceInternal implements ConnectionListener {
 			DiscoverItems.Item item = (DiscoverItems.Item) it.next();
 			Logger.log("Service available:" + item.getEntityID() + " " + item.getName());
 		}
+	}
+	
+	/**
+	 * @return the mRosterListener
+	 */
+	XMPPRosterListener getRosterListener() {
+		return mRosterListener;
+	}
+
+	/**
+	 * @return the mChatListener
+	 */
+	XMPPChatListener getChatListener() {
+		return mChatListener;
+	}
+
+	/**
+	 * @return the mFileTransferListener
+	 */
+	XMPPFileTransferListener getFileTransferListener() {
+		return mFileTransferListener;
 	}
 }

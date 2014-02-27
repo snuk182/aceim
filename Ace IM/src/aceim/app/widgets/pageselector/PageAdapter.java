@@ -3,7 +3,6 @@ package aceim.app.widgets.pageselector;
 import java.util.List;
 
 import aceim.app.themeable.dataentity.TabThemeResource;
-import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.Page;
 import android.content.Context;
 import android.view.View;
@@ -30,7 +29,7 @@ public class PageAdapter extends ArrayAdapter<Page> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
 		if (convertView == null) {
-			convertView = ViewUtils.fromThemeResource(mTabResource);
+			convertView = mTabResource.getView();
 			if (mOnClickListener != null) {
 				convertView.setOnClickListener(mOnClickListener);
 			}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aceim.app.themeable.widgets.StyleableRelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
+   	
+   	aceim:styleableBackground="?attr/bottom_bar_background" 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <aceim.app.widgets.HorizontalListView
+        android:id="@+id/tab_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:fadingEdge="none"
+        android:fadingEdgeLength="0px"
+        android:scrollbars="none" 
+        android:paddingLeft="@dimen/default_padding"
+        android:paddingRight="@dimen/default_padding"
+        android:paddingBottom="@dimen/default_padding"/>
+
+    <FrameLayout
+        android:id="@+id/fragment_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_above="@id/tab_selector"
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="@dimen/default_padding"
+        android:paddingRight="@dimen/default_padding"
+        android:paddingTop="@dimen/default_padding"
+        android:background="@drawable/smiley_popup_background"/>
+
+</aceim.app.themeable.widgets.StyleableRelativeLayout>

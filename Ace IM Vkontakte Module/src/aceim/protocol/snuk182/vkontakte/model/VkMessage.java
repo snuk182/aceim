@@ -42,11 +42,8 @@ public class VkMessage extends ApiObject {
 		try {
 			if (response.getParams().length > 5) {
 				String attachmentString = response.getParams()[5];
-				if (attachmentString.startsWith("[")) {
-					attachments = VkMessageAttachment.fromArray(new JSONArray(attachmentString));
-				} else if (attachmentString.startsWith("{")) {
-					attachments = new VkMessageAttachment[1];
-					attachments[0] = VkMessageAttachment.fromJSONObject(new JSONObject(attachmentString), 0);
+				if (attachmentString.startsWith("{")) {
+					attachments = VkMessageAttachment.fromJSONObject(new JSONObject(attachmentString));
 				} else {
 					Logger.log("Unknown attachment object: " + attachmentString, LoggerLevel.INFO);
 					attachments = new VkMessageAttachment[0];

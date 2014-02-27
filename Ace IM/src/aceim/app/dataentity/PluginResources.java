@@ -14,22 +14,23 @@ import android.os.Parcelable;
 
 public abstract class PluginResources implements Parcelable {
 
-	private final String packageName;
-	
+	private final String packageId;
+	private String pluginName;
 	private Resources nativeProtocolResources;
 
 	protected PluginResources(String packageName, Resources protocolResources) {
-		this.packageName = packageName;
+		this.packageId = packageName;
 		this.nativeProtocolResources = protocolResources;
 	}	
 
 	public Resources getNativeResourcesForProtocol(PackageManager packageManager) throws AceImException {
-		if (nativeProtocolResources == null) {
+		if (nativeProtocolResources == null || pluginName == null) {
 			if (packageManager != null) {
 				ApplicationInfo info;
 				try {
-					info = packageManager.getApplicationInfo(packageName, 0);
+					info = packageManager.getApplicationInfo(packageId, 0);
 					nativeProtocolResources = packageManager.getResourcesForApplication(info);
+					pluginName = nativeProtocolResources.getString(info.labelRes);
 				} catch (NameNotFoundException e) {
 					throw new AceImException(e, AceImExceptionReason.EXCEPTION);
 				}
@@ -48,7 +49,8 @@ public abstract class PluginResources implements Parcelable {
 		// The trick to support inheritance.
 		out.writeString(getClass().getName());
 		
-		out.writeString(packageName);
+		out.writeString(packageId);
+		out.writeString(pluginName);
 	}
 
 	public static final Parcelable.Creator<PluginResources> CREATOR = new Parcelable.Creator<PluginResources>() {
@@ -74,13 +76,32 @@ public abstract class PluginResources implements Parcelable {
 	};
 	
 	protected PluginResources(Parcel in){
-		packageName = in.readString();
+		packageId = in.readString();
+		pluginName = in.readString();
 	}
 
 	/**
 	 * @return the packageName
 	 */
-	public String getPackageName() {
-		return packageName;
+	public String getPackageId() {
+		return packageId;
+	}
+
+	@Override
+	public String toString() {
+		return getPluginName();
+	}
+
+	/**
+	 * @return the pluginName
+	 */
+	public String getPluginName() {
+		return pluginName;
+	}
+	
+	protected void setPluginName(String pluginName) {
+		if (this.pluginName == null) {
+			this.pluginName = pluginName;
+		}
 	}
 }

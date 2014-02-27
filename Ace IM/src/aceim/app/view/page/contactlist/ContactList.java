@@ -261,6 +261,7 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 	@Override
 	public void onBuddyStateChanged(List<Buddy> buddies) {
 		mUpdater.onBuddyStateChanged(buddies);
+		mergeBuddies(buddies);
 	}
 	
 	@Override
@@ -413,19 +414,14 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 				activity.exitApplication();
 				break;
 			case R.id.menuitem_account:
-				//Page.addAccountEditorPage(activity.getScreen(), mAccount);
-				Intent i = ViewUtils.getOpenOptionsIntent(getMainActivity(), mAccount);
-				activity.startActivity(i);
-				activity.finish();
+				activity.openOptions(mAccount);
 				break;
 			case R.id.menuitem_accounts:
 				List<Account> accounts = getMainActivity().getCoreService().getAccounts(true);
 				Page.addAccountManagerPage(activity.getScreen(), accounts);
 				break;
 			case R.id.menuitem_prefs:
-				i = ViewUtils.getOpenOptionsIntent(getMainActivity(), null);
-				activity.startActivity(i);
-				activity.finish();
+				activity.openOptions(null);
 				break;
 			case R.id.menuitem_add_group:
 				DialogUtils.showAddOrRenameGroupDialog(null, mAccount, activity);
@@ -577,6 +573,24 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		return true;
 	}
 	
+	private void mergeBuddies(List<Buddy> buddies) {
+		if (buddies == null || buddies.size() < 1) {
+			return;
+		}
+		
+		for (Buddy newb : buddies) {
+			Buddy oldb = mAccount.getBuddyByProtocolUid(newb.getProtocolUid());
+			if (oldb != null) {
+				if (oldb == newb) {
+					//Shared VM for core and view, no need to merge entities at all
+					break;
+				}
+				
+				oldb.merge(newb);
+			}
+		}
+	}
+
 	protected ContactListAdapter getAdapter() {
 		return mUpdater.getAdapter();
 	}

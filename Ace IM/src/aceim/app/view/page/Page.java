@@ -304,7 +304,13 @@ public abstract class Page extends Fragment {
 	
 	protected MainActivity getMainActivity() {
 		if (mActivity == null) {
-			mActivity = (MainActivity) getActivity();
+			try {
+				while ((mActivity = (MainActivity) getActivity()) == null) {
+					Thread.sleep(100);
+				}
+			} catch (InterruptedException e) {
+				Logger.log(e);
+			}
 		}
 		
 		return mActivity;

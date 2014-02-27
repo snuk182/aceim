@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -66,11 +63,6 @@ final class VkEngine {
 	private PollListenerThread listener;
 	
 	private final VkEngineConnector connector;
-	
-	static {
-		System.setProperty("networkaddress.cache.ttl", "0");
-		System.setProperty("networkaddress.cache.negative.ttl", "0");
-	}
 	
 	VkEngine(String accessToken, String internalUserId) {
 		this.accessToken = accessToken;
@@ -174,6 +166,125 @@ final class VkEngine {
 		String result = doGetRequest("friends.get", accessToken, params);
 
 		return ApiObject.parseArray(result, VkBuddy.class);
+	}
+	
+	Map<String, String> getPhotosById(String[] photoIds) throws RequestFailedException {
+		//return getSomethingByIds(photoIds, "photos.getById", "photos", otherParams, null, null);
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i=0; i<photoIds.length; i++) {
+			sb.append(photoIds[i]);
+			if (i < photoIds.length-1) {
+				sb.append(",");
+			}
+		}
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("photos", sb.toString());
+		params.put("photo_sizes", "1");
+		
+		String result = doGetRequest("photos.getById", accessToken, params);
+		Map<String, String> photos = new HashMap<String, String>();
+		try {
+			JSONArray array = new JSONObject(result).getJSONArray("response");
+			
+			for (int i = 0; i < array.length(); i++) {
+				JSONObject jo = array.optJSONObject(i);
+				
+				if (jo == null) {
+					continue;
+				}
+				
+				JSONArray sizes = jo.optJSONArray("sizes");
+				
+				int index = 0;
+				
+				int topSize = 0;
+				for (int j=0; j<sizes.length(); j++) {
+					JSONObject sizeObject = sizes.getJSONObject(j);
+					
+					int size = sizeObject.getInt("width");
+					
+					if (topSize < size) {
+						topSize = size;
+						index = j;
+					}
+				}
+				
+				String src = sizes.getJSONObject(index).getString("src");				
+				
+				photos.put(src, null);
+			}
+		} catch (JSONException e) {
+			Logger.log(e);
+		}
+		
+		return photos;
+	}
+	
+	Map<String, String> getDocsById(String[] docIds) throws RequestFailedException {
+		return getSomethingByIds(docIds, "docs.getById", "docs", null, "url", new String[]{"title"});
+	}
+	
+	Map<String, String> getVideosById(String[] videoIds) throws RequestFailedException {
+		return getSomethingByIds(videoIds, "video.get", "videos", null, "player", new String[]{"title"});
+	}
+	
+	Map<String, String> getAudiosById(String[] audioIds) throws RequestFailedException {
+		return getSomethingByIds(audioIds, "audio.getById", "audios", null, "url", new String[]{"artist", "title"});
+	}
+	
+	private Map<String, String> getSomethingByIds(String[] ids, String methodName, String paramName, Map<String, String> otherParams, String sourceParam, String[] titleParam) throws RequestFailedException {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i=0; i<ids.length; i++) {
+			sb.append(ids[i]);
+			if (i < ids.length-1) {
+				sb.append(",");
+			}
+		}
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(paramName, sb.toString());
+		
+		if (otherParams != null) {
+			params.putAll(otherParams);
+		}
+
+		String result = doGetRequest(methodName, accessToken, params);
+		Map<String, String> photos = new HashMap<String, String>();
+		try {
+			JSONArray array = new JSONObject(result).getJSONArray("response");
+			
+			for (int i = 0; i < array.length(); i++) {
+				JSONObject jo = array.optJSONObject(i);
+				
+				if (jo == null) {
+					continue;
+				}
+				
+				String src = jo.optString(sourceParam);
+				String title = null;
+				if (titleParam != null && titleParam.length > 0) {
+					StringBuilder bb = new StringBuilder();
+					for (int j=0; j<titleParam.length; j++) {
+						bb.append(jo.optString(titleParam[j]));
+						if (j < titleParam.length-1) {
+							bb.append(" - ");
+						}
+					}
+					
+					title = bb.toString();
+				}
+				
+				photos.put(src, title);
+			}
+		} catch (JSONException e) {
+			Logger.log(e);
+		}
+		
+		return photos;
 	}
 	
 	VkBuddy getMyInfo() throws RequestFailedException {
@@ -472,17 +583,8 @@ final class VkEngine {
 	}
 	
 	private static class VkEngineConnector {
-		private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
-		private volatile boolean requestAllowed = true;
-		
-		private final Runnable requestAllowedResetter = new Runnable() {
 
-			@Override
-			public void run() {
-				requestAllowed = true;
-			}
-			
-		};
+		private String lastRequest = "";
 		
 		private String request(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs) throws RequestFailedException {
 			return request(method, url, parameters, content, nameValuePairs, null);
@@ -501,11 +603,13 @@ final class VkEngine {
 		}
 
 		private byte[] requestRawStream(Method method, String url, List<NameValuePair> parameters, String content, List<? extends NameValuePair> nameValuePairs, HttpClient httpClient) throws RequestFailedException, URISyntaxException, ClientProtocolException, IOException {
-			while (!requestAllowed) {
+			if (url.equals(lastRequest)) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(400);
 				} catch (InterruptedException e) {}
 			}
+			
+			lastRequest = url;
 			
 			Uri.Builder b = new Uri.Builder();
 			b.encodedPath(url);
@@ -551,10 +655,7 @@ final class VkEngine {
 				
 				Logger.log("Ask " + url, LoggerLevel.VERBOSE);
 				
-				requestAllowed = false;
 				HttpResponse response = innerHttpClient.execute(request);
-				
-				scheduledExecutor.schedule(requestAllowedResetter, 334, TimeUnit.MILLISECONDS);
 				
 				Logger.log("..." + response.getStatusLine().getStatusCode(), LoggerLevel.VERBOSE);
 				
