@@ -12,6 +12,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,13 +69,19 @@ public class About extends Page {
 			aq.id(R.id.label).text(r.toString());
 			aq.id(R.id.id).text(r.getPackageId());
 			
+			String info = r.getInfo(getContext());
+			
+			if (TextUtils.isEmpty(info)) {
+				aq.id(R.id.info).gone();
+			} else {
+				aq.id(R.id.info).text(info);
+			}
+			
 			if (r instanceof ProtocolResources) {
 				ProtocolResources rr = (ProtocolResources) r;
-				aq.id(R.id.info).text(rr.getProtocolInfo());
 				aq.id(R.id.version).text(getMainActivity().getString(R.string.version_X, rr.getProtocolVersion()));
 				aq.id(R.id.apiVersion).text(getMainActivity().getString(R.string.api_version_X, rr.getApiVersion()));
 			} else {
-				aq.id(R.id.info).gone();
 				aq.id(R.id.version).gone();
 				aq.id(R.id.apiVersion).gone();
 			}

@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import aceim.api.utils.Logger;
 import aceim.app.AceImException;
 import aceim.app.AceImException.AceImExceptionReason;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -90,6 +91,26 @@ public abstract class PluginResources implements Parcelable {
 	@Override
 	public String toString() {
 		return getPluginName();
+	}
+	
+	public String getInfo(Context context) {
+		PackageManager pm = context.getPackageManager();
+		try {
+			Resources r = pm.getResourcesForApplication(getPackageId());
+			
+			int infoId = r.getIdentifier("info", "string", getPackageId());
+			
+			if (infoId == 0) {
+				Logger.log("No info found for plugin " + getPackageId());
+				return null;
+			}
+			
+			return r.getString(infoId);
+		} catch (Exception e) {
+			Logger.log(e);
+		}
+		
+		return null;
 	}
 
 	/**

@@ -12,7 +12,6 @@ public class ProtocolResources extends PluginResources {
 	private String protocolServiceName;
 	private String protocolName;
 	private String protocolVersion;
-	private String protocolInfo;
 	private String apiVersion;
 	
 	private ProtocolServiceFeature[] mFeatures;
@@ -42,7 +41,6 @@ public class ProtocolResources extends PluginResources {
 		super(in);
 		this.protocolName = in.readString();
 		this.protocolServiceName = in.readString();
-		this.protocolInfo = in.readString();
 		this.protocolVersion = in.readString();
 		this.apiVersion = in.readString();
 		
@@ -69,7 +67,6 @@ public class ProtocolResources extends PluginResources {
 		super.writeToParcel(dest, flags);
 		dest.writeString(protocolName);
 		dest.writeString(protocolServiceName);
-		dest.writeString(protocolInfo);
 		dest.writeString(protocolVersion);
 		dest.writeString(apiVersion);
 		dest.writeParcelableArray(mFeatures, flags);
@@ -146,20 +143,6 @@ public class ProtocolResources extends PluginResources {
 	 */
 	public void setProtocolVersion(String protocolVersion) {
 		this.protocolVersion = protocolVersion;
-	}
-
-	/**
-	 * @return the protocolInfo
-	 */
-	public String getProtocolInfo() {
-		return protocolInfo;
-	}
-
-	/**
-	 * @param protocolInfo the protocolInfo to set
-	 */
-	public void setProtocolInfo(String protocolInfo) {
-		this.protocolInfo = protocolInfo;
 	}
 
 	/**

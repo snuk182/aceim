@@ -86,7 +86,6 @@ public class ProtocolService implements ServiceConnection {
 	private ProtocolResources getFullProtocolResources() {
 		ProtocolResources out = new ProtocolResources(this);
 		
-		out.setProtocolInfo(fillInfoField("info", packageName));
 		out.setProtocolVersion(fillInfoField("version", packageName));
 		out.setApiVersion(fillInfoField("api_version", packageName));
 		

@@ -810,13 +810,22 @@ public class MainActivity extends AceIMActivity {
 			mScreen.updateTabWidget(p);
 		}
 	}
-
-	@Override
-	public boolean onKeyDown(int i, KeyEvent event) {
-		if (mScreen.onCurrentPageKeyDown(i, event)) {
+	
+	/*@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
 			return true;
 		} else {
-			if (i == KeyEvent.KEYCODE_BACK) {
+			return super.onKeyLongPress(keyCode, event);
+		}        
+    }*/
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (mScreen.onCurrentPageKeyDown(keyCode, event)) {
+			return true;
+		} else {
+			if (keyCode == KeyEvent.KEYCODE_BACK) {
 
 				// if master password is required, then force destroying
 				// activity for password being asked during next activity start
@@ -827,10 +836,10 @@ public class MainActivity extends AceIMActivity {
 					finish();
 					return true;
 				} else {
-					return super.onKeyDown(i, event);
+					return super.onKeyDown(keyCode, event);
 				}
 			} else {
-				return super.onKeyDown(i, event);
+				return super.onKeyDown(keyCode, event);
 			}
 		}
 	}
