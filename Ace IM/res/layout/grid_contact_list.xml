@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aceim="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <aceim.app.widgets.bottombar.ContactListBottomBar
@@ -9,7 +11,8 @@
        	android:layout_alignParentLeft="true"
     	android:layout_alignParentRight="true"
     	android:layout_alignParentBottom="true"/>
-    <aceim.app.widgets.ContactListView android:id="@+id/grid"
+    <ua.snuk182.expandablegrid.ExpandableGridView
+        android:id="@+id/grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
@@ -19,5 +22,9 @@
     	android:divider="#0000"
     	android:choiceMode="none"
     	android:focusable="false"
-    	android:focusableInTouchMode="false"/>
+    	android:focusableInTouchMode="false"
+    	aceim:stretchMode="spacingWidthUniform"
+    	aceim:numColumns="auto_fit"
+    	aceim:horizontalSpacing="@dimen/contact_list_grid_items_spacing"
+    	aceim:verticalSpacing="@dimen/contact_list_grid_items_spacing"/>
 </RelativeLayout>

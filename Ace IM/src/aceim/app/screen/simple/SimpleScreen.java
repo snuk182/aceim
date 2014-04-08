@@ -4,6 +4,8 @@ import static aceim.app.utils.linq.KindaLinq.from;
 
 import java.util.List;
 
+import aceim.api.utils.Logger;
+import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.screen.Screen;
@@ -98,7 +100,13 @@ public class SimpleScreen extends Screen implements PageChangedListener {
 	public void setSelectedPage(String pageId) {
 		onPageChanged(pageId);
 		
-		Page page = findPage(pageId);		
+		Page page = findPage(pageId);	
+		
+		if (page == null) {
+			Logger.log("No page found for ID #" + pageId, LoggerLevel.WARNING);
+			return;
+		}
+		
 		mTabHolder.setSelectedPage(page);
 		
 		if (!(page instanceof Splash) && page.hasMenu()) {

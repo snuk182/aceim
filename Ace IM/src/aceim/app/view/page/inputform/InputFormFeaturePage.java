@@ -175,7 +175,7 @@ public class InputFormFeaturePage extends Page implements IHasFilePicker {
 			case TIME:
 				item = fillDialogItem(inflater, field, new TimePickerListener(field, new InputFormFieldValueListener(field), getMainActivity()));
 				break;
-			case CHECKBOX:
+			/*case CHECKBOX:
 				item = inflater.inflate(R.layout.options_item_checkbox, null);
 				CheckBox cb = (CheckBox) item.findViewById(R.id.value);
 				boolean b;
@@ -185,7 +185,7 @@ public class InputFormFeaturePage extends Page implements IHasFilePicker {
 					b = false;
 				}
 				cb.setChecked(b);
-				break;
+				break;*/
 			case DOUBLE:
 				item = fillEditTextItem(R.layout.options_item_double, inflater, field);
 				break;

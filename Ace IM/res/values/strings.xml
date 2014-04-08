@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"Ace IM (beta)"</string>
+    
+    <string name="error_broken_auth_data">No required authentication data provided</string>
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_groupchat_already_exists">Groupchat with this ID already exists</string>
+    <string name="error_no_groupchat_available">No groupchat with this ID available on server</string>
+    <string name="error_cannot_authorize">Cannot authorize, authentication data seems to be incorrect</string>
+    <string name="error_connection_limit_exceeded">You have been disconnected, due to connection rate limit exceeding.</string>
+    <string name="error_no_x_protocol_found">No %s protocol plugin installed found. Click to search on Play Store.</string>
+    
     <string name="default_theme">Default (transparent)</string>
     <string name="theme">Theme</string>
     <string name="connect_first">To send a message, please connect account to a network</string>
@@ -24,7 +34,6 @@
     <string name="choose_photo">Choose photo</string>
     <string name="take_photo">Take photo</string>
     <string name="remove_photo">Remove photo</string>
-    <string name="take_photo">Take photo</string>
     <string name="setting_account_icon">Set new account icon</string>
     <string name="force_draw_wallpaper">Force wallpaper drawing</string>
     <string name="set_status">"Set status"</string>
@@ -171,7 +180,6 @@
     <string name="allow">"Allow"</string>
     <string name="ignore">"Ignore"</string>
     <string name="add_group">"Add group"</string>
-    <string name="app_name">"Ace IM"</string>
     <string name="wait_starting">"Starting"</string>
     <string name="new_account">"New account"</string>
     <string name="offline">"Offline"</string>
@@ -184,7 +192,6 @@
     <string name="disconnect">"Disconnect"</string>
     <string name="account_settings">"Account settings"</string>
     <string name="more">"More"</string>
-    <string name="about">"About"</string>
     <string name="manage_accounts">"Manage accounts"</string>
     <string name="exit_app">"Exit Ace IM"</string>
     <string name="pick_status">"Pick a status"</string>

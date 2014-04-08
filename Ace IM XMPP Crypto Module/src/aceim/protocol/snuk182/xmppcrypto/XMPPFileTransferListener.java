@@ -1,6 +1,7 @@
 package aceim.protocol.snuk182.xmppcrypto;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,12 +38,15 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 	public void fileTransferRequest(FileTransferRequest request) {
 		Logger.log("incoming file " + request.getFileName() + " from " + request.getRequestor(), LoggerLevel.VERBOSE);
 		fileTransfers.put(Long.valueOf(request.getStreamID().hashCode()) , request);
-		FileMessage fm = new FileMessage(getInternalService().getService().getServiceId(), XMPPEntityAdapter.normalizeJID(request.getRequestor()));
-
 		FileInfo fi = new FileInfo(getInternalService().getService().getServiceId());
 		fi.setFilename(request.getFileName());
 		fi.setSize(request.getFileSize());
-		fm.getFiles().add(fi);
+		
+		FileMessage fm = new FileMessage(
+				getInternalService().getService().getServiceId(), 
+				XMPPEntityAdapter.normalizeJID(request.getRequestor()),
+				Arrays.asList(fi));
+
 		fm.setMessageId(request.getStreamID().hashCode());
 
 		getInternalService().getService().getCoreService().message(fm);

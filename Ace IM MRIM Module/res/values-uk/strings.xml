@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Модуль Mail.ru для Ace IM</string>
+    
+    <string name="mrim_service_name">Mail.ru</string>
+    
+    <string name="uin">Mail.ru ID (адрес)</string>
+    <string name="password">Пароль</string>
+    <string name="host">Адреса сервера</string>
+    <string name="port">Порт сервера</string>
+    <string name="ping">Таймаут пінга (секунди)</string>
+    
+    <string name="label_st_online">В мережі</string>
+    <string name="label_st_offline">Не в мережі</string>
+    <string name="label_st_away">Пішов</string>
+    <string name="label_st_free4chat">Хочу чатитись</string>
+    <string name="label_st_invisible">Ховаюсь</string>
+    <string name="label_st_undetermined">Статус невідомий</string>
+    
+    <string name="status">Статус</string>
+    <string name="xstatus">Х-Статус</string>
+    
+    <string name="sick">Захворів</string>
+	<string name="at_home">Вдома</string>
+	<string name="meal">Харчі</string>
+	<string name="where_am_i">Де це я?</string>
+	<string name="wc">Туалет</string>
+	<string name="cooking">Готую страви</string>
+	<string name="friends">Друзі</string>
+	<string name="alien">Прибулець</string>
+	<string name="lobster">Креведко</string>
+	<string name="im_lost">Загубивсь</string>
+	<string name="in_love">Кохання</string>
+	<string name="duck">Качка</string>
+	<string name="gaming">Гра</string>
+	<string name="at_work">Працюю</string>
+	<string name="at_meeting">Зустріч</string>
+	<string name="beer">Пивасик</string>
+	<string name="coffee">Кава</string>
+	<string name="working_hard">Дуже заклопотаний</string>
+	<string name="sleeping">Сплю</string>
+	<string name="at_the_phone">На телефоні</string>
+	<string name="study">Навчання</string>
+	<string name="at_school">В школі</string>
+	<string name="wrong_number">Невірний номер</string>
+	<string name="squirrel">Білочка</string>
+	<string name="star">Зірочка</string>
+	<string name="skull">Череп</string>
+	<string name="kthulhu">Ктулху</string>
+	<string name="adrenaline">Відрив</string>
+	
+    <string name="ask_authorization">Запит авторизації</string>
+    
+    <string name="message">Повідомлення</string>
+    <string name="ask_authorization_message_default">Привіт, додай-но мене до свого списку контактів</string>
+    
+    <string name="info">Модуль Mail.ru для Ace IM. Домашня сторінка https://github.com/snuk182/aceim</string>    
+</resources>

@@ -24,6 +24,7 @@ import aceim.api.dataentity.TextMessage;
 import aceim.api.dataentity.tkv.MessageAttachment;
 import aceim.api.dataentity.tkv.MessageAttachment.MessageAttachmentType;
 import aceim.api.service.ApiConstants;
+import aceim.api.service.ProtocolException;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.protocol.snuk182.vkontakte.R;
@@ -507,7 +508,7 @@ public class VkServiceInternal {
 			checkTokenAndLogin();
 		} catch (RequestFailedException e) {
 			Logger.log(e);
-			onLogout(e.getLocalizedMessage());
+			onLogout(e.getLocalizedMessage(), ProtocolException.Cause.CANNOT_AUTHORIZE.ordinal());
 		}
 	}
 
@@ -572,11 +573,15 @@ public class VkServiceInternal {
 			onRequestFailed(e);
 		}
 	}
-
+	
 	private void onLogout(String reason) {
+		this.onLogout(reason, -1);
+	}
+
+	private void onLogout(String reason, int errorCode) {
 		connectionState = ConnectionState.DISCONNECTED;
 
-		service.getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, 0);
+		service.getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, errorCode);
 		if (reason != null) {
 			service.getCoreService().notification(reason);
 		}

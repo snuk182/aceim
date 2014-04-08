@@ -475,7 +475,7 @@ public final class XMPPEntityAdapter {
 			} else if (type.equalsIgnoreCase(FormField.TYPE_LIST_SINGLE) || type.equalsIgnoreCase(FormField.TYPE_LIST_MULTI)) {
 				tkv = new ListTKV(chatFormListItemChoices2ListTkvChoices(field.getOptions()), field.getLabel(), field.isRequired(), null);
 			} else if (type.equalsIgnoreCase(FormField.TYPE_BOOLEAN)) {
-				tkv = new ToggleTKV(field.getLabel(), field.isRequired(), field.getVariable());
+				tkv = new ToggleTKV(field.getLabel(), field.isRequired(), Boolean.parseBoolean(field.getVariable()));
 			} else {
 				Logger.log("Unsupportable field type: " + type + "/" + field.getLabel(), LoggerLevel.INFO);
 			}

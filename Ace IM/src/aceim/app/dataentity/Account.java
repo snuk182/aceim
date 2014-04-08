@@ -382,7 +382,8 @@ public class Account extends Entity implements EntityWithID {
 		}
 		
 		connectionState = origin.connectionState;
-
+		isEnabled = origin.isEnabled;
+		
 		onlineInfo.merge(origin.getOnlineInfo());
 	}
 

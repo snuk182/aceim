@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
+import ua.snuk182.expandablegrid.ExpandableGridView;
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.ListFeature;
@@ -441,10 +442,33 @@ public final class ViewUtils {
 			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
 			return;
 		}
+		
+		View targetForDelay;
+		int itemPosition = 0;
+		
+		if (parent instanceof ExpandableGridView) {
+			targetForDelay = container.getParent() != null ? (View) container.getParent() : container;
+			for (; itemPosition<parent.getChildCount(); itemPosition++) {
+				if (parent.getChildAt(itemPosition) == targetForDelay) break;
+			}
+		} else {
+			targetForDelay = container;
+			itemPosition = position;
+		}
+		
+		boolean shouldDelay;
+		if (parent instanceof ExpandableGridView) {
+			shouldDelay = AQueryUtils.shouldDelay(groupPosition, itemPosition, targetForDelay, parent, buddy.getFilename());
+		} else if (parent instanceof ExpandableListView) {
+			shouldDelay = aq.shouldDelay(groupPosition, itemPosition, itemPosition == (parent.getChildCount() - 1), targetForDelay, parent, buddy.getFilename());
+		} else {
+			shouldDelay = aq.shouldDelay(position, container, parent, buddy.getFilename());
+		}
 
-		boolean shouldDelay = parent instanceof ExpandableListView ? aq.shouldDelay(groupPosition, position, true, container, parent, buddy.getFilename()) : aq.shouldDelay(position, container, parent, buddy.getFilename());
-
+		aq.id(themeResources.getTitleTextViewId()).text(buddy.getSafeName());
+		
 		if (shouldDelay) {
+			aq.id(themeResources.getBuddyStatusImageId()).image(null, 1f);
 			aq.id(themeResources.getIconImageId()).image(null, 1f);
 		} else {
 			fillBuddyPlaceholder(context, buddy, aq, protocolResources, themeResources);
@@ -452,10 +476,7 @@ public final class ViewUtils {
 	}
 
 	public static void fillBuddyPlaceholder(Context context, Buddy buddy, AQuery aq, ProtocolResources protocolResources, ContactThemeResource themeResources) {
-		// int[] extraImageIDs = new int[] { aceim.res.R.id.image_extra_1,
-		// aceim.res.R.id.image_extra_2, aceim.res.R.id.image_extra_3,
-		// aceim.res.R.id.image_extra_4 };
-
+		
 		aq.id(themeResources.getBuddyStatusImageId()).image(getBuddyStatusIcon(context, buddy, protocolResources));
 		aq.id(themeResources.getXstatusTextViewId()).text(getFormattedXStatus(buddy.getOnlineInfo(), null, context, protocolResources));
 
@@ -737,36 +758,6 @@ public final class ViewUtils {
 
 		context.deleteFile(account.getFilename() + BUDDYICON_FILEEXT);
 	}
-
-	/*
-	 * public static void spanKnownUrls(Spannable spannable, String text,
-	 * MainActivity activity) { spanUrl("ftp", spannable, text, activity);
-	 * spanUrl("http", spannable, text, activity); spanUrl("https", spannable,
-	 * text, activity); spanUrl("market", spannable, text, activity); }
-	 * 
-	 * private static final void spanUrl(String protocol, Spannable spannable,
-	 * String text, MainActivity activity) { if (spannable == null ||
-	 * text.indexOf(protocol + "://") < 0) { return; }
-	 * 
-	 * int pos = 0;
-	 * 
-	 * while (pos > -1 && pos < text.length()) { pos = text.indexOf(protocol +
-	 * "://", pos);
-	 * 
-	 * if (pos > -1) { int spaceEndPos = text.indexOf(" ", pos); int endPos =
-	 * spaceEndPos > -1 ? spaceEndPos : text.length();
-	 * 
-	 * int nlEndPos = text.indexOf("\n", pos);
-	 * 
-	 * if (nlEndPos > pos && nlEndPos < endPos) { endPos = nlEndPos; }
-	 * 
-	 * String url = text.substring(pos, endPos); URLSpan urlSpan = new
-	 * ContextIndependentURLSpan(activity, url); spannable.setSpan(urlSpan, pos,
-	 * endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); byte[] replace = new
-	 * byte[endPos - pos]; Arrays.fill(replace, (byte) '_'); text =
-	 * text.replace(url, new String(replace)); pos = ++endPos; } else { break; }
-	 * } }
-	 */
 
 	public static boolean isSmileyReadOnly(String smiley) {
 		return smiley != null && smiley.startsWith("! ");

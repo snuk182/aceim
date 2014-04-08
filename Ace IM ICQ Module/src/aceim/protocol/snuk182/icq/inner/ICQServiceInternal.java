@@ -85,6 +85,9 @@ public class ICQServiceInternal {
 	public static final short REQ_UPLOADICON = 37;
 
 	public static final short REQ_KEEPALIVE_CHECK = 0xff;
+	
+	public static final String ERROR_WRONG_PASSWORD = "wrong password";
+	public static final String ERROR_RATE_LIMIT_EXCEEDED = "rate limit exceeded";
 
 	private String loginHost = "login.icq.com";
 	private int loginPort = 800;

@@ -26,6 +26,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,8 +48,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 	private final ArrayList<ChatMessageHolder> mMessageHolders = new ArrayList<ChatMessageHolder>(25);
 	private MessagesAdapter mMessageAdapter;
 	
-	private static ChatMessageHolder sAddMoreButtonHolder;
-	
+	private SwipeRefreshLayout mSwiper;
 	private ListView mMessages;
 	
 	private BottomBarButton mDeleteBtn;
@@ -65,12 +66,11 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		}
 	};
 	
-	private final OnClickListener mAddMoreClickListener = new OnClickListener() {
+	private final OnRefreshListener mRefreshListener = new OnRefreshListener() {
 		
 		@Override
-		public void onClick(View v) {
-			mMessageAdapter.remove(sAddMoreButtonHolder);
-			
+		public void onRefresh() {
+			mSwiper.setRefreshing(true);
 			getStoredMessagesAsync();
 		}
 	};
@@ -123,6 +123,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 					ChatMessageHolder holder = messages.get(i);
 					mMessageAdapter.insert(holder, 0);
 				}
+				mSwiper.setRefreshing(false);
 			}
 		};
 		
@@ -134,6 +135,7 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		View view = inflater.inflate(R.layout.history, group, false); 
 		
 		mMessages = (ListView) view.findViewById(R.id.messages);
+		mSwiper = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
 		
 		mDeleteBtn = (BottomBarButton) view.findViewById(R.id.delete);
 		mExportBtn = (BottomBarButton) view.findViewById(R.id.export);
@@ -144,19 +146,22 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 			MainActivity activity = getMainActivity();
 			try {
 				Account a = activity.getCoreService().getAccount(mBuddy.getServiceId());
-				mMessageAdapter = new HistoryMessagesAdapter(activity, a, mBuddy, activity.getThemesManager().getViewResources().getHistoryMessageItemLayout(), mMessageHolders, mAddMoreClickListener);
+				mMessageAdapter = new MessagesAdapter(activity, a, mBuddy, activity.getThemesManager().getViewResources().getHistoryMessageItemLayout(), mMessageHolders);
 			} catch (RemoteException e) {
 				Logger.log(e);
 			}
 		}
-		mMessages.setAdapter(mMessageAdapter);
 		
+		mMessages.setAdapter(mMessageAdapter);		
 		mMessages.setOnItemLongClickListener(mItemLongClickListener);
+		
+		mSwiper.setOnRefreshListener(mRefreshListener);
+		mSwiper.setColorScheme(R.color.chat_message_sender_color_sent, R.color.chat_message_sender_color_received, R.color.chat_message_sender_color_service, R.color.transparent);
 		
 		mExportBtn.setVisibility(View.GONE);
 		
-		initMessages(saved);
 		initClickListeners();
+		recoverFromStoredData(saved);
 		
 		return view;
 	}
@@ -167,21 +172,6 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		mCancelBtn.setOnClickListener(mCancelCopyListener);
 	}
 
-	private void initMessages(Bundle saved) {
-		if (mMessageHolders.size() > 0) {
-			return;
-		}		
-		
-		if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
-			recoverFromStoredData(saved);
-		} else if (mMessageAdapter.getCount() < 1) {
-			//mMessageHolders.addAll(getStoredMessages(getMainActivity()));
-			getStoredMessagesAsync();
-		} 
-		
-		mMessageAdapter.notifyDataSetInvalidated();
-	}
-
 	private List<ChatMessageHolder> getStoredMessages() {
 		List<ChatMessageHolder> messageHolders;
 		try {
@@ -189,19 +179,6 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 			messageHolders = new ArrayList<ChatMessageHolder>(messages.size());
 			
 			Account account = getMainActivity().getCoreService().getAccount(mBuddy.getServiceId());
-			
-			if (messages.size() == MAX_MESSAGES_PER_READ) {
-				if (sAddMoreButtonHolder == null) {
-					sAddMoreButtonHolder = new ChatMessageHolder(new AddMoreButtonMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid(), getMainActivity().getString(R.string.get_more, Integer.toString(MAX_MESSAGES_PER_READ))), "");
-				}
-				
-				messageHolders.add(sAddMoreButtonHolder);
-			}
-			
-			
-			for (Message message : messages) {
-				
-			}
 			
 			messageHolders.addAll(ViewUtils.wrapMessages(mBuddy, account, messages));
 			
@@ -229,16 +206,18 @@ public class History extends Page implements IHasMessages, IHasBuddy {
 		return saver;
 	}
 	
-	@Override
-	public void recoverFromStoredData(Bundle bundle){
-		if (bundle == null) {
+	private void recoverFromStoredData(Bundle saved){
+		if (mMessageHolders.size() > 0) {
 			return;
 		}
 		
-		ArrayList<ChatMessageHolder> holders = bundle.getParcelableArrayList(SAVE_PARAM_MESSAGES);
-		mMessageHolders.addAll(holders);
-		
-		startFrom = bundle.getInt(SAVE_PARAM_FROM);
+		if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
+			startFrom = saved.getInt(SAVE_PARAM_FROM);	
+			List<ChatMessageHolder> result = saved.getParcelableArrayList(SAVE_PARAM_MESSAGES);
+			mMessageHolders.addAll(result);
+		} else if (mMessageHolders.size() < 1) {
+			getStoredMessagesAsync();				
+		} 
 	}
 
 	@Override

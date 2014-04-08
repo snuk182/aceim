@@ -26,7 +26,7 @@ class ProtocolServicesManager extends PluginsManager {
 	private final ICoreProtocolCallback.Stub mProtocolCallback;
 	
 	ProtocolServicesManager(Context context, ICoreProtocolCallback.Stub protocolCallback, ProtocolListener listener) {
-		super(context, ApiConstants.ACTION_PLUGIN);
+		super(context, ApiConstants.ACTION_PLUGIN_PROTOCOL);
 		this.mProtocolCallback = protocolCallback;	
 		this.mListener = listener;
 	}
@@ -35,7 +35,7 @@ class ProtocolServicesManager extends PluginsManager {
 		Logger.log("Init protocol services", LoggerLevel.VERBOSE);
 		
 		PackageManager packageManager = mContext.getPackageManager();
-		Intent baseIntent = new Intent(ApiConstants.ACTION_PLUGIN);
+		Intent baseIntent = new Intent(ApiConstants.ACTION_PLUGIN_PROTOCOL);
 		baseIntent.setFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
 		List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent, PackageManager.GET_RESOLVED_FILTER);
 		

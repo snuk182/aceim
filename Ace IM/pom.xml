@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>support-v4</artifactId>
-			<version>v17</version>
+			<version>v19.1</version>
 			<scope>system</scope>
 			<systemPath>d:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
 		</dependency>
@@ -45,6 +45,12 @@
 			<groupId>aceim</groupId>
 			<artifactId>res</artifactId>
 			<version>${res-version}</version>
+			<type>apklib</type>
+		</dependency>
+		<dependency>
+			<groupId>ua.snuk182</groupId>
+			<artifactId>expandablegrid</artifactId>
+			<version>0.1</version>
 			<type>apklib</type>
 		</dependency>
 	</dependencies>

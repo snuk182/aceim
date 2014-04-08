@@ -46,30 +46,32 @@ public abstract class AceIMActivity extends FragmentActivity {
 			
 			int res = a.getIndex(i);
 			
-			Logger.log(a.peekValue(i) + " == " + a.getResourceId(i, 100500));
-			
-			switch (res) {
-			case R.styleable.StyleableView_styleableBackground:	
-				Drawable d = a.getDrawable(i);
-				
-				view.setBackgroundDrawable(d);
-				break;
-			case R.styleable.StyleableView_styleableLayoutWidth:
-				int width = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
-				if (view.getLayoutParams() != null) {
-					view.getLayoutParams().width = width;
-				} else {
-					view.setLayoutParams(new ViewGroup.LayoutParams(width, ARTIFICIAL_LAYOUT_MARKER));
+			try {
+				switch (res) {
+				case R.styleable.StyleableView_styleableBackground:	
+					Drawable d = a.getDrawable(i);
+					
+					view.setBackgroundDrawable(d);
+					break;
+				case R.styleable.StyleableView_styleableLayoutWidth:
+					int width = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
+					if (view.getLayoutParams() != null) {
+						view.getLayoutParams().width = width;
+					} else {
+						view.setLayoutParams(new ViewGroup.LayoutParams(width, ARTIFICIAL_LAYOUT_MARKER));
+					}
+					break;
+				case R.styleable.StyleableView_styleableLayoutHeight:
+					int height = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
+					if (view.getLayoutParams() != null) {
+						view.getLayoutParams().height = height;
+					} else {
+						view.setLayoutParams(new ViewGroup.LayoutParams(ARTIFICIAL_LAYOUT_MARKER, height));
+					}
+					break;
 				}
-				break;
-			case R.styleable.StyleableView_styleableLayoutHeight:
-				int height = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
-				if (view.getLayoutParams() != null) {
-					view.getLayoutParams().height = height;
-				} else {
-					view.setLayoutParams(new ViewGroup.LayoutParams(ARTIFICIAL_LAYOUT_MARKER, height));
-				}
-				break;
+			} catch (Exception e) {
+				Logger.log(e);
 			}
 		}		
 		
@@ -84,13 +86,17 @@ public abstract class AceIMActivity extends FragmentActivity {
 			
 			int res = a.getIndex(i);
 			
-			switch (res) {
-			case R.styleable.StyleableView_styleableLayoutWidth:
-				lp.width = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.MATCH_PARENT);
-				break;
-			case R.styleable.StyleableView_styleableLayoutHeight:
-				lp.height = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
-				break;
+			try {
+				switch (res) {
+				case R.styleable.StyleableView_styleableLayoutWidth:
+					lp.width = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.MATCH_PARENT);
+					break;
+				case R.styleable.StyleableView_styleableLayoutHeight:
+					lp.height = a.getDimensionPixelSize(i, ViewGroup.LayoutParams.WRAP_CONTENT);
+					break;
+				}
+			} catch (Exception e) {
+				Logger.log(e);
 			}
 		}		
 		

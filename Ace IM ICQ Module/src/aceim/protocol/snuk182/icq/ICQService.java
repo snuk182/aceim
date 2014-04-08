@@ -223,10 +223,6 @@ public class ICQService extends AccountService {
 		}
 
 		@Override
-		public void getChatRooms() {
-		}
-
-		@Override
 		public void uploadAccountPhoto(String filePath) {
 			try {
 				byte[] scaledImage = Utils.scaleAccountIcon(filePath, 60);
@@ -333,11 +329,21 @@ public class ICQService extends AccountService {
 					break;
 				case ICQServiceResponse.RES_DISCONNECTED:
 					closeKeepaliveThread();
+					
+					int errorCode = -1;
+					
 					if (args.length > 0 && !TextUtils.isEmpty((CharSequence) args[0])) {
-						getCoreService().notification(args[0].toString());
+						String error = args[0].toString();
+						getCoreService().notification(error);
+						
+						if (ICQServiceInternal.ERROR_WRONG_PASSWORD.equals(error)) {
+							errorCode = ProtocolException.Cause.CANNOT_AUTHORIZE.ordinal();
+						} else if (ICQServiceInternal.ERROR_RATE_LIMIT_EXCEEDED.equals(error)) {
+							errorCode = ProtocolException.Cause.CONNECTION_LIMIT_EXCEEDED.ordinal();
+						}
 					} 
 					
-					getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, -1);					
+					getCoreService().connectionStateChanged(ConnectionState.DISCONNECTED, errorCode);					
 					break;
 				case ICQServiceResponse.RES_SAVEIMAGEFILE:
 					getCoreService().iconBitmap((String) args[1], (byte[]) args[0], Base64.encodeBytes((byte[]) args[2]));

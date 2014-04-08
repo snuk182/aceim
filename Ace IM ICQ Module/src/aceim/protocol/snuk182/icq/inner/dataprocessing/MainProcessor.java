@@ -41,10 +41,10 @@ public class MainProcessor extends AbstractFlapProcessor {
 			service.getServiceResponse().respond(ICQServiceResponse.RES_CONNECTED);
 		}
 		
-		ICQOnlineInfo onlineInfo = service.getOnlineInfo();
-		if (onlineInfo.extendedStatusId > -1) {
-			sendStatusChange(onlineInfo);
-		}
+		//ICQOnlineInfo onlineInfo = service.getOnlineInfo();
+		//if (onlineInfo.extendedStatusId > -1) {
+			sendStatusChange(service.getOnlineInfo());
+		//}
 	}
 
 	private Flap requestOfflineMessages() throws ICQException{
@@ -118,11 +118,7 @@ public class MainProcessor extends AbstractFlapProcessor {
 				service.log("server pause!");
 				break;
 			case ICQConstants.SNAC_GENERIC_OWNINFORES:
-				int newUserStatus = service.getOnlineInfoEngine().parseOnlineInfo(snac, service.getOnlineInfo()).get(0).userStatus;
-				if (service.getOnlineInfo().userStatus != newUserStatus) {
-					sendStatusChange(service.getOnlineInfo());
-				}
-				
+				service.getOnlineInfoEngine().parseOnlineInfo(snac, service.getOnlineInfo());
 				service.getServiceResponse().respond(ICQServiceResponse.RES_ACCOUNTUPDATED, service.getOnlineInfo());
 			case ICQConstants.SNAC_GENERIC_EXTSTATUSRES:
 				parseExternalStatus(snac);

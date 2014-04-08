@@ -1,45 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    >
-    <aceim.app.widgets.bottombar.BottomBar 
+    android:layout_height="match_parent" >
+
+    <aceim.app.widgets.bottombar.BottomBar
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-    	android:layout_height="@dimen/top_bottom_bar_height"
-    	android:layout_alignParentLeft="true"
-    	android:layout_alignParentRight="true"
-    	android:layout_alignParentBottom="true">
-	   <aceim.app.widgets.bottombar.BottomBarButton 
-	        android:id="@+id/delete"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@android:drawable/ic_menu_delete"/>
-	    <aceim.app.widgets.bottombar.BottomBarButton 
-	        android:id="@+id/export"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@android:drawable/ic_menu_set_as"/>
-	    <aceim.app.widgets.bottombar.BottomBarButton android:id="@+id/cancel"
+        android:layout_height="@dimen/top_bottom_bar_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" >
+
+        <aceim.app.widgets.bottombar.BottomBarButton
+            android:id="@+id/delete"
             android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:src="@android:drawable/ic_menu_close_clear_cancel"
-    		android:visibility="gone"/>   
-    	<aceim.app.widgets.bottombar.BottomBarButton android:id="@+id/copy"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete" />
+
+        <aceim.app.widgets.bottombar.BottomBarButton
+            android:id="@+id/export"
             android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:src="@android:drawable/ic_menu_agenda"
-    		android:visibility="gone"/>
-	    
-	</aceim.app.widgets.bottombar.BottomBar>
-	<ListView 
-    	android:id="@+id/messages"
-   		android:layout_width="match_parent"
-    	android:layout_height="match_parent" 
-    	android:stackFromBottom="true"
-    	android:layout_alignParentTop="true"
-    	android:layout_alignParentRight="true"
-    	android:layout_alignParentLeft="true"
-    	android:layout_above="@id/bottom_bar"
-    	android:divider="@android:color/transparent"/>
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_set_as" />
+
+        <aceim.app.widgets.bottombar.BottomBarButton
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone" />
+
+        <aceim.app.widgets.bottombar.BottomBarButton
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:visibility="gone" />
+    </aceim.app.widgets.bottombar.BottomBar>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_bar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" >
+
+        <ListView
+            android:id="@+id/messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/transparent"
+            android:stackFromBottom="true" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 </RelativeLayout>

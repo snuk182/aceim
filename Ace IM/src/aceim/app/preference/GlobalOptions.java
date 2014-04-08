@@ -3,8 +3,8 @@ package aceim.app.preference;
 import java.util.Map;
 
 import aceim.app.Constants;
-import aceim.app.R;
 import aceim.app.Constants.OptionKey;
+import aceim.app.R;
 import aceim.app.dataentity.GlobalOptionKeys;
 import aceim.app.utils.OptionsReceiver;
 import android.content.Context;

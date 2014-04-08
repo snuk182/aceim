@@ -34,12 +34,10 @@ public class PlainContactList extends ContactList {
 
 	@Override
 	protected View onCreateContactListView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
-		View view = inflater.inflate(R.layout.contact_list, group, false);
+		View view = inflater.inflate(R.layout.plain_contact_list, group, false);
 		mListView = (ExpandableListView) view.findViewById(R.id.grid);
 		mListView.setAdapter(getAdapter());
 		mBottomBar = (ContactListBottomBar) view.findViewById(R.id.bottom_bar);
-		
-		onAccountIcon(mAccount.getServiceId());
 		
 		return view;
 	}

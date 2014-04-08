@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"Ася (beta)"</string>
+    
+    <string name="error_broken_auth_data">Не вистачає потрібних даних для входу в мережу</string>
+    <string name="error_connection_failed">Не вдалось підключитись</string>
+    <string name="error_groupchat_already_exists">Чат з таким ID вже існує</string>
+    <string name="error_no_groupchat_available">Чату з таким ID не існує</string>
+    <string name="error_cannot_authorize">Не можу ввійти в мережу, дані для входу невірні</string>
+    <string name="error_connection_limit_exceeded">Перевищено ліміт підключень до сервера</string>
+    <string name="error_no_x_protocol_found">Не знайдено модуля підтримки протокола %s на пристрої. Натисніть тут для пошуку в Play Store.</string>
+    
     <string name="default_theme">Вбудована (прозора)</string>
     <string name="theme">Тема оформлення</string>
     <string name="connect_first">Щоб відправити повідомлення, спочатку ввійдіть до мережі</string>
@@ -116,7 +126,6 @@
     <string name="X_added" formatted="false">%s додано</string>
     <string name="X_modified" formatted="false">%s змінено</string>
     <string name="X_deleted" formatted="false">%s видалено</string>
-    <string name="app_name">"Ася"</string>
     <string name="wait_starting">"Завантажується"</string>
     <string name="new_account">"Новий обліковий запис"</string>
     <string name="offline">Не в мережі</string>
@@ -131,7 +140,6 @@
     <string name="account_options">Налаштування облікового запису</string>
     <string name="general_options">Загальні налаштування</string>
     <string name="more">"Ще"</string>
-    <string name="about">"Про програму"</string>
     <string name="manage_accounts">"Облікові записи"</string>
     <string name="exit_app">"Вийти з Асі"</string>
     <string name="pick_status">"Виберіть статус"</string>

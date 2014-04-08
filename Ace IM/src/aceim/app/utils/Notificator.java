@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
+
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.ConnectionState;
 import aceim.api.dataentity.FileInfo;
@@ -253,36 +254,40 @@ public class Notificator {
 	
 	@SuppressLint("InlinedApi")
 	private void accountNotification(AccountService accountService) {
-		if (accountService == null || !accountService.getAccount().isEnabled()) return;
-			
+		if (accountService == null) return;
+		
 		Account account = accountService.getAccount();
 
 		Logger.log("Notification for account " + account, LoggerLevel.VERBOSE);
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+		if (!account.isEnabled()) {
+			removeAccountIcon(accountService.getAccount());
+		} else {
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
 
-		int unreads = account.getUnreadMessages();
-		
-		int targetWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB 
-				? mContext.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width) : 
-					0;
-		
-		builder.setAutoCancel(false);
-		builder.setOngoing(true);
-		builder.setContentTitle(account.getSafeName());
-		builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources(false)));
-		builder.setLargeIcon(ViewUtils.getIcon(mContext, account.getFilename(), targetWidth, 0));
+			int unreads = account.getUnreadMessages();
+			
+			int targetWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB 
+					? mContext.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width) : 
+						0;
+			
+			builder.setAutoCancel(false);
+			builder.setOngoing(true);
+			builder.setContentTitle(account.getSafeName());
+			builder.setContentText(unreads > 0 ? mContext.getString(R.string.unread_messages) : ViewUtils.getAccountStatusName(mContext, account, accountService.getProtocolService().getResources(false)));
+			builder.setLargeIcon(ViewUtils.getIcon(mContext, account.getFilename(), targetWidth, 0));
 
-		builder.setSmallIcon(unreads > 0 ? R.drawable.ic_message : ViewUtils.getAccountStatusIcon(mContext, account));
-		builder.setNumber(unreads);
+			builder.setSmallIcon(unreads > 0 ? R.drawable.ic_message : ViewUtils.getAccountStatusIcon(mContext, account));
+			builder.setNumber(unreads);
 
-		Intent notificationIntent = new Intent(mContext, MainActivity.class);
-		String notificatorId = Page.getPageIdForEntityWithId(ContactList.class, account);
-		notificationIntent.setData((Uri.parse(URI_PROTOCOL + notificatorId)));
-		PendingIntent contentIntent = PendingIntent.getActivity(mContext, account.getServiceId(), notificationIntent, 0);
-		builder.setContentIntent(contentIntent);
+			Intent notificationIntent = new Intent(mContext, MainActivity.class);
+			String notificatorId = Page.getPageIdForEntityWithId(ContactList.class, account);
+			notificationIntent.setData((Uri.parse(URI_PROTOCOL + notificatorId)));
+			PendingIntent contentIntent = PendingIntent.getActivity(mContext, account.getServiceId(), notificationIntent, 0);
+			builder.setContentIntent(contentIntent);
 
-		mNotificatorManager.notify(account.getAccountId().hashCode(), builder.build());
+			mNotificatorManager.notify(account.getAccountId().hashCode(), builder.build());
+		}
 	}
 
 	public void onFileTransferProgress(FileProgress progress) {
@@ -434,35 +439,67 @@ public class Notificator {
 		Builder builder = new Builder(mContext);
 		Notification n = null;
 		if (ex instanceof AceImException) {
+			String errorText = null;
+			
 			switch (((AceImException) ex).reason) {
 			case NO_PROTOCOL_FOUND:
+				errorText = mContext.getString(R.string.error_no_x_protocol_found, account.getProtocolName());
+				
 				Intent i = ViewUtils.getSearchPluginsInPlayStoreIntent(account);
 				PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-
-				n = builder.setAutoCancel(true).setSmallIcon(android.R.drawable.ic_dialog_alert).setWhen(System.currentTimeMillis()).setDefaults(Notification.DEFAULT_SOUND).setContentIntent(pi).build();
+				
+				builder.setAutoCancel(true)
+						.setSmallIcon(android.R.drawable.ic_dialog_alert)
+						.setWhen(System.currentTimeMillis())
+						.setDefaults(Notification.DEFAULT_SOUND)
+						.setContentIntent(pi)
+						.setTicker(account.getSafeName())
+						.setContentText(errorText)
+						.setContentTitle(account.getSafeName());
+				
+				n = builder.build();
 				break;
 			default:
 				break;
 			}
-		}
-		if (ex instanceof ProtocolException) {
+		} else if (ex instanceof ProtocolException) {
+			String errorText = null;
+			
 			switch (((ProtocolException) ex).cause) {
 			case BROKEN_AUTH_DATA:
+				errorText = mContext.getString(R.string.error_broken_auth_data);
 				break;
 			case CONNECTION_ERROR:
-				break;
-			case DEFAULT:
+				errorText = mContext.getString(R.string.error_connection_failed);
 				break;
 			case GROUPCHAT_ALREADY_EXISTS:
+				errorText = mContext.getString(R.string.error_groupchat_already_exists);
 				break;
 			case NONE:
-				break;
+				return;
 			case NO_GROUPCHAT_AVAILABLE:
+				errorText = mContext.getString(R.string.error_no_groupchat_available);
+				break;
+			case CANNOT_AUTHORIZE:
+				errorText = mContext.getString(R.string.error_cannot_authorize);
+				break;
+			case CONNECTION_LIMIT_EXCEEDED:
+				errorText = mContext.getString(R.string.error_connection_limit_exceeded);
 				break;
 			default:
+				errorText = ex.getLocalizedMessage();
 				break;
-
 			}
+			
+			builder.setAutoCancel(true)
+					.setSmallIcon(android.R.drawable.ic_dialog_alert)
+					.setWhen(System.currentTimeMillis())
+					.setDefaults(Notification.DEFAULT_SOUND)
+					.setTicker(account.getSafeName())
+					.setContentText(errorText)
+					.setContentTitle(account.getSafeName());
+			
+			n = builder.build();
 		}
 		if (n != null) {
 			mNotificatorManager.notify(n.hashCode(), n);

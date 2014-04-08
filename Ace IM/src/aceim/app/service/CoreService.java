@@ -93,7 +93,7 @@ public class CoreService extends Service {
 	private DataStorage mStorage;
 	private HistorySaver mHistorySaver;
 
-	private IUserInterface mInterface;
+	private IUserInterface mUserInterface;
 	// private boolean uiVisible = true;
 
 	private Bundle mSavedInstanceState = null;
@@ -112,15 +112,6 @@ public class CoreService extends Service {
 
 		@Override
 		public void onAction(ProtocolService protocol, ItemAction action) {
-			/*
-			 * for (int i = mAccounts.size() - 1; i >= 0; i--) { AccountService
-			 * acs = mAccounts.get(i); if (acs != null &&
-			 * acs.getProtocolService(
-			 * ).getProtocolServicePackageName().equals(protocol
-			 * .getProtocolServicePackageName())) { AccountService newAcs =
-			 * initAccount(acs.getAccount()); mAccounts.set(i, newAcs); } }
-			 */
-
 			if (!mAccountsReady) {
 				return;
 			}
@@ -143,9 +134,9 @@ public class CoreService extends Service {
 				// TODO notification
 				break;
 			default:
-				if (mInterface != null) {
+				if (mUserInterface != null) {
 					try {
-						mInterface.terminate();
+						mUserInterface.terminate();
 						exitService(true);
 					} catch (RemoteException e) {
 						Logger.log(e);
@@ -217,7 +208,7 @@ public class CoreService extends Service {
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		mInterface = null;
+		mUserInterface = null;
 		// uiVisible = false;
 		return false;
 	}
@@ -427,8 +418,8 @@ public class CoreService extends Service {
 			if (message instanceof FileMessage) {
 				FileProgress progress = new FileProgress(message.getServiceId(), messageId, ((FileMessage) message).getFiles().get(0).getFilename(), 0, 0, false, message.getContactUid(), null);
 
-				if (mInterface != null) {
-					mInterface.onFileProgress(progress);
+				if (mUserInterface != null) {
+					mUserInterface.onFileProgress(progress);
 				}
 			}
 
@@ -492,21 +483,16 @@ public class CoreService extends Service {
 				as = initAccount(account);
 
 				mAccounts.set(account.getServiceId(), as);
-			}
-
-			if (account.isEnabled()) {
-				mNotificator.onAccountStateChanged(mAccounts);
 			} else {
-				if (account.getConnectionState() != ConnectionState.CONNECTED) {
-					mAccounts.get(account.getServiceId()).getProtocolService().getProtocol().disconnect(account.getServiceId());
-				}
-				mNotificator.removeAccountIcon(account);
+				as.getAccount().merge(account);
 			}
+			
+			mNotificator.onAccountStateChanged(mAccounts);
 
 			mStorage.saveAccount(account, options, false);
 
-			if (mInterface != null) {
-				mInterface.onAccountUpdated(account, ItemAction.MODIFIED);
+			if (mUserInterface != null) {
+				mUserInterface.onAccountUpdated(account, ItemAction.MODIFIED);
 			}
 		}
 
@@ -523,7 +509,7 @@ public class CoreService extends Service {
 			List<Account> accounts = new ArrayList<Account>(mAccounts.size());
 
 			for (AccountService a : mAccounts) {
-				if (!disabledToo && !a.getAccount().isEnabled()) {
+				if (a == null || a.getAccount() == null || (!disabledToo && !a.getAccount().isEnabled())) {
 					continue;
 				}
 				accounts.add(a.getAccount());
@@ -792,7 +778,7 @@ public class CoreService extends Service {
 		@Override
 		public void registerCallback(IUserInterface callback) throws RemoteException {
 			Logger.log("UI callback registering", LoggerLevel.VERBOSE);
-			mInterface = callback;
+			mUserInterface = callback;
 		}
 
 		@Override
@@ -885,12 +871,12 @@ public class CoreService extends Service {
 
 		@Override
 		public void importAccounts(String password, FileProgress progress) throws RemoteException {
-			ImportAndExport.importData(progress, password, mInterface, CoreService.this);
+			ImportAndExport.importData(progress, password, mUserInterface, CoreService.this);
 		}
 
 		@Override
 		public void exportAccounts(String password, FileProgress progress) throws RemoteException {
-			ImportAndExport.exportData(progress, password, mInterface, getBaseContext());
+			ImportAndExport.exportData(progress, password, mUserInterface, getBaseContext());
 		}
 
 		@Override
@@ -915,9 +901,9 @@ public class CoreService extends Service {
 			as.getProtocolService().getProtocol().removeAccountPhoto(serviceId);
 			ViewUtils.removeIcon(getBaseContext(), as.getAccount().getFilename());
 
-			if (mInterface != null) {
+			if (mUserInterface != null) {
 				try {
-					mInterface.onAccountIcon(serviceId);
+					mUserInterface.onAccountIcon(serviceId);
 				} catch (RemoteException e) {
 					Logger.log(e);
 				}
@@ -946,11 +932,13 @@ public class CoreService extends Service {
 					onlineInfo.setXstatusDescription(info.getXstatusDescription());
 				}
 
-				if (mInterface != null) {
-					mInterface.onAccountStateChanged(info);
+				if (mUserInterface != null) {
+					mUserInterface.onAccountStateChanged(info);
 				}
 
 				mStorage.saveAccount(account, true);
+				
+				mNotificator.onAccountStateChanged(mAccounts);
 			} else {
 				Buddy b = account.getBuddyByProtocolUid(info.getProtocolUid());
 
@@ -958,8 +946,8 @@ public class CoreService extends Service {
 					b.getOnlineInfo().getFeatures().putByte(featureId, info.getFeatures().getByte(featureId));
 				}
 
-				if (mInterface != null) {
-					mInterface.onBuddyStateChanged(Arrays.asList(b));
+				if (mUserInterface != null) {
+					mUserInterface.onBuddyStateChanged(Arrays.asList(b));
 				}
 			}
 		}
@@ -1031,8 +1019,8 @@ public class CoreService extends Service {
 
 			Logger.log("Search result list for #" + serviceId + ": ", LoggerLevel.VERBOSE);
 
-			if (mInterface != null) {
-				mInterface.onSearchResult(serviceId, infoList);
+			if (mUserInterface != null) {
+				mUserInterface.onSearchResult(serviceId, infoList);
 			}
 		}
 
@@ -1049,8 +1037,8 @@ public class CoreService extends Service {
 				String name = info.getProperties().getString(PersonalInfo.INFO_NICK);
 				if (!TextUtils.isEmpty(name)) {
 					aou.setName(name);
-					if (mInterface != null) {
-						mInterface.onAccountStateChanged(aou);
+					if (mUserInterface != null) {
+						mUserInterface.onAccountStateChanged(aou);
 					}
 				}
 			} else {
@@ -1058,8 +1046,8 @@ public class CoreService extends Service {
 			}
 
 			if (!isShortInfo) {
-				if (mInterface != null) {
-					mInterface.onPersonalInfo(info);
+				if (mUserInterface != null) {
+					mUserInterface.onPersonalInfo(info);
 				}
 			}
 		}
@@ -1092,8 +1080,8 @@ public class CoreService extends Service {
 			}
 
 			Logger.log("Protocol's message ack " + state + " for " + ownerUid, LoggerLevel.VERBOSE);
-			if (mInterface != null) {
-				mInterface.onMessageAck(serviceId, messageId, ownerUid, state);
+			if (mUserInterface != null) {
+				mUserInterface.onMessageAck(serviceId, messageId, ownerUid, state);
 			}
 		}
 
@@ -1115,9 +1103,9 @@ public class CoreService extends Service {
 					public void run() {
 						BitmapAjaxCallback.clearCache();
 
-						if (mInterface != null) {
+						if (mUserInterface != null) {
 							try {
-								mInterface.onAccountIcon(serviceId);
+								mUserInterface.onAccountIcon(serviceId);
 							} catch (RemoteException e) {
 								Logger.log(e);
 							}
@@ -1134,9 +1122,9 @@ public class CoreService extends Service {
 						public void run() {
 							BitmapAjaxCallback.clearCache();
 
-							if (mInterface != null) {
+							if (mUserInterface != null) {
 								try {
-									mInterface.onBuddyIcon(serviceId, ownerUid);
+									mUserInterface.onBuddyIcon(serviceId, ownerUid);
 								} catch (RemoteException e) {
 									Logger.log(e);
 								}
@@ -1213,8 +1201,8 @@ public class CoreService extends Service {
 
 			mNotificator.onFileTransferProgress(fp);
 
-			if (mInterface != null) {
-				mInterface.onFileProgress(fp);
+			if (mUserInterface != null) {
+				mUserInterface.onFileProgress(fp);
 			}
 		}
 
@@ -1243,7 +1231,9 @@ public class CoreService extends Service {
 
 			if (connState == ConnectionState.DISCONNECTED) {
 
-				if (account.getConnectionState() != ConnectionState.DISCONNECTED && account.getConnectionState() != ConnectionState.DISCONNECTING) {
+				if (account.getConnectionState() != ConnectionState.DISCONNECTED 
+						&& account.getConnectionState() != ConnectionState.DISCONNECTING
+						&& extraParameter < 0) {
 					byte reconnectionAttempts = as.getConnectionAttempts();
 					if (reconnectionAttempts > 0) {
 						as.setConnectionAttempts((byte) (reconnectionAttempts - 1));
@@ -1271,8 +1261,8 @@ public class CoreService extends Service {
 				}
 			}
 
-			if (mInterface != null) {
-				mInterface.onConnectionStateChanged(serviceId, connState, extraParameter);
+			if (mUserInterface != null) {
+				mUserInterface.onConnectionStateChanged(serviceId, connState, extraParameter);
 			}
 		}
 
@@ -1308,8 +1298,8 @@ public class CoreService extends Service {
 				}
 			}
 
-			if (mInterface != null) {
-				mInterface.onBuddyStateChanged(affectedBuddies);
+			if (mUserInterface != null) {
+				mUserInterface.onBuddyStateChanged(affectedBuddies);
 			}
 		}
 
@@ -1391,8 +1381,8 @@ public class CoreService extends Service {
 					}
 				}
 
-				if (mInterface != null) {
-					mInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
+				if (mUserInterface != null) {
+					mUserInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
 				}
 
 				break;
@@ -1403,8 +1393,8 @@ public class CoreService extends Service {
 					newBuddy = oldBuddy;
 					newBuddy.getOnlineInfo().getFeatures().remove(ApiConstants.FEATURE_STATUS);
 
-					if (mInterface != null) {
-						mInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
+					if (mUserInterface != null) {
+						mUserInterface.onBuddyStateChanged(Arrays.asList(newBuddy));
 					}
 				}
 				break;
@@ -1446,7 +1436,7 @@ public class CoreService extends Service {
 			account.setOwnName(info.getName());
 			account.getOnlineInfo().merge(info);
 
-			mInterface.onAccountUpdated(account, ItemAction.MODIFIED);
+			mUserInterface.onAccountUpdated(account, ItemAction.MODIFIED);
 
 			boolean loadIcons = getBaseContext().getSharedPreferences(as.getAccount().getAccountId(), ServiceUtils.getAccessMode()).getBoolean(AccountOptionKeys.LOAD_ICONS.name(),
 					Boolean.parseBoolean(getBaseContext().getString(R.string.default_load_icons)));
@@ -1472,11 +1462,28 @@ public class CoreService extends Service {
 			// TODO Auto-generated method stub
 
 		}
-
+		
 		@Override
 		public void multiChatParticipants(byte serviceId, String chatUid, List<BuddyGroup> participantList) throws RemoteException {
-			// TODO Auto-generated method stub
+			AccountService as = mAccounts.get(serviceId);
 
+			if (as == null || !as.getAccount().isEnabled() || as.getAccount().getConnectionState() != ConnectionState.CONNECTED) {
+				return;
+			}
+
+			Buddy b = as.getAccount().getBuddyByProtocolUid(chatUid);
+			if (b == null || !(b instanceof MultiChatRoom)) {
+				Logger.log("Requested chat ID #" + chatUid + " does not belong to a chat!", LoggerLevel.INFO);
+				return;
+			}
+			
+			MultiChatRoom c = (MultiChatRoom) b;
+			c.getOccupants().clear();
+			c.getOccupants().addAll(participantList);
+			
+			if (mUserInterface != null) {
+				mUserInterface.onBuddyStateChanged(Arrays.asList(b));
+			}
 		}
 
 		@Override
@@ -1487,8 +1494,8 @@ public class CoreService extends Service {
 				return;
 			}
 
-			if (mInterface != null) {
-				mInterface.showFeatureInputForm(serviceId, uid, feature);
+			if (mUserInterface != null) {
+				mUserInterface.showFeatureInputForm(serviceId, uid, feature);
 			}
 		}
 	};
@@ -1522,8 +1529,8 @@ public class CoreService extends Service {
 
 					mNotificator.onFileTransferProgress(initFp);
 
-					if (mInterface != null) {
-						mInterface.onFileProgress(initFp);
+					if (mUserInterface != null) {
+						mUserInterface.onFileProgress(initFp);
 					}
 				} else {
 					mNotificator.removeFileNotification(msg.getMessageId());
@@ -1549,9 +1556,9 @@ public class CoreService extends Service {
 
 			as.getProtocolService().getProtocol().disconnect(serviceId);
 
-			if (mInterface != null) {
+			if (mUserInterface != null) {
 				try {
-					mInterface.onConnectionStateChanged(as.getAccount().getServiceId(), as.getAccount().getConnectionState(), -1);
+					mUserInterface.onConnectionStateChanged(as.getAccount().getServiceId(), as.getAccount().getConnectionState(), -1);
 				} catch (RemoteException e) {
 					Logger.log(e);
 				}
@@ -1583,8 +1590,8 @@ public class CoreService extends Service {
 	private void onContactListUpdated(Account account) throws RemoteException {
 		mStorage.saveAccount(account, false);
 
-		if (mInterface != null) {
-			mInterface.onContactListUpdated(account);
+		if (mUserInterface != null) {
+			mUserInterface.onContactListUpdated(account);
 		}
 	}
 
@@ -1640,17 +1647,17 @@ public class CoreService extends Service {
 		if (message instanceof FileMessage) {
 			mNotificator.onMessage(message, as.getAccount());
 
-			if (mInterface != null) {
+			if (mUserInterface != null) {
 				try {
-					mInterface.onMessage(message);
+					mUserInterface.onMessage(message);
 				} catch (RemoteException e) {
 					Logger.log(e);
 				}
 			}
 		} else {
-			if (mInterface != null) {
+			if (mUserInterface != null) {
 				try {
-					mInterface.onMessage(message);
+					mUserInterface.onMessage(message);
 				} catch (RemoteException e) {
 					Logger.log(e);
 				}
@@ -1682,8 +1689,8 @@ public class CoreService extends Service {
 			newBuddy.setGroupId(ApiConstants.NOT_IN_LIST_GROUP_ID);
 			account.addBuddyToList(newBuddy);
 
-			if (mInterface != null) {
-				mInterface.onContactListUpdated(account);
+			if (mUserInterface != null) {
+				mUserInterface.onContactListUpdated(account);
 			}
 
 			protocol.requestFullInfo(account.getServiceId(), newBuddy.getProtocolUid(), true);
@@ -1726,8 +1733,8 @@ public class CoreService extends Service {
 
 		try {
 			mInterfaceBinder.sendMessage(message);
-			if (mInterface != null) {
-				mInterface.onMessage(message);
+			if (mUserInterface != null) {
+				mUserInterface.onMessage(message);
 			}
 		} catch (RemoteException e) {
 			Logger.log(e);

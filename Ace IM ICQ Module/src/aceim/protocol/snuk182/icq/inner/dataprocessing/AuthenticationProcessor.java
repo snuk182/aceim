@@ -224,7 +224,7 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 			String errorUrl = ProtocolUtils.getEncodedString(tlv.value);
 			service.log(errorUrl);
 			if (errorUrl.indexOf(ICQConstants.ERROR_BADCREDENTIALS) > -1) {
-				service.lastConnectionError = "wrong password";
+				service.lastConnectionError = ICQServiceInternal.ERROR_WRONG_PASSWORD;
 			}
 			break;
 		case ICQConstants.TLV_RECONNECTADDRESS:
@@ -290,7 +290,7 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 			break;
 		case ICQConstants.TLV_ERRORSUBCODE:
 			if (tlv.value != null && tlv.value.length > 1 && tlv.value[1] == 0x18) {
-				service.lastConnectionError = "Rate limit exceeded";
+				service.lastConnectionError = ICQServiceInternal.ERROR_RATE_LIMIT_EXCEEDED;
 			}
 			break;
 		default:
@@ -414,7 +414,7 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 
 	private void parseMD5LoginResult(Snac snac) {
 		if (snac == null || snac.data == null) {
-			service.lastConnectionError = "MD5 Login error!";
+			service.lastConnectionError = ICQServiceInternal.ERROR_WRONG_PASSWORD;
 			service.getRunnableService().disconnect();
 			return;
 		}

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"Ася (beta)"</string>
+    
+    <string name="error_broken_auth_data">Не хватает необходимых данных для входа в сеть</string>
+    <string name="error_connection_failed">Не удалось подключиться</string>
+    <string name="error_groupchat_already_exists">Чат с таким ID уже существует</string>
+    <string name="error_no_groupchat_available">Чата с таким ID не существует</string>
+    <string name="error_cannot_authorize">Не могу авторизоваться, данные для входа в сеть неверны</string>
+    <string name="error_connection_limit_exceeded">Превышен лимит подключений к серверу.</string>
+    <string name="error_no_x_protocol_found">Модуль поддержки протокола %s не найден на устройстве. Нажмите, чтобы поискать в Play Store.</string>
+    
     <string name="default_theme">Встроенная (прозрачная)</string>
     <string name="theme">Тема оформления</string>
     <string name="connect_first">Чтобы отправлять сообщения, сначала войдите в сеть</string>
@@ -134,7 +144,6 @@
     <string name="X_added" formatted="false">%s добавлен</string>
     <string name="X_modified" formatted="false">%s изменен</string>
     <string name="X_deleted" formatted="false">%s удален</string>
-    <string name="app_name">"Ася"</string>
     <string name="wait_starting">"Загружается"</string>
     <string name="new_account">"Новая учетная запись"</string>
     <string name="offline">Не в сети</string>
@@ -149,7 +158,6 @@
     <string name="account_options">Настройки учетной записи</string>
     <string name="general_options">Общие настройки</string>
     <string name="more">"Еще"</string>
-    <string name="about">"О программе"</string>
     <string name="manage_accounts">"Управление учетными записями"</string>
     <string name="exit_app">"Выйти из Аси"</string>
     <string name="pick_status">"Выбрать статус"</string>

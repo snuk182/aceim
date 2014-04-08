@@ -109,12 +109,6 @@ public class MrimService extends AccountService {
 		}
 
 		@Override
-		public void getChatRooms() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public void joinChatRoom(String arg0, boolean arg1) {}
 
 		@Override

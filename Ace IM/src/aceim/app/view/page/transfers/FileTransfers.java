@@ -150,6 +150,8 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 		mList.setAdapter(mAdapter);
 		mList.setOnItemClickListener(mItemClickListener);
 		
+		recoverFromStoredData(saved);
+		
 		return view;
 	}
 
@@ -267,8 +269,7 @@ public class FileTransfers extends Page implements IHasFileTransfer {
 		return saver;
 	}
 	
-	@Override
-	public void recoverFromStoredData(Bundle bundle){
+	private void recoverFromStoredData(Bundle bundle){
 		if (bundle == null) {
 			return;
 		}

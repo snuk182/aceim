@@ -266,13 +266,11 @@ public final class ICQEntityAdapter {
 		}
 		
 		ICQOnlineInfo out = new ICQOnlineInfo();
-		out.createTime = info.getCreateTime();
 		out.extIP = info.getExtIP();
 		out.idleTime = info.getIdleTime();
 		out.memberSinceTime = info.getMemberSinceTime();
 		out.name = info.getName();
 		out.onlineTime = (int) info.getOnlineTime();
-		out.signonTime = info.getSignonTime();
 		out.uin = info.getProtocolUid();
 		out.personalText = info.getXstatusName();
 		out.extendedStatus = info.getXstatusDescription();
@@ -307,13 +305,11 @@ public final class ICQEntityAdapter {
 			return null;
 		OnlineInfo out = new OnlineInfo(serviceId, in.uin);
 		
-		out.setCreateTime(in.createTime);
 		out.setExtIP(in.extIP);
 		out.setIdleTime(in.idleTime);
 		out.setMemberSinceTime(in.memberSinceTime);
 		out.setName(in.name);
 		out.setOnlineTime(in.onlineTime);
-		out.setSignonTime(in.signonTime);
 		out.setXstatusName(in.personalText);
 		out.setXstatusDescription(in.extendedStatus);
 
@@ -628,9 +624,8 @@ public final class ICQEntityAdapter {
 		if (icbmMessage == null)
 			return null;
 
-		FileMessage message = new FileMessage(serviceId, icbmMessage.senderId);
+		FileMessage message = new FileMessage(serviceId, icbmMessage.senderId, icqFileInfoList2FileInfoList(icbmMessage.files, serviceId));
 		message.setMessageId(ProtocolUtils.bytes2LongBE(icbmMessage.messageId, 0));
-		message.getFiles().addAll(icqFileInfoList2FileInfoList(icbmMessage.files, serviceId));
 		message.setTime(icbmMessage.receivingTime.getTime());
 		message.setIncoming(true);
 		return message;

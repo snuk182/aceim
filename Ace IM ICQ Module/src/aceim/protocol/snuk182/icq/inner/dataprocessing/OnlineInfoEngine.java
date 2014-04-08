@@ -149,8 +149,13 @@ public class OnlineInfoEngine {
 			service.log("    signon: "+internalInfo.signonTime);
 			break;
 		case ICQConstants.TLV_ONLINE_USERSTATUS:
-			internalInfo.userStatus = ProtocolUtils.bytes2IntBE(tlv.value);
+			int userStatus = ProtocolUtils.bytes2IntBE(tlv.value);
 			service.log("    status: "+ProtocolUtils.getSpacedHexString(tlv.value));
+			
+			if (service.getOnlineInfo() != internalInfo) {
+				internalInfo.userStatus = userStatus;
+			}
+			
 			break;
 		case ICQConstants.TLV_ONLINE_OWNNAME:
 			internalInfo.name = ProtocolUtils.getEncodedString(tlv.value);

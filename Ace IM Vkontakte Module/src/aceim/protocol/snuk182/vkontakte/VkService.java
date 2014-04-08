@@ -111,9 +111,6 @@ public class VkService extends AccountService {
 		}
 		
 		@Override
-		public void getChatRooms() {}
-		
-		@Override
 		public void disconnect() {
 			internal.logout();
 		}

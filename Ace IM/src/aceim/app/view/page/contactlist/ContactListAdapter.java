@@ -8,6 +8,8 @@ import aceim.api.service.ApiConstants;
 import aceim.app.MainActivity;
 import aceim.app.R;
 import aceim.app.dataentity.ProtocolResources;
+import aceim.app.themeable.dataentity.ContactListItemThemeResource;
+import aceim.app.utils.ViewUtils;
 import aceim.app.view.page.contactlist.ContactListUpdater.ContactListModelGroup;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 
@@ -155,5 +158,45 @@ public abstract class ContactListAdapter extends BaseExpandableListAdapter {
 		}
 		
 		return contentText.toString();
+	}
+	
+	protected View constructChildViewFromThemeResource(int groupPosition, int childPosition, boolean isLastChild, View convertView, final ViewGroup parent, ContactListItemThemeResource ctr) {
+		Buddy buddy = getChild(groupPosition, childPosition);
+		
+		View view = convertView;
+		
+		if (convertView == null) {
+			view = ctr.getView();
+		}		
+		
+		if (view.getTag() == null || view.getTag() != buddy) {
+			view.setTag(buddy);
+			view.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					MainActivity activity = (MainActivity) parent.getContext();
+					Buddy buddy = (Buddy) v.getTag();
+					activity.onChatRequest(buddy);
+				}
+			});
+			
+			view.setOnLongClickListener(new OnLongClickListener() {
+
+				@Override
+				public boolean onLongClick(View v) {
+					MainActivity activity = (MainActivity) parent.getContext();
+					Buddy buddy = (Buddy) v.getTag();
+					activity.onBuddyContextMenuRequest(buddy, mResources);
+					return true;
+				}
+			});
+		} 
+		
+		ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, view, mResources, ctr, childPosition, groupPosition, (AbsListView) parent);
+		//mAq.recycle(view);
+		//ViewUtils.fillBuddyPlaceholder(parent.getContext(), buddy, mAq, mResources, ctr);
+		
+		return view;
 	}
 }

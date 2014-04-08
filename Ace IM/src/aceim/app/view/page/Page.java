@@ -54,6 +54,7 @@ public abstract class Page extends Fragment {
 	private MainActivity mActivity;
 		
 	private View cachedView = null;
+	private Bundle cachedBundle = null;
 	
 	public abstract Drawable getIcon(Context context);	
 	public abstract String getTitle(Context context);
@@ -74,7 +75,8 @@ public abstract class Page extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle saved){
 		if (cachedView == null) {
-			cachedView = createView(inflater, group, saved);
+			cachedView = createView(inflater, group, cachedBundle);
+			cachedBundle = null;
 		} else {
 			if (cachedView.getParent() != null) {
 				((ViewGroup)cachedView.getParent()).removeView(cachedView);
@@ -293,7 +295,7 @@ public abstract class Page extends Fragment {
 			return;
 		}
 		
-		page.recoverFromStoredData(savedState);
+		page.cachedBundle = savedState;
 		
 		mainActivity.getScreen().addPage(page, false);
 	}
@@ -334,7 +336,6 @@ public abstract class Page extends Fragment {
 		return null;
 	}
 	
-	public void recoverFromStoredData(Bundle bundle) {}	
 	public void onSetMeSelected() {}
 	public void onLeaveMe() {}
 }

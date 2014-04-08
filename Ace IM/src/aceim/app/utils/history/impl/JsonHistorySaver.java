@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import aceim.api.dataentity.Buddy;
+import aceim.api.dataentity.FileInfo;
 import aceim.api.dataentity.FileMessage;
 import aceim.api.dataentity.Message;
 import aceim.api.dataentity.ServiceMessage;
@@ -199,7 +200,7 @@ public final class JsonHistorySaver implements HistorySaver {
 			Message message;
 			switch (this) {
 			case FILE:
-				message = new FileMessage(buddy.getServiceId(), buddy.getProtocolUid());
+				message = new FileMessage(buddy.getServiceId(), buddy.getProtocolUid(), new ArrayList<FileInfo>(0));
 				break;
 			case SERVICE:
 				message = new ServiceMessage(buddy.getServiceId(), buddy.getProtocolUid(), false);

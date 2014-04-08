@@ -222,11 +222,13 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 	public View createView(LayoutInflater inflater, ViewGroup group, Bundle saved) {
 		View view = onCreateContactListView(inflater, group, saved);
 		
+		onAccountIcon(mAccount.getServiceId());
 		onOnlineInfoChanged(mAccount.getOnlineInfo());	
 		onContactListUpdated(mAccount);
 		
 		new AQuery(view).id(R.id.image_icon).longClicked(mUpdateIconListener);
 		
+		recoverFromStoredData(saved);		
 		return view;
 	}
 	
@@ -244,8 +246,7 @@ public abstract class ContactList extends Page implements IHasAccount, IHasMessa
 		return saver;
 	}
 	
-	@Override
-	public void recoverFromStoredData(Bundle bundle){
+	private void recoverFromStoredData(Bundle bundle){
 		if (bundle == null) {
 			return;
 		}

@@ -221,11 +221,6 @@ public class XMPPService extends AccountService {
 		}
 
 		@Override
-		public void getChatRooms() {
-			
-		}
-
-		@Override
 		public void uploadAccountPhoto(String filePath) {
 			if (getCurrentState() != ConnectionState.CONNECTED) {
 				return;

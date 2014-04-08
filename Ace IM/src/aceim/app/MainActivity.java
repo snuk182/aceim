@@ -248,6 +248,7 @@ public class MainActivity extends AceIMActivity {
 		// http://code.google.com/p/android/issues/detail?id=19917
 		outState.putString(Constants.DISABLED_SUFFIX, Constants.DISABLED_SUFFIX);
 		super.onSaveInstanceState(outState);
+		saveInstanceState();
 	}
 
 	@Override
@@ -256,7 +257,6 @@ public class MainActivity extends AceIMActivity {
 		super.onDestroy();
 		
 		mSmileysManager.onExit();		
-		saveInstanceState();
 		unbindService(mCoreServiceConnection);
 		AQUtility.cleanCacheAsync(this);
 		
@@ -748,7 +748,7 @@ public class MainActivity extends AceIMActivity {
 				//which does not guarantee destroying with simple finish().
 				android.os.Process.killProcess(android.os.Process.myPid());				
 			}
-		}, 500);
+		}, 1000);
 	}
 
 	public void accountAdded(Account account) {

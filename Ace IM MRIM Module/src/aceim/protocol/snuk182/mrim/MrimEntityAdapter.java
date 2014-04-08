@@ -338,14 +338,17 @@ public final class MrimEntityAdapter {
 	}
 
 	public static final FileMessage mrimFileTransferMessage2FileMessage(MrimFileTransfer mrimFileTransfer, byte serviceId) {
-		FileMessage fm = new FileMessage(serviceId, mrimFileTransfer.buddyMrid);
-		fm.setMessageId(mrimFileTransfer.messageId);
+		List<FileInfo> files = new ArrayList<FileInfo>(mrimFileTransfer.incomingFiles.size());
 		for (MrimIncomingFile file: mrimFileTransfer.incomingFiles){
 			FileInfo info = new FileInfo(serviceId);
 			info.setFilename(file.filename);
 			info.setSize(file.filesize);
-			fm.getFiles().add(info);
+			files.add(info);
 		}
+		
+		FileMessage fm = new FileMessage(serviceId, mrimFileTransfer.buddyMrid, files);
+		fm.setMessageId(mrimFileTransfer.messageId);
+		
 		return fm;
 	}
 

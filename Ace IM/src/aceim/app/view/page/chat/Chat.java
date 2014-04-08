@@ -55,6 +55,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
@@ -387,7 +388,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		
 		onBuddyStateChanged(Arrays.asList(mBuddy));
 		onAccountIcon(mAccount.getServiceId());
-		initMessages(saved);
+		recoverFromStoredData(saved);
 		
 		return view;
 	}
@@ -412,9 +413,10 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 
 	@Override
 	public void onSetMeSelected() {
-		resetUnread();
-		mEditor.requestFocus();
+		resetUnread();		
 		mScrollToEndRunnable.run();
+		
+		manageEditorFocus();
 	}
 	
 	@Override
@@ -437,16 +439,14 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		return saver;
 	}
 	
-	@Override
-	public void recoverFromStoredData(Bundle bundle){
-		if (bundle == null) {
-			return;
+	private void recoverFromStoredData(Bundle bundle){
+		if (bundle != null) {
+			bundle.setClassLoader(ChatMessageHolder.class.getClassLoader());
+			
+			mEditorUnsavedContent = bundle.getCharSequence(SAVE_PARAM_TEXT);
+			mAwaitingUri = bundle.getParcelable(SAVE_PARAM_URI);			
 		}
 		
-		bundle.setClassLoader(ChatMessageHolder.class.getClassLoader());
-		
-		mEditorUnsavedContent = bundle.getCharSequence(SAVE_PARAM_TEXT);
-		mAwaitingUri = bundle.getParcelable(SAVE_PARAM_URI);
 		initMessages(bundle);
 	}
 
@@ -860,10 +860,9 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		info.setFilename(filePath);
 		info.setSize(file.length());
 		
-		FileMessage message = new FileMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid());
+		FileMessage message = new FileMessage(mBuddy.getServiceId(), mBuddy.getProtocolUid(), Arrays.asList(info));
 		message.setIncoming(false);
 		message.setTime(System.currentTimeMillis());
-		message.getFiles().add(info);
 		
 		try {
 			activity.getCoreService().sendMessage(message);
@@ -895,9 +894,20 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 		mCopyBtn.setVisibility(View.GONE);
 		mCancelBtn.setVisibility(View.GONE);
 		
-		mEditor.requestFocus();
+		manageEditorFocus();
 	}
 	
+	/**
+	 * http://stackoverflow.com/questions/6977773/keyboard-not-shown-when-i-click-on-edittextview-in-android
+	 */
+	private void manageEditorFocus() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			mEditor.requestFocus();
+		} else {
+			mEditor.clearFocus();
+		}
+	}
+
 	@Override
 	public boolean hasMenu(){
 		return true;
