@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="TabWidget" parent="@android:style/Widget.TabWidget"></style>
+    <item name="selection_marker" type="drawable">@android:drawable/menuitem_background</item>
+    
+    <style name="TabWidget" parent="@android:style/Widget.TabWidget"/>
     <color name="transparent" >#77000000</color>
     
     <color name="chat_message_sender_color_service">#ff00dd00</color>

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.Constants;
@@ -15,65 +16,26 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.content.res.Resources.Theme;
 
 public class ThemesManager extends PluginsManager {
 	
-	private final Theme mCurrentTheme;
 	private final ThemeResources mViewResources;
+	private final Context mCurrentThemeContext;
 
 	public ThemesManager(Activity activity) {
-		super(activity, Constants.THEME_PLUGIN_PREFIX);
+		super(activity, ApiConstants.ACTION_PLUGIN_THEME);
 
 		String themeId = mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0).getString(GlobalOptionKeys.THEME.name(), null);
-		Theme theme = null;
+		Context themeContext = null;
 		
 		try {
-			Context themeContext = getThemeContext(themeId);
+			themeContext = getThemeContext(themeId);
 			if (themeContext != null) {
 				Resources r = themeContext.getResources();
 				themeContext.setTheme(r.getIdentifier("Ace.IM.Theme", "style", themeId));
-				
-				theme = themeContext.getTheme();
 			} 
 		} catch (NameNotFoundException ne) {
 			Logger.log("No installed theme found: " + themeId, LoggerLevel.INFO);
-			mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
-					.edit()
-					.remove(GlobalOptionKeys.THEME.name())
-					.commit();
-		} catch (Exception e) {
-			Logger.log(e);
-		} finally {
-			if (theme == null) {
-				theme = mContext.getTheme();
-			}
-		}
-		
-		mCurrentTheme = theme;
-		mViewResources = new ThemeResources.Builder().resourcesFromThemesManager(this).build();
-	}
-
-	@Override
-	protected void onPackageAdded(String packageName) {}
-
-	@Override
-	protected void onPackageRemoved(String packageName) {
-		((Activity)mContext).finish();
-	}
-
-	public Theme getCurrentTheme() {
-		return mCurrentTheme;
-	}
-	
-	public Context getCurrentThemeContext() {
-		Context themeContext = null;
-		
-		String theme = mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0).getString(GlobalOptionKeys.THEME.name(), null);
-		try {			
-			themeContext = getThemeContext(theme);
-		} catch (NameNotFoundException ne) {
-			Logger.log("No installed theme found: " + theme, LoggerLevel.INFO);
 			mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
 					.edit()
 					.remove(GlobalOptionKeys.THEME.name())
@@ -86,7 +48,20 @@ public class ThemesManager extends PluginsManager {
 			}
 		}
 		
-		return themeContext;
+		mCurrentThemeContext = themeContext;
+		mViewResources = new ThemeResources.Builder().resourcesFromThemesManager(this).build();
+	}
+
+	@Override
+	protected void onPackageAdded(String packageName) {}
+
+	@Override
+	protected void onPackageRemoved(String packageName) {
+		((Activity)mContext).finish();
+	}
+
+	public Context getCurrentThemeContext() {
+		return mCurrentThemeContext;
 	}
 	
 	public Map<String, String> getInstalledThemes() {
@@ -95,7 +70,7 @@ public class ThemesManager extends PluginsManager {
 		
 		Map<String, String> themes = new HashMap<String, String>(list.size());
 		for (PackageInfo i : list) {
-			if (i.packageName.startsWith(Constants.THEME_PLUGIN_PREFIX)) {
+			if (i.packageName.startsWith(ApiConstants.ACTION_PLUGIN_THEME)) {
 				Logger.log("Theme info: " + i);
 				themes.put(i.packageName, i.applicationInfo.loadLabel(packageManager).toString());
 			}

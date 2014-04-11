@@ -49,10 +49,10 @@
             
             android:title="@string/sound_volume" />
         
-        <CheckBoxPreference
+        <!-- <CheckBoxPreference
             android:defaultValue="@string/default_message_sound_only"
             android:key="MESSAGE_SOUND_ONLY"
-            android:title="@string/message_sound_only" />
+            android:title="@string/message_sound_only" /> -->
 
         <ListPreference
             android:defaultValue="@string/default_statusbar_notification"
@@ -63,22 +63,6 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/chat_prefs" >
 
-        <!--
-             <ListPreference
-            android:defaultValue="@string/value_chat_date_full"
-            android:entries="@array/list_chat_date_names"
-            android:entryValues="@array/list_chat_date_values"
-            android:key="@string/key_chat_date"
-            
-            android:title="@string/chat_date" />
-        -->
-
-
-        <!-- <ua.snuk182.asia.view.more.widgets.SeekBarPreference
-            android:defaultValue="16"
-            android:key="@string/key_text_size"
-            android:title="@string/text_size" /> -->
-        
         <CheckBoxPreference
             android:defaultValue="@string/default_smilies_in_separate_dialog"
             android:key="SMILEYS_IN_DIALOG"

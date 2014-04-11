@@ -48,7 +48,7 @@ import aceim.app.widgets.bottombar.BottomBarButton;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -395,26 +395,17 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 	
 	private void initVariables() {
 		if (mBuddy instanceof MultiChatRoom && sChatParticipantItemWidth < 1) {
-			TypedArray array = getMainActivity().getThemesManager().getCurrentTheme().obtainStyledAttributes(aceim.res.R.styleable.Ace_IM_Theme);
-			
-			for (int i =0; i< array.getIndexCount(); i++) {
-				int res = array.getIndex(i);
-				
-				switch (res) {
-				case aceim.res.R.styleable.Ace_IM_Theme_grid_item_size:
-					sChatParticipantItemWidth = array.getDimensionPixelSize(i, 100);
-					break;
-				}
-			}
-			
-			array.recycle();
+			Resources themeResources = getMainActivity().getThemesManager().getCurrentThemeContext().getResources();
+			sChatParticipantItemWidth = themeResources.getDimensionPixelSize(getMainActivity().getThemesManager().getViewResources().getGridItemSizeId());
 		}		
 	}
 
 	@Override
 	public void onSetMeSelected() {
-		resetUnread();		
-		mScrollToEndRunnable.run();
+		if (mMessageHolders.size() > 0) {
+			resetUnread();		
+			mScrollToEndRunnable.run();
+		}
 		
 		manageEditorFocus();
 	}
@@ -466,7 +457,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 				List<ChatMessageHolder> result;
 				
 				try {
-					if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES)) {
+					if (saved != null && saved.containsKey(SAVE_PARAM_MESSAGES) && mBuddy.getUnread() < 1) {
 						result = saved.getParcelableArrayList(SAVE_PARAM_MESSAGES);
 					} else if (mMessageHolders.size() < 1) {
 						List<Message> lastMessages = getMainActivity().getCoreService().getLastMessages(mBuddy);
@@ -475,6 +466,7 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 					} else {
 						result = Collections.emptyList();
 					}
+					
 				} catch (RemoteException e) {
 					return Collections.emptyList();
 				}
@@ -489,6 +481,8 @@ public class Chat extends Page implements IHasBuddy, IHasAccount, IHasMessages, 
 				if (mMessageAdapter != null) {
 					mMessageAdapter.notifyDataSetInvalidated();
 				}
+				
+				resetUnread();
 			}
 		};
 		

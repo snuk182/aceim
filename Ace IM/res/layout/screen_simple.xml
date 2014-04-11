@@ -2,17 +2,18 @@
 <FrameLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aceim="http://schemas.android.com/apk/res-auto"
+    xmlns:aceimres="http://schemas.android.com/apk/lib/aceim.res.Ace.IM.Theme"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <aceim.app.themeable.widgets.StyleableRelativeLayout
-        aceim:styleableBackground="?attr/screen_background"
+        aceim:styleableBackground="screen_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
         >
 
         <aceim.app.themeable.widgets.StyleableRelativeLayout android:id="@+id/top_bar"
-            aceim:styleableBackground="?attr/top_bar_background"
+            aceim:styleableBackground="top_bar_background"
             android:layout_width="match_parent"
             android:layout_height="@dimen/top_bottom_bar_height"
             android:layout_alignParentLeft="true"

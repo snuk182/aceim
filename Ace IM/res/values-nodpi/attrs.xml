@@ -6,8 +6,20 @@
     </declare-styleable>
     
     <declare-styleable name="StyleableView">
-        <attr name="styleableBackground" format="reference|color" />
-        <attr name="styleableLayoutWidth" format="reference|integer" />
-        <attr name="styleableLayoutHeight" format="reference|integer" />        
+        <attr name="styleableBackground">
+            <enum name="top_bar_background" value="0"/>
+        	<enum name="bottom_bar_background" value="1"/>
+        	<enum name="screen_background" value="2"/>
+        	<enum name="bottom_bar_button_background" value="3"/>
+        	<enum name="accent_background" value="4"/>
+        </attr>
+        <attr name="styleableLayoutWidth">
+            <enum name="grid_item_size" value="5"/>
+        	<enum name="list_item_height" value="6"/>
+        </attr>
+        <attr name="styleableLayoutHeight">
+            <enum name="grid_item_size" value="5"/>
+        	<enum name="list_item_height" value="6"/>
+        </attr>        
     </declare-styleable>
 </resources>

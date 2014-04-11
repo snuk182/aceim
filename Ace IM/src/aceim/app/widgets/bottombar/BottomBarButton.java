@@ -3,6 +3,7 @@ package aceim.app.widgets.bottombar;
 import aceim.app.AceIMActivity;
 import aceim.app.R;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -49,19 +50,8 @@ public class BottomBarButton extends ImageButton {
 	}
 	
 	private void initVariables(AceIMActivity activity) {
-		TypedArray array = activity.getThemesManager().getCurrentTheme().obtainStyledAttributes(aceim.res.R.styleable.Ace_IM_Theme);
-		
-		for (int i =0; i< array.getIndexCount(); i++) {
-			int res = array.getIndex(i);
-			
-			switch (res) {
-			case aceim.res.R.styleable.Ace_IM_Theme_bottom_bar_button_background:
-				mBackground = array.getDrawable(i);
-				break;
-			}
-		}
-		
-		array.recycle();
+		Resources themeResources = activity.getThemesManager().getCurrentThemeContext().getResources();
+		mBackground = themeResources.getDrawable(activity.getThemesManager().getViewResources().getBottomBarButtonBackgroundId());
 		
 		if (mBackground == null) {
 			mBackground = activity.getResources().getDrawable(android.R.drawable.menuitem_background);

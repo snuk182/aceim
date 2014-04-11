@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aceim="http://schemas.android.com/apk/lib/aceim.res.Ace.IM.Theme">
+
+    <item name="screen_background" type="drawable">@color/transparent</item>
+    <item name="top_bar_background" type="drawable">@color/transparent</item>
+    <item name="bottom_bar_background" type="drawable">@color/transparent</item>
+    <item name="bottom_bar_button_background" type="drawable">@android:drawable/menuitem_background</item>
+    <item name="list_item_height" type="dimen">@dimen/default_contact_list_plain_item_height</item>
+    <item name="grid_item_size" type="dimen">@dimen/default_contact_list_grid_item_size</item>
+    <item name="accent_background" type="drawable">#ff770000</item>
+
+</resources>

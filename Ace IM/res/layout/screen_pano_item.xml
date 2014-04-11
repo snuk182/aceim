@@ -8,7 +8,7 @@
 
     <aceim.app.themeable.widgets.StyleableFrameLayout
         android:id="@+id/indicator"
-        aceim:styleableBackground="?attr/top_bar_background"
+        aceim:styleableBackground="top_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bottom_bar_height" 
         android:layout_alignParentTop="true"

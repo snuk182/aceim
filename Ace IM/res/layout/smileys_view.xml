@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aceim="http://schemas.android.com/apk/res-auto"
    	
-   	aceim:styleableBackground="?attr/bottom_bar_background" 
+   	aceim:styleableBackground="bottom_bar_background" 
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

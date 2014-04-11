@@ -14,8 +14,8 @@
         android:paddingTop="@dimen/default_padding"
         android:paddingLeft="@dimen/default_padding"
         android:paddingBottom="@dimen/default_padding"
-        styleableWidth="?attr/grid_item_size"
-        styleableHeight="?attr/grid_item_size"/>
+        styleableWidth="grid_item_size"
+        styleableHeight="grid_item_size"/>
     <aceim.app.themeable.widgets.StyleableImageView 
         android:id="@+id/right_icon"
         android:layout_width="@dimen/default_contact_list_plain_item_height"
@@ -26,8 +26,8 @@
         android:paddingTop="@dimen/default_padding"
         android:paddingRight="@dimen/default_padding"
         android:paddingBottom="@dimen/default_padding"
-        styleableWidth="?attr/grid_item_size"
-        styleableHeight="?attr/grid_item_size"/>
+        styleableWidth="grid_item_size"
+        styleableHeight="grid_item_size"/>
     <TextView 
         android:id="@+id/left_label"
         android:layout_width="wrap_content"

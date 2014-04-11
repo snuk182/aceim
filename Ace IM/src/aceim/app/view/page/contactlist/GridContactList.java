@@ -11,7 +11,6 @@ import aceim.app.dataentity.ProtocolResources;
 import aceim.app.utils.ViewUtils;
 import aceim.app.widgets.bottombar.ContactListBottomBar;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,18 +88,9 @@ public final class GridContactList extends ContactList {
 	}
 	
 	private void initVariables(AceIMActivity activity) {
-		TypedArray array = activity.getThemesManager().getCurrentTheme().obtainStyledAttributes(aceim.res.R.styleable.Ace_IM_Theme);
-		
-		for (int i =0; i< array.getIndexCount(); i++) {
-			int res = array.getIndex(i);
-			
-			switch (res) {
-			case aceim.res.R.styleable.Ace_IM_Theme_grid_item_size:
-				mGridItemSize = array.getDimensionPixelSize(i, 100);
-				break;
-			}
-		}
-		
-		array.recycle();
+		if (mGridItemSize < 1) {
+			Resources themeResources = getMainActivity().getThemesManager().getCurrentThemeContext().getResources();
+			mGridItemSize = themeResources.getDimensionPixelSize(getMainActivity().getThemesManager().getViewResources().getGridItemSizeId());
+		}		
 	}
 }

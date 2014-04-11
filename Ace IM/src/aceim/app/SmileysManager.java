@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
 import aceim.app.dataentity.SmileyResources;
@@ -29,7 +30,7 @@ public class SmileysManager extends PluginsManager {
 	private static SmileysPopup sSmileysPopup;
 	
 	public SmileysManager(MainActivity activity) {
-		super(activity, Constants.SMILEY_PLUGIN_PREFIX);
+		super(activity, ApiConstants.ACTION_PLUGIN_SMILEYS);
 		mResources.put(activity.getPackageName(), SmileyResources.mySmileys(activity));
 		initSmileys();
 	}
@@ -41,7 +42,7 @@ public class SmileysManager extends PluginsManager {
 		List<PackageInfo> list = packageManager.getInstalledPackages(PackageManager.GET_RESOLVED_FILTER);
 		
 		for (PackageInfo i : list) {
-			if (i.packageName.startsWith(Constants.SMILEY_PLUGIN_PREFIX)) {
+			if (i.packageName.startsWith(ApiConstants.ACTION_PLUGIN_SMILEYS)) {
 				Logger.log("Smiley pack info: " + i);
 				addSmileyPackage(i.packageName);
 			}

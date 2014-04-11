@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="drawable" name="selection_marker">@android:drawable/menuitem_background</item>
+    <item type="drawable" name="screen_background">@color/transparent</item>
+    <item type="drawable" name="top_bar_background">@color/transparent</item>
+    <item type="drawable" name="bottom_bar_background">@color/transparent</item>
+    <item type="drawable" name="bottom_bar_button_background">@android:drawable/menuitem_background</item>
+    <item type="dimen" name="list_item_height">50dip</item>
+    <item type="dimen" name="grid_item_size">@dimen/default_contact_list_grid_item_size</item>
+</resources>
