@@ -1,4 +1,4 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,9 +79,9 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 	public void chatCreated(Chat chat, boolean isLocal) {
 		Logger.log("chat " + chat.getParticipant(), LoggerLevel.VERBOSE);
 
-		if (chats.get(XMPPEntityAdapter.normalizeJID(chat.getParticipant())) == null) {
+		if (chats.get(getInternalService().getService().getEntityAdapter().normalizeJID(chat.getParticipant())) == null) {
 			chat.addMessageListener(this);
-			chats.put(XMPPEntityAdapter.normalizeJID(chat.getParticipant()), chat);
+			chats.put(getInternalService().getService().getEntityAdapter().normalizeJID(chat.getParticipant()), chat);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 	@Override
 	public void stateChanged(Chat chat, ChatState state) {
 		if (state == ChatState.composing) {
-			getInternalService().getService().getCoreService().typingNotification(XMPPEntityAdapter.normalizeJID(chat.getParticipant()));
+			getInternalService().getService().getCoreService().typingNotification(getInternalService().getService().getEntityAdapter().normalizeJID(chat.getParticipant()));
 		}
 	}
 
@@ -110,32 +110,32 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 
 	@Override
 	public void composingNotification(String from, String packetID) {
-		getInternalService().getService().getCoreService().typingNotification(XMPPEntityAdapter.normalizeJID(from));
+		getInternalService().getService().getCoreService().typingNotification(getInternalService().getService().getEntityAdapter().normalizeJID(from));
 	}
 
 	@Override
 	public void deliveredNotification(String from, String packetID) {
 		long messageId = Long.parseLong(packetID);
 		Logger.log(getInternalService().getService().getProtocolUid() + " - " + from + " delivered " + messageId, LoggerLevel.VERBOSE);
-		getInternalService().getService().getCoreService().messageAck(XMPPEntityAdapter.normalizeJID(from), messageId, MessageAckState.RECIPIENT_ACK);
+		getInternalService().getService().getCoreService().messageAck(getInternalService().getService().getEntityAdapter().normalizeJID(from), messageId, MessageAckState.RECIPIENT_ACK);
 	}
 
 	@Override
 	public void displayedNotification(String from, String packetID) {
 		long messageId = Long.parseLong(packetID);
 		Logger.log(getInternalService().getService().getProtocolUid() + " - " + from + " displayed " + messageId, LoggerLevel.VERBOSE);
-		getInternalService().getService().getCoreService().messageAck(XMPPEntityAdapter.normalizeJID(from), messageId, MessageAckState.READ_ACK);
+		getInternalService().getService().getCoreService().messageAck(getInternalService().getService().getEntityAdapter().normalizeJID(from), messageId, MessageAckState.READ_ACK);
 	}
 
 	@Override
 	public void offlineNotification(String from, String packetID) {
 		long messageId = Long.parseLong(packetID);
 		Logger.log(getInternalService().getService().getProtocolUid() + " - " + from + " offline " + messageId, LoggerLevel.VERBOSE);
-		getInternalService().getService().getCoreService().messageAck(XMPPEntityAdapter.normalizeJID(from), messageId, MessageAckState.SERVER_ACK);
+		getInternalService().getService().getCoreService().messageAck(getInternalService().getService().getEntityAdapter().normalizeJID(from), messageId, MessageAckState.SERVER_ACK);
 	}
 	
 	void processMessageInternal(final Message message, boolean resourceAsWriterId) {
-		TextMessage txtmessage = XMPPEntityAdapter.xmppMessage2TextMessage(message, getInternalService(), resourceAsWriterId);
+		TextMessage txtmessage = getInternalService().getService().getEntityAdapter().xmppMessage2TextMessage(message, getInternalService(), resourceAsWriterId);
 		getInternalService().getService().getCoreService().message(txtmessage);
 	}
 	
@@ -159,7 +159,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 			chats.put(textMessage.getContactUid(), chat);
 		}
 		
-		Message packet = XMPPEntityAdapter.textMessage2XMPPMessage(textMessage, chat.getThreadID(), chat.getParticipant(), Message.Type.chat, getInternalService().getEdProvider());
+		Message packet = getInternalService().getService().getEntityAdapter().textMessage2XMPPMessage(textMessage, chat.getThreadID(), chat.getParticipant(), Message.Type.chat);
 		chat.sendMessage(packet);
 		return packet.getPacketID().hashCode();
 	}
@@ -184,7 +184,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 			throw new ProtocolException("No joined chat found");
 		}
 
-		return XMPPEntityAdapter.xmppMUCOccupants2mcrOccupants(getInternalService(), muc, loadOccupantIcons);
+		return getInternalService().getService().getEntityAdapter().xmppMUCOccupants2mcrOccupants(getInternalService(), muc, loadOccupantIcons);
 	}
 
 	
@@ -206,7 +206,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 			return;
 		}		
 
-		if (getInternalService().getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) 0) !=  XMPPEntityAdapter.INVISIBLE_STATUS_ID) {
+		if (getInternalService().getOnlineInfo().getFeatures().getByte(ApiConstants.FEATURE_STATUS, (byte) 0) != XMPPEntityAdapter.INVISIBLE_STATUS_ID) {
 			messageEventManager.addMessageEventRequestListener(messageEventListener);
 		}
 		
@@ -215,7 +215,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 	
 	boolean amIOwner(MultiUserChat chat) throws XMPPException {
 		for (Affiliate aff : chat.getOwners()) {
-			if (XMPPEntityAdapter.normalizeJID(aff.getJid()).equals(getInternalService().getService().getProtocolUid())) {
+			if (getInternalService().getService().getEntityAdapter().normalizeJID(aff.getJid()).equals(getInternalService().getService().getProtocolUid())) {
 				return true;
 			}
 		}
@@ -342,7 +342,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 				sm.setText(StringUtils.parseResource(from) + " set chat topic to \"" + subject + "\"");
 				getInternalService().getService().getCoreService().message(sm);
 				
-				Buddy buddy = XMPPEntityAdapter.chatInfo2Buddy(chat.getRoom(), subject, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
+				Buddy buddy = getInternalService().getService().getEntityAdapter().chatInfo2Buddy(chat.getRoom(), subject, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
 				getInternalService().getService().getCoreService().buddyAction(ItemAction.MODIFIED, buddy);
 			}
 		});
@@ -355,7 +355,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 			String roomJid = joinedRooms.next();
 			try {
 				RoomInfo info = MultiUserChat.getRoomInfo(getInternalService().getConnection(), roomJid);
-				multiChatBuddies.add(XMPPEntityAdapter.chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true));
+				multiChatBuddies.add(getInternalService().getService().getEntityAdapter().chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true));
 			} catch (XMPPException e) {
 				Logger.log(e);
 			}
@@ -389,7 +389,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 			List<PersonalInfo> chats = new ArrayList<PersonalInfo>();
 			for (String service : mucServices) {
 				try {
-					chats.addAll(XMPPEntityAdapter.xmppHostedRooms2MultiChatRooms(MultiUserChat.getHostedRooms(getInternalService().getConnection(), service), getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId()));
+					chats.addAll(getInternalService().getService().getEntityAdapter().xmppHostedRooms2MultiChatRooms(MultiUserChat.getHostedRooms(getInternalService().getConnection(), service), getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId()));
 				} catch (XMPPException e) {
 					Logger.log(e);
 				}
@@ -463,10 +463,10 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 					multichats.put(chatJid, muc);	
 					
 					RoomInfo info = MultiUserChat.getRoomInfo(getInternalService().getConnection(), chatJid);
-					MultiChatRoom room = XMPPEntityAdapter.chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
+					MultiChatRoom room = getInternalService().getService().getEntityAdapter().chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
 					
 					try {
-						room.getOccupants().addAll(XMPPEntityAdapter.xmppMUCOccupants2mcrOccupants(getInternalService(), muc, true));
+						room.getOccupants().addAll(getInternalService().getService().getEntityAdapter().xmppMUCOccupants2mcrOccupants(getInternalService(), muc, true));
 						
 						String myChatId = chatJid + "/" + myName;
 						
@@ -549,7 +549,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 				if (muc != null) {
 					try {
 						Form form = muc.getConfigurationForm();
-						InputFormFeature feature = XMPPEntityAdapter.chatRoomConfigurationForm2InputFormFeature(form, getInternalService().getService().getContext());
+						InputFormFeature feature = getInternalService().getService().getEntityAdapter().chatRoomConfigurationForm2InputFormFeature(form, getInternalService().getService().getContext());
 						getInternalService().getService().getCoreService().showFeatureInputForm(chatJid, feature);
 					} catch (XMPPException e) {
 						getInternalService().onXmppException(e);
@@ -577,10 +577,10 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 						muc.sendConfigurationForm(submitForm);						
 						
 						RoomInfo info = MultiUserChat.getRoomInfo(getInternalService().getConnection(), chatJid);
-						MultiChatRoom room = XMPPEntityAdapter.chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
+						MultiChatRoom room = getInternalService().getService().getEntityAdapter().chatRoomInfo2Buddy(info, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), true);
 						
 						try {
-							room.getOccupants().addAll(XMPPEntityAdapter.xmppMUCOccupants2mcrOccupants(getInternalService(), muc, true));
+							room.getOccupants().addAll(getInternalService().getService().getEntityAdapter().xmppMUCOccupants2mcrOccupants(getInternalService(), muc, true));
 						} catch (Exception e) {
 							Logger.log(e.getLocalizedMessage(), LoggerLevel.DEBUG);
 						}
@@ -641,7 +641,7 @@ public class XMPPChatListener extends XMPPListener implements ChatManagerListene
 				
 				if (muc != null) {
 					try {
-						Buddy b = XMPPEntityAdapter.chatInfo2Buddy(chatJid, chatJid, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), false);
+						Buddy b = getInternalService().getService().getEntityAdapter().chatInfo2Buddy(chatJid, chatJid, getInternalService().getService().getProtocolUid(), getInternalService().getService().getServiceId(), false);
 						muc.destroy(null, null);
 						getInternalService().getService().getCoreService().buddyAction(ItemAction.DELETED, b);
 					} catch (XMPPException e) {

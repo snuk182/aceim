@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>aceim.protocol.snuk182</groupId>
+	<artifactId>xmpp.common</artifactId>
+	<version>${version}</version>
+	<packaging>apklib</packaging>
+	<name>Ace IM XMPP Common Code</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<version>0.9.3</version>
+		<api.version>0.9.3</api.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>android</artifactId>
+			<version>4.1.1.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>support-v4</artifactId>
+			<version>v17</version>
+			<scope>system</scope>
+			<systemPath>d:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>aceim</groupId>
+		    <artifactId>api</artifactId>
+		    <version>${api.version}</version>
+		    <type>apklib</type>
+		</dependency>
+		<dependency> 
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>asmack</artifactId>
+			<version>latest</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/asmack-android-4.jar</systemPath>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+				<artifactId>android-maven-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<sdk>
+						<!-- platform or api level (api level 4 = platform 1.6) -->
+						<platform>16</platform>
+					</sdk>
+				</configuration>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

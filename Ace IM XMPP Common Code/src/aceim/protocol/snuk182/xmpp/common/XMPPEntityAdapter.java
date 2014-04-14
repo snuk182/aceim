@@ -1,7 +1,6 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,9 +11,7 @@ import java.util.Map;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
@@ -28,9 +25,6 @@ import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.Occupant;
 import org.jivesoftware.smackx.muc.RoomInfo;
-import org.jivesoftware.smackx.packet.EncryptedMessage;
-import org.jivesoftware.smackx.packet.SignedPresence;
-import org.jivesoftware.smackx.provider.EncryptedDataProvider;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
@@ -48,16 +42,15 @@ import aceim.api.dataentity.tkv.ToggleTKV;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils;
 import android.content.Context;
 import android.text.TextUtils;
 
-public final class XMPPEntityAdapter {
+public class XMPPEntityAdapter {
 	
 	static final byte INVISIBLE_STATUS_ID = 5;
 	private static final Mode[] presenceModes = {Mode.available, Mode.away, Mode.xa, Mode.dnd, Mode.chat};
 	
-	public static final TextMessage xmppMessage2TextMessage(Message message, XMPPServiceInternal service, boolean resourceAsWriterId){
+	public TextMessage xmppMessage2TextMessage(Message message, XMPPServiceInternal service, boolean resourceAsWriterId){
 		if (message == null){
 			return null;
 		}
@@ -75,32 +68,10 @@ public final class XMPPEntityAdapter {
 		txtMessage.setText(message.getBody());
 		txtMessage.setIncoming(true);
 		
-		if (service.getEdProvider() != null){
-			PacketExtension ext = message.getExtension("x", "jabber:x:encrypted");
-			if (ext != null){
-				EncryptedMessage ems = (EncryptedMessage) ext;
-				try {
-					txtMessage.setText(ems.decryptAndGet(service.getEdProvider().getMyKey(), service.getEdProvider().getMyKeyPw()));	
-				} catch (Exception e) {
-					Logger.log(e);
-				}
-				
-				if (service.getEdProvider().getKeyStorage().get(txtMessage.getContactUid()) != null){
-					OnlineInfo info = service.getRosterListener().getPresenceCache().get(txtMessage.getContactUid());
-					if (info != null && !info.getFeatures().containsKey(XMPPApiConstants.FEATURE_ENCRYPTION_ON)) {
-						info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_ON, true);
-						info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_OFF);
-						
-						service.getService().getCoreService().buddyStateChanged(Arrays.asList(info));
-					}
-				}
-			}
-		}
-		
 		return txtMessage;
 	}
 
-	public static final Presence userStatus2XMPPPresence(Byte status, EncryptedDataProvider edp) {
+	public Presence userStatus2XMPPPresence(Byte status) {
 		Presence presence;
 		
 		if (status < 0 || status >= presenceModes.length) {
@@ -110,20 +81,10 @@ public final class XMPPEntityAdapter {
 			presence.setMode(presenceModes[status]);
 		}
 		
-		if (edp != null){
-			SignedPresence spr = new SignedPresence();
-			try {
-				spr.signAndSet(presence.getStatus(), edp.getMyKey(), edp.getMyKeyPw());
-				presence.addExtension(spr);
-			} catch (XMPPException e) {
-				Logger.log(e);
-			}
-		}
-		
 		return presence;
 	}
 	
-	public static byte xmppPresence2UserStatus(Presence presence) {
+	public byte xmppPresence2UserStatus(Presence presence) {
 		if (presence == null || presence.getType() != Type.available){
 			return -1;
 		}
@@ -142,7 +103,7 @@ public final class XMPPEntityAdapter {
 		return -1;
 	}
 	
-	public static final OnlineInfo presence2OnlineInfo(Presence presence, EncryptedDataProvider edp, Context context, byte serviceId, String ownerJid, OnlineInfo onlineInfo){
+	public OnlineInfo presence2OnlineInfo(Presence presence, Context context, byte serviceId, String ownerJid, OnlineInfo onlineInfo){
 		if (presence == null){
 			return null;
 		}
@@ -166,35 +127,14 @@ public final class XMPPEntityAdapter {
 
 		info.getFeatures().putBoolean(ApiConstants.FEATURE_FILE_TRANSFER, true);
 		
-		if (edp != null){
-			
-			String buddyPGPKey = context.getSharedPreferences(ownerJid, 0).getString(ResourceUtils.BUDDY_PUBLIC_KEY_PREFIX + info.getProtocolUid(), null);
-			if (buddyPGPKey != null) {
-				info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_OFF, true);
-				info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_REMOVE_PUBLIC_KEY, true);		
-				
-				PacketExtension ext = presence.getExtension("x", "jabber:x:signed");
-				if (ext != null){
-					SignedPresence spr = (SignedPresence) ext;
-					try {
-						info.setXstatusName(spr.verifyAndGet(buddyPGPKey));
-					} catch (Exception e) {
-						Logger.log(e);
-					}
-				} 
-			} else {
-				info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ADD_PUBLIC_KEY, true);
-			}
-		} 
-		
 		return info;
 	}
 	
-	public static String normalizeJID(String jid){
+	public String normalizeJID(String jid){
 		return StringUtils.parseBareAddress(jid);
 	}
 	
-	public static String getClientId(String jid){
+	public String getClientId(String jid){
 		if (jid == null){
 			return null;
 		}
@@ -205,7 +145,7 @@ public final class XMPPEntityAdapter {
 		return jid;
 	}
 
-	public static final Buddy rosterEntry2Buddy(RosterEntry entry, String ownerJid, EncryptedDataProvider edp, Context context, byte serviceId){
+	public Buddy rosterEntry2Buddy(RosterEntry entry, String ownerJid, Context context, byte serviceId){
 		if (entry == null){
 			return null;
 		}
@@ -219,24 +159,10 @@ public final class XMPPEntityAdapter {
 			//buddy.visibility = Buddy.VIS_NOT_AUTHORIZED;
 		}
 		
-		OnlineInfo info = buddy.getOnlineInfo();
-		
-		if (edp != null){
-			String buddyPGPKey = context.getSharedPreferences(ownerJid, 0).getString(ResourceUtils.BUDDY_PUBLIC_KEY_PREFIX + info.getProtocolUid(), null);
-			
-			if (buddyPGPKey != null) {
-				//info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_OFF, true);
-				info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_REMOVE_PUBLIC_KEY, true);
-				edp.getKeyStorage().put(info.getProtocolUid(), null);
-			} else {
-				info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ADD_PUBLIC_KEY, true);
-			}
-		}
-		
 		return buddy;
 	}
 	
-	public static final BuddyGroup rosterGroup2BuddyGroup(RosterGroup entry, Collection<RosterEntry> buddies, String ownerUid, EncryptedDataProvider edp, Context context, byte serviceId){
+	public BuddyGroup rosterGroup2BuddyGroup(RosterGroup entry, Collection<RosterEntry> buddies, String ownerUid, Context context, byte serviceId){
 		if (entry == null){
 			return null;
 		}
@@ -245,12 +171,12 @@ public final class XMPPEntityAdapter {
 		
 		for (RosterEntry buddy: entry.getEntries()){
 			buddies.remove(buddy);
-			group.getBuddyList().add(rosterEntry2Buddy(buddy, ownerUid, edp, context, serviceId));
+			group.getBuddyList().add(rosterEntry2Buddy(buddy, ownerUid, context, serviceId));
 		}
 		return group;
 	}
 	
-	public static final List<BuddyGroup> rosterGroupCollection2BuddyGroupList(Collection<RosterGroup> entries, Collection<RosterEntry> buddies, String ownerUid, EncryptedDataProvider edp, Context context, byte serviceId){
+	public List<BuddyGroup> rosterGroupCollection2BuddyGroupList(Collection<RosterGroup> entries, Collection<RosterEntry> buddies, String ownerUid, Context context, byte serviceId){
 		if (entries == null){
 			return null;
 		}
@@ -259,19 +185,19 @@ public final class XMPPEntityAdapter {
 		
 		List<BuddyGroup> groups = new ArrayList<BuddyGroup>(entries.size());
 		for (RosterGroup entry: entries){
-			groups.add(rosterGroup2BuddyGroup(entry, list, ownerUid, edp, context, serviceId));
+			groups.add(rosterGroup2BuddyGroup(entry, list, ownerUid, context, serviceId));
 		}
 		
 		BuddyGroup noGroup = new BuddyGroup(ApiConstants.NO_GROUP_ID, ownerUid, serviceId);
 		for (RosterEntry buddyWithNoGroup : list) {
-			noGroup.getBuddyList().add(rosterEntry2Buddy(buddyWithNoGroup, ownerUid, edp, context, serviceId));
+			noGroup.getBuddyList().add(rosterEntry2Buddy(buddyWithNoGroup, ownerUid, context, serviceId));
 		}
 		groups.add(noGroup);
 		
 		return groups;
 	}
 
-	public static final List<PersonalInfo> xmppHostedRooms2MultiChatRooms(Collection<HostedRoom> hostedRooms, String ownerJid, byte serviceId) {
+	public List<PersonalInfo> xmppHostedRooms2MultiChatRooms(Collection<HostedRoom> hostedRooms, String ownerJid, byte serviceId) {
 		if (hostedRooms == null){
 			return Collections.emptyList();
 		}
@@ -283,7 +209,7 @@ public final class XMPPEntityAdapter {
 		return chats;
 	}
 
-	private static PersonalInfo xmppHostedRoom2PersonalInfo(HostedRoom room, byte serviceId) {
+	private PersonalInfo xmppHostedRoom2PersonalInfo(HostedRoom room, byte serviceId) {
 		if (room == null) {
 			return null;
 		}
@@ -296,19 +222,19 @@ public final class XMPPEntityAdapter {
 		return info;
 	}
 
-	public static final MultiChatRoom xmppHostedRoom2MultiChatRoom(HostedRoom room, String ownerJid, byte serviceId) {
+	public MultiChatRoom xmppHostedRoom2MultiChatRoom(HostedRoom room, String ownerJid, byte serviceId) {
 		MultiChatRoom chat = new MultiChatRoom(room.getJid(), ownerJid, XMPPApiConstants.PROTOCOL_NAME, serviceId);
 		chat.setName(room.getName());
 		return chat;
 	}
 
-	public static MultiChatRoom xmppRoomInfo2MultiChatRoom(RoomInfo info, String ownerJid, byte serviceId) {
+	public MultiChatRoom xmppRoomInfo2MultiChatRoom(RoomInfo info, String ownerJid, byte serviceId) {
 		MultiChatRoom chat = new MultiChatRoom(info.getRoom(), ownerJid, XMPPApiConstants.PROTOCOL_NAME, serviceId);
 		chat.setName(info.getDescription());
 		return chat;
 	}
 
-	public static MultiChatRoom chatRoomInfo2Buddy(RoomInfo info, String ownerJid, byte serviceId, boolean joined) {
+	public MultiChatRoom chatRoomInfo2Buddy(RoomInfo info, String ownerJid, byte serviceId, boolean joined) {
 		MultiChatRoom chat = new MultiChatRoom(info.getRoom(), ownerJid, XMPPApiConstants.PROTOCOL_NAME, serviceId);
 		chat.setName((info.getSubject()!= null && info.getSubject().length() > 0) ? info.getSubject() : info.getRoom());
 		chat.getOnlineInfo().setXstatusName(info.getDescription());
@@ -321,7 +247,7 @@ public final class XMPPEntityAdapter {
 		return chat;
 	}
 
-	public static MultiChatRoom chatInfo2Buddy(String chatId, String chatName, String ownerJid, byte serviceId, boolean joined) {
+	public MultiChatRoom chatInfo2Buddy(String chatId, String chatName, String ownerJid, byte serviceId, boolean joined) {
 		MultiChatRoom chat = new MultiChatRoom(chatId, ownerJid, XMPPApiConstants.PROTOCOL_NAME, serviceId);
 		chat.setName(chatName);
 		chat.setId(chat.getProtocolUid().hashCode());
@@ -333,27 +259,18 @@ public final class XMPPEntityAdapter {
 		return chat;
 	}
 
-	public static Message textMessage2XMPPMessage(TextMessage textMessage, String thread, String to, Message.Type messageType, EncryptedDataProvider edp) throws Exception {
+	public Message textMessage2XMPPMessage(TextMessage textMessage, String thread, String to, Message.Type messageType) throws Exception {
 		Message message = new Message(to, messageType);
 		message.setThread(thread);
 		message.setPacketID(textMessage.getMessageId() + "");
 		MessageEventManager.addNotificationsRequests(message, true, true, true, true);
 		
-		String buddyKey = null;
-		if (edp != null && (buddyKey = edp.getKeyStorage().get(textMessage.getContactUid())) != null){
-			EncryptedMessage ems = new EncryptedMessage();
-			ems.setAndEncrypt(textMessage.getText(), buddyKey);
-			//TODO
-			message.setBody("Encrypted message");			
-			message.addExtension(ems);
-		} else {
-			message.setBody(textMessage.getText());			
-		}
+		message.setBody(textMessage.getText());	
 		
 		return message;
 	}
 	
-	public static final List<BuddyGroup> xmppMUCOccupants2mcrOccupants(XMPPServiceInternal service, MultiUserChat muc, boolean loadIcons) {
+	public List<BuddyGroup> xmppMUCOccupants2mcrOccupants(XMPPServiceInternal service, MultiUserChat muc, boolean loadIcons) {
 		List<BuddyGroup> groups = new ArrayList<BuddyGroup>();
 		String ownerJid = service.getOnlineInfo().getProtocolUid();
 		
@@ -415,7 +332,7 @@ public final class XMPPEntityAdapter {
 		return groups;
 	}
 
-	private static void fillMUCGroup(Collection<Occupant> occupants, BuddyGroup group, Map<String, Buddy> map) {
+	private void fillMUCGroup(Collection<Occupant> occupants, BuddyGroup group, Map<String, Buddy> map) {
 		for (Occupant occu : occupants){
 			String occupantJid = normalizeJID(occu.getJid());
 			Buddy occupant = map.remove(occupantJid);
@@ -425,11 +342,11 @@ public final class XMPPEntityAdapter {
 		}		
 	}
 
-	public static RosterEntry buddy2RosterEntry(XMPPConnection connection, Buddy buddy) {		
+	public RosterEntry buddy2RosterEntry(XMPPConnection connection, Buddy buddy) {		
 		return connection.getRoster().getEntry(buddy.getProtocolUid());
 	}
 
-	public static RosterGroup buddyGroup2RosterEntry(XMPPConnection connection, BuddyGroup buddyGroup) {
+	public RosterGroup buddyGroup2RosterEntry(XMPPConnection connection, BuddyGroup buddyGroup) {
 		for (RosterGroup group: connection.getRoster().getGroups()){
 			if (group.getName().equals(buddyGroup.getId())){
 				return group;
@@ -438,7 +355,7 @@ public final class XMPPEntityAdapter {
 		return null;
 	}
 
-	public static void addGroupChats(List<BuddyGroup> groups, List<MultiChatRoom> joinedChatRooms, String ownerUid, byte serviceId) {
+	public void addGroupChats(List<BuddyGroup> groups, List<MultiChatRoom> joinedChatRooms, String ownerUid, byte serviceId) {
 		BuddyGroup noGroup = null;
 		
 		for (BuddyGroup g: groups) {
@@ -455,7 +372,7 @@ public final class XMPPEntityAdapter {
 		noGroup.getBuddyList().addAll(joinedChatRooms);
 	}
 
-	public static InputFormFeature chatRoomConfigurationForm2InputFormFeature(Form form, Context context) {
+	public InputFormFeature chatRoomConfigurationForm2InputFormFeature(Form form, Context context) {
 		if (form == null) {
 			return null;
 		}
@@ -497,7 +414,7 @@ public final class XMPPEntityAdapter {
 		return feature;
 	}
 
-	private static String[] chatFormListItemChoices2ListTkvChoices(Iterator<Option> options) {
+	private String[] chatFormListItemChoices2ListTkvChoices(Iterator<Option> options) {
 		if (options == null) {
 			return new String[0];
 		}

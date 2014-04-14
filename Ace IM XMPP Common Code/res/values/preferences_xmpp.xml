@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    	
+	<string-array name="xmpp_proxy_names">
+		<item>none</item>
+		<item>http</item>
+		<item>socks4</item>
+		<item>socks5</item>		
+	</string-array>
+	
+	<string-array name="xmpp_status_icons">
+		<item>@drawable/ic_online</item>
+		<item>@drawable/xmpp_away_big</item>
+		<item>@drawable/xmpp_na_big</item>
+		<item>@drawable/xmpp_dnd_big</item>
+		<item>@drawable/xmpp_free4chat_big</item>
+		<item>@drawable/xmpp_invisible_big</item>
+	</string-array>
+	
+	<string-array name="xmpp_status_strings">
+		<item>@string/label_st_online</item>
+		<item>@string/label_st_away</item>
+		<item>@string/label_st_na</item>
+		<item>@string/label_st_dnd</item>
+		<item>@string/label_st_free4chat</item>
+		<item>@string/label_st_invisible</item>
+	</string-array>
+
+</resources>

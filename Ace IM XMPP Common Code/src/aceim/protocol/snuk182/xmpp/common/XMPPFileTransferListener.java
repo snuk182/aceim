@@ -1,4 +1,4 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 import java.io.File;
 import java.util.Arrays;
@@ -42,10 +42,7 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 		fi.setFilename(request.getFileName());
 		fi.setSize(request.getFileSize());
 		
-		FileMessage fm = new FileMessage(
-				getInternalService().getService().getServiceId(), 
-				XMPPEntityAdapter.normalizeJID(request.getRequestor()),
-				Arrays.asList(fi));
+		FileMessage fm = new FileMessage(getInternalService().getService().getServiceId(), getInternalService().getService().getEntityAdapter().normalizeJID(request.getRequestor()), Arrays.asList(fi));
 
 		fm.setMessageId(request.getStreamID().hashCode());
 
@@ -147,7 +144,7 @@ public class XMPPFileTransferListener extends XMPPListener implements FileTransf
 
 		@Override
 		public void run() {
-			Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(getInternalService().getConnection().getRoster().getEntry(senderJid), getInternalService().getService().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
+			Buddy buddy = getInternalService().getService().getEntityAdapter().rosterEntry2Buddy(getInternalService().getConnection().getRoster().getEntry(senderJid), getInternalService().getService().getProtocolUid(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
 			File file = Utils.createLocalFileForReceiving(request.getFileName(), buddy, request.getFileSize());
 			IncomingFileTransfer transfer = request.accept();
 			

@@ -1,4 +1,4 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 public final class XMPPApiConstants {
 
@@ -15,7 +15,7 @@ public final class XMPPApiConstants {
 	public static final String DEFAULT_PORT = "5222";
 	public static final String DEFAULT_HOST = "jabber.org";
 	
-	protected static final String PROTOCOL_NAME = "XMPP";
+	public static final String PROTOCOL_NAME = "XMPP";
 	
 	public static final String FEATURE_ADD_BUDDY = "AddBuddy";
 	public static final String FEATURE_AUTHORIZATION = "Authorization";

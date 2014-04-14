@@ -1,0 +1,54 @@
+<resources>
+
+    <string name="app_name">Модуль Ace IM XMPP</string>
+	<string name="info">Модуль XMPP (Jabber) для Ace IM. Домашняя страница https://github.com/snuk182/aceim</string>
+    
+    <string name="jid">JID</string>
+    <string name="password">Пароль</string>
+    <string name="server_host">Сервер</string>
+    <string name="server_port">Порт сервера</string>
+    <string name="proxy_type">Прокси</string>
+    <string name="proxy_host">Хост прокси</string>
+    <string name="proxy_port">Порт прокси</string>
+    <string name="proxy_username">Имя пользователя прокси</string>
+    <string name="proxy_password">Пароль пользователя прокси</string>
+    <string name="pgp_key_file">Приватный ключ PGP</string>
+    <string name="pgp_key_password">Пароль приватного ключа PGP</string>
+    <string name="ping_timeout">Таймаут пинга</string>
+    
+    <string name="label_st_online">В сети</string>
+    <string name="label_st_away">Ушёл</string>
+    <string name="label_st_na">Недоступен</string>
+    <string name="label_st_dnd">Не беспокоить</string>
+    <string name="label_st_free4chat">Хочу чатиться</string>
+    <string name="label_st_invisible">Невидим</string>
+    <string name="label_secure_connection">Безопасное соединение</string>
+    
+    <string name="status">Статус</string>
+    
+    <string name="ask_authorization">Запрос авторизации</string>
+    <string name="add_buddy">Добавить контакт</string>
+    <string name="nickname">Ник (необязательно)</string>
+    
+    <string name="message">Сообщение</string>
+    <string name="ask_authorization_message_default">Привет, добавь меня в свой список контактов</string>
+    
+   	<string name="groupchats">Групповые чаты</string>
+    <string name="add_connect_groupchat">Подключить чат</string>   
+    <string name="host">Хост</string>   
+    <string name="chat_room_id">ID чата</string>
+    
+	<string name="chat_action">Действие</string>
+    <string name="join_existing_room">Существующий чат</string>
+    <string name="create_new_chat">Новый чат</string>
+    
+     <string name="chat_exists" formatted="false">Чат %s не может быть создан, так как уже существует</string>
+     <string name="room_configuration">Настройки чата</string>
+     <string name="destroy_room">Уничтожить чат</string>
+     <string name="confirm_destroy_room">Чат будет уничтожен. Продолжить?</string>
+     
+     <string name="add_public_key">Добавить ключ PGP</string>
+    <string name="remove_public_key">Удалить ключ PGP</string>
+    <string name="encryption_on">Шифрование включено</string>
+    <string name="encryption_off">Шифрование выключено</string>
+</resources>

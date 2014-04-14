@@ -1,9 +1,8 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,43 +23,15 @@ import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Privacy;
 import org.jivesoftware.smack.packet.PrivacyItem;
-import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.proxy.ProxyInfo;
 import org.jivesoftware.smack.proxy.ProxyInfo.ProxyType;
-import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.MessageEventManager;
-import org.jivesoftware.smackx.PrivateDataManager;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
-import org.jivesoftware.smackx.bytestreams.ibb.provider.CloseIQProvider;
-import org.jivesoftware.smackx.bytestreams.ibb.provider.DataPacketProvider;
-import org.jivesoftware.smackx.bytestreams.ibb.provider.OpenIQProvider;
-import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.entitycaps.EntityCapsManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
-import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DiscoverItems.Item;
-import org.jivesoftware.smackx.packet.LastActivity;
-import org.jivesoftware.smackx.packet.OfflineMessageInfo;
-import org.jivesoftware.smackx.packet.OfflineMessageRequest;
-import org.jivesoftware.smackx.packet.SharedGroupsInfo;
-import org.jivesoftware.smackx.provider.AdHocCommandDataProvider;
-import org.jivesoftware.smackx.provider.DataFormProvider;
-import org.jivesoftware.smackx.provider.DelayInformationProvider;
-import org.jivesoftware.smackx.provider.DiscoverInfoProvider;
-import org.jivesoftware.smackx.provider.DiscoverItemsProvider;
-import org.jivesoftware.smackx.provider.EncryptedDataProvider;
-import org.jivesoftware.smackx.provider.MUCAdminProvider;
-import org.jivesoftware.smackx.provider.MUCOwnerProvider;
-import org.jivesoftware.smackx.provider.MUCUserProvider;
-import org.jivesoftware.smackx.provider.MessageEventProvider;
-import org.jivesoftware.smackx.provider.MultipleAddressesProvider;
-import org.jivesoftware.smackx.provider.RosterExchangeProvider;
-import org.jivesoftware.smackx.provider.StreamInitiationProvider;
-import org.jivesoftware.smackx.provider.VCardProvider;
-import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
-import org.jivesoftware.smackx.search.UserSearch;
 
 import aceim.api.dataentity.Buddy;
 import aceim.api.dataentity.BuddyGroup;
@@ -76,25 +47,22 @@ import aceim.api.service.ProtocolException;
 import aceim.api.service.ProtocolException.Cause;
 import aceim.api.utils.Logger;
 import aceim.api.utils.Logger.LoggerLevel;
-import aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils;
-import android.content.SharedPreferences.Editor;
-import android.os.RemoteException;
+import aceim.protocol.snuk182.xmpp.common.utils.ResourceUtils;
 import android.text.TextUtils;
 
 public class XMPPServiceInternal implements ConnectionListener {
 	
-	public XMPPServiceInternal(XMPPService service) {
+	public XMPPServiceInternal(XMPPCommonService service) {
 		this.service = service;
 		this.mMyOnlineInfo = new OnlineInfo(service.getServiceId(), service.getProtocolUid());
 	}
 
-	private final XMPPService service;
+	private final XMPPCommonService service;
 
 	private final OnlineInfo mMyOnlineInfo;
 
 	private XMPPConnection connection;
 
-	private EncryptedDataProvider edProvider = null;
 	private final XMPPRosterListener mRosterListener = new XMPPRosterListener(this);
 	private final XMPPChatListener mChatListener = new XMPPChatListener(this);
 	private final XMPPFileTransferListener mFileTransferListener = new XMPPFileTransferListener(this);
@@ -145,7 +113,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 		}
 		
 		if (info != null) {
-			mMyOnlineInfo.merge(info);
+			
 		}
 		
 		Runnable r = new Runnable() {
@@ -188,7 +156,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 				config.setServiceName(serviceName);
 				
 				try {
-					configure(ProviderManager.getInstance());
+					getService().configure(ProviderManager.getInstance());
 					connection = new XMPPConnection(config);
 					mRosterListener.setContactListReady(false);
 					
@@ -232,7 +200,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 					getService().getCoreService().connectionStateChanged( ConnectionState.CONNECTING, 7);
 					try {
 						List<MultiChatRoom> joinedChats = mChatListener.getJoinedChatRooms();
-						XMPPEntityAdapter.addGroupChats(groups, joinedChats, jid, getService().getServiceId());
+						getService().getEntityAdapter().addGroupChats(groups, joinedChats, jid, getService().getServiceId());
 					} catch (Exception e) {
 						Logger.log(e);
 					}
@@ -312,104 +280,6 @@ public class XMPPServiceInternal implements ConnectionListener {
 		}
 	}
 
-	private void configure(ProviderManager pm) throws RemoteException {
-		// Version
-		try {
-			pm.addIQProvider("query", "jabber:iq:version", Class.forName("org.jivesoftware.smackx.packet.Version"));
-		} catch (ClassNotFoundException e) {
-			// Not sure what's happening here.
-		}
-
-		// JEP-33: Extended Stanza Addressing
-		pm.addExtensionProvider("addresses", "http://jabber.org/protocol/address", new MultipleAddressesProvider());
-
-		// Privacy
-		pm.addIQProvider("query", "jabber:iq:privacy", new PrivacyProvider());
-		pm.addIQProvider("command", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider());
-		pm.addExtensionProvider("malformed-action", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.MalformedActionError());
-		pm.addExtensionProvider("bad-locale", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.BadLocaleError());
-		pm.addExtensionProvider("bad-payload", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.BadPayloadError());
-		pm.addExtensionProvider("bad-sessionid", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.BadSessionIDError());
-		pm.addExtensionProvider("session-expired", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.SessionExpiredError());
-
-		// Private Data Storage
-		pm.addIQProvider("query", "jabber:iq:private", new PrivateDataManager.PrivateDataIQProvider());
-
-		// Time
-		try {
-			pm.addIQProvider("query", "jabber:iq:time", Class.forName("org.jivesoftware.smackx.packet.Time"));
-		} catch (ClassNotFoundException e) {
-			Logger.log(e);
-		}
-
-		// XHTML
-		pm.addExtensionProvider("html", "http://jabber.org/protocol/xhtml-im", new XHTMLExtensionProvider());
-
-		// Roster Exchange
-		pm.addExtensionProvider("x", "jabber:x:roster", new RosterExchangeProvider());
-		// Message Events
-		pm.addExtensionProvider("x", "jabber:x:event", new MessageEventProvider());
-		// Chat State
-		pm.addExtensionProvider("active", "http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
-		pm.addExtensionProvider("composing", "http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
-		pm.addExtensionProvider("paused", "http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
-		pm.addExtensionProvider("inactive", "http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
-		pm.addExtensionProvider("gone", "http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
-
-		// FileTransfer
-		pm.addIQProvider("si", "http://jabber.org/protocol/si", new StreamInitiationProvider());
-		pm.addIQProvider("query", "http://jabber.org/protocol/bytestreams", new BytestreamsProvider());
-		pm.addIQProvider("open", "http://jabber.org/protocol/ibb", new OpenIQProvider());
-		pm.addIQProvider("close", "http://jabber.org/protocol/ibb", new CloseIQProvider());
-		pm.addExtensionProvider("data", "http://jabber.org/protocol/ibb", new DataPacketProvider());
-		
-		// Group Chat Invitations
-		pm.addExtensionProvider("x", "jabber:x:conference", new GroupChatInvitation.Provider());
-		// Service Discovery # Items
-		pm.addIQProvider("query", "http://jabber.org/protocol/disco#items", new DiscoverItemsProvider());
-		// Service Discovery # Info
-		pm.addIQProvider("query", "http://jabber.org/protocol/disco#info", new DiscoverInfoProvider());
-		// Data Forms
-		pm.addExtensionProvider("x", "jabber:x:data", new DataFormProvider());
-		// MUC User
-		pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#user", new MUCUserProvider());
-		// MUC Admin
-		pm.addIQProvider("query", "http://jabber.org/protocol/muc#admin", new MUCAdminProvider());
-		// MUC Owner
-		pm.addIQProvider("query", "http://jabber.org/protocol/muc#owner", new MUCOwnerProvider());
-		// Delayed Delivery
-		pm.addExtensionProvider("x", "jabber:x:delay", new DelayInformationProvider());
-		// VCard
-		pm.addIQProvider("vCard", "vcard-temp", new VCardProvider());
-		// Offline Message Requests
-		pm.addIQProvider("offline", "http://jabber.org/protocol/offline", new OfflineMessageRequest.Provider());
-		// Offline Message Indicator
-		pm.addExtensionProvider("offline", "http://jabber.org/protocol/offline", new OfflineMessageInfo.Provider());
-		// Last Activity
-		pm.addIQProvider("query", "jabber:iq:last", new LastActivity.Provider());
-		// User Search
-		pm.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
-		// SharedGroupsInfo
-		pm.addIQProvider("sharedgroup", "http://www.jivesoftware.org/protocol/sharedgroup", new SharedGroupsInfo.Provider());
-		
-		String pgpKey = getService().getCoreService().requestPreference(ResourceUtils.KEY_PRIVATEKEY_FILE);
-		String pgpKeyPassword = getService().getCoreService().requestPreference(ResourceUtils.KEY_PRIVATEKEY_PASSWORD);
-		
-		if (pgpKey != null && pgpKeyPassword != null){
-			edProvider = new EncryptedDataProvider();
-			edProvider.setMyKey(pgpKey);
-			edProvider.setMyKeyPw(pgpKeyPassword);
-			pm.addExtensionProvider("x", "jabber:x:signed", edProvider);
-			pm.addExtensionProvider("x", "jabber:x:encrypted", edProvider);		
-			
-			Security.addProvider(edProvider.getProvider());			
-		} else {
-			edProvider = null;
-			pm.removeExtensionProvider("x", "jabber:x:signed");
-			pm.removeExtensionProvider("x", "jabber:x:encrypted");
-		}
-	}
-	
 	private boolean isGmail(String serviceName) {
 		return serviceName.equals("gmail.com") || serviceName.equals("googlemail.com");
 	}
@@ -450,13 +320,6 @@ public class XMPPServiceInternal implements ConnectionListener {
 	public void reconnectionFailed(Exception e) {
 		Logger.log("Reconnection failed " + mMyOnlineInfo.getProtocolUid());
 		connectionClosedOnError(e);
-	}
-
-	/**
-	 * @return the edProvider
-	 */
-	public EncryptedDataProvider getEdProvider() {
-		return edProvider;
 	}
 
 	/**
@@ -582,7 +445,7 @@ public class XMPPServiceInternal implements ConnectionListener {
 			connection.sendPacket(privacy2);
 		}
 		
-		Presence presence = XMPPEntityAdapter.userStatus2XMPPPresence(statusId, getEdProvider());
+		Presence presence = getService().getEntityAdapter().userStatus2XMPPPresence(statusId);
 		connection.sendPacket(presence);
 	}
 
@@ -643,67 +506,10 @@ public class XMPPServiceInternal implements ConnectionListener {
 		mChatListener.destroyChatRoom(contactUid);
 	}
 
-	public void encryptionOn(OnlineInfo info) {
-		String buddyPGPKey;
-		
-		if (edProvider != null && (buddyPGPKey = getService().getContext().getSharedPreferences(mMyOnlineInfo.getProtocolUid(), 0).getString(ResourceUtils.BUDDY_PUBLIC_KEY_PREFIX + info.getProtocolUid(), null)) != null) {
-			edProvider.getKeyStorage().put(info.getProtocolUid(), buddyPGPKey);
-		}
-		
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_OFF);
-		info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_ON, true);
-		
-		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
-		
-		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
-	}
-
-	public void encryptionOff(OnlineInfo info) {
-		if (edProvider != null) {
-			edProvider.getKeyStorage().put(info.getProtocolUid(), null);
-		}
-		
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_ON);
-		info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_OFF, true);
-		
-		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
-		
-		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
-	}
-
-	public void addBuddyPGPKey(OnlineInfo info, String pgp) {
-		Editor e = getService().getContext().getSharedPreferences(mMyOnlineInfo.getProtocolUid(), 0).edit();
-		e.putString(ResourceUtils.BUDDY_PUBLIC_KEY_PREFIX + info.getProtocolUid(), pgp);
-		e.commit();
-		
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_ADD_PUBLIC_KEY);
-		info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ENCRYPTION_OFF, true);
-		info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_REMOVE_PUBLIC_KEY, true);
-		
-		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
-		
-		getService().getCoreService().buddyStateChanged(Arrays.asList(info));
-	}
-
-	public void removeBuddyPGPKey(OnlineInfo info) {
-		Editor e = getService().getContext().getSharedPreferences(mMyOnlineInfo.getProtocolUid(), 0).edit();
-		e.remove(ResourceUtils.BUDDY_PUBLIC_KEY_PREFIX + info.getProtocolUid());
-		e.commit();
-		
-		info.getFeatures().putBoolean(XMPPApiConstants.FEATURE_ADD_PUBLIC_KEY, true);
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_OFF);
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_ENCRYPTION_ON);
-		info.getFeatures().remove(XMPPApiConstants.FEATURE_REMOVE_PUBLIC_KEY);
-		
-		mRosterListener.getPresenceCache().put(info.getProtocolUid(), info);
-		
-		getService().getCoreService().buddyStateChanged(Arrays.asList(mMyOnlineInfo));
-	}
-
 	/**
 	 * @return the service
 	 */
-	public XMPPService getService() {
+	public XMPPCommonService getService() {
 		return service;
 	}
 
@@ -719,21 +525,21 @@ public class XMPPServiceInternal implements ConnectionListener {
 	/**
 	 * @return the mRosterListener
 	 */
-	XMPPRosterListener getRosterListener() {
+	public XMPPRosterListener getRosterListener() {
 		return mRosterListener;
 	}
 
 	/**
 	 * @return the mChatListener
 	 */
-	XMPPChatListener getChatListener() {
+	public XMPPChatListener getChatListener() {
 		return mChatListener;
 	}
 
 	/**
 	 * @return the mFileTransferListener
 	 */
-	XMPPFileTransferListener getFileTransferListener() {
+	public XMPPFileTransferListener getFileTransferListener() {
 		return mFileTransferListener;
 	}
 }

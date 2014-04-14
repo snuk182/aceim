@@ -1,4 +1,4 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			}
 		}
 		
-		List<BuddyGroup> groups = XMPPEntityAdapter.rosterGroupCollection2BuddyGroupList(roster.getGroups(), entries, getInternalService().getOnlineInfo().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
+		List<BuddyGroup> groups = getInternalService().getService().getEntityAdapter().rosterGroupCollection2BuddyGroupList(roster.getGroups(), entries, getInternalService().getOnlineInfo().getProtocolUid(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId());
 		return groups;
 	}
 
@@ -93,7 +93,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	public void presenceChanged(Presence presence) {
 		Logger.log(" - presence " + presence.getFrom() + " " + presence.getMode(), LoggerLevel.VERBOSE);
 
-		OnlineInfo info = XMPPEntityAdapter.presence2OnlineInfo(presence, getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId(), getInternalService().getService().getProtocolUid(), presenceCache.get(XMPPEntityAdapter.normalizeJID(presence.getFrom())));
+		OnlineInfo info = getInternalService().getService().getEntityAdapter().presence2OnlineInfo(presence, getInternalService().getService().getContext(), getInternalService().getService().getServiceId(), getInternalService().getService().getProtocolUid(), presenceCache.get(getInternalService().getService().getEntityAdapter().normalizeJID(presence.getFrom())));
 		
 		presenceCache.put(info.getProtocolUid(), info);
 		
@@ -126,7 +126,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 		if (packet instanceof Presence) {
 			Presence p = (Presence) packet;
 			if (Presence.Type.subscribe.equals(p.getType())) {	
-				ServiceMessage message = new ServiceMessage(getInternalService().getService().getServiceId(), XMPPEntityAdapter.normalizeJID(p.getFrom()), true);
+				ServiceMessage message = new ServiceMessage(getInternalService().getService().getServiceId(), getInternalService().getService().getEntityAdapter().normalizeJID(p.getFrom()), true);
 				message.setText(p.getFrom());
 				message.setContactDetail(getInternalService().getService().getContext().getString(R.string.ask_authorization));
 				
@@ -158,7 +158,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
+					RosterGroup rgroup = getInternalService().getService().getEntityAdapter().buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
 
 					for (RosterEntry entry : rgroup.getEntries()) {
 						getInternalService().getConnection().getRoster().createEntry(entry.getUser(), entry.getName(), new String[] { buddyGroup.getName() });
@@ -196,7 +196,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					RosterGroup rgroup = XMPPEntityAdapter.buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
+					RosterGroup rgroup = getInternalService().getService().getEntityAdapter().buddyGroup2RosterEntry(getInternalService().getConnection(), buddyGroup);
 					Roster roster = getInternalService().getConnection().getRoster();
 					
 					for (RosterEntry entry : rgroup.getEntries()) {
@@ -204,7 +204,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 						
 						roster.createEntry(entry.getUser(), entry.getName(), new String[0]);
 						
-						Buddy buddy = XMPPEntityAdapter.rosterEntry2Buddy(entry, buddyGroup.getOwnerUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), buddyGroup.getServiceId());
+						Buddy buddy = getInternalService().getService().getEntityAdapter().rosterEntry2Buddy(entry, buddyGroup.getOwnerUid(), getInternalService().getService().getContext(), buddyGroup.getServiceId());
 						buddy.setGroupId(ApiConstants.NO_GROUP_ID);
 						
 						getInternalService().getService().getCoreService().buddyAction(ItemAction.MODIFIED, buddy);
@@ -225,7 +225,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
-					getInternalService().getConnection().getRoster().removeEntry(XMPPEntityAdapter.buddy2RosterEntry(getInternalService().getConnection(), buddy));
+					getInternalService().getConnection().getRoster().removeEntry(getInternalService().getService().getEntityAdapter().buddy2RosterEntry(getInternalService().getConnection(), buddy));
 					getInternalService().getService().getCoreService().buddyAction(ItemAction.DELETED, buddy);
 				} catch (XMPPException e) {
 					Logger.log(e);
@@ -256,9 +256,16 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 			@Override
 			public void run() {
 				try {
+					XMPPCommonService service = getInternalService().getService();
 					Roster roster = getInternalService().getConnection().getRoster();
 					roster.createEntry(buddy.getProtocolUid(), buddy.getName(), (buddy.getGroupId() != null && !buddy.getGroupId().equals(ApiConstants.NO_GROUP_ID)) ? new String[] { buddy.getGroupId() } : new String[0]);
-					getInternalService().getService().getCoreService().buddyAction(ItemAction.ADDED, XMPPEntityAdapter.rosterEntry2Buddy(roster.getEntry(buddy.getProtocolUid()),getInternalService().getService().getProtocolUid(), getInternalService().getEdProvider(), getInternalService().getService().getContext(), getInternalService().getService().getServiceId()));
+					service.getCoreService().buddyAction(
+							ItemAction.ADDED, 
+							service.getEntityAdapter().rosterEntry2Buddy(
+									roster.getEntry(buddy.getProtocolUid()), 
+									service.getProtocolUid(), 
+									service.getContext(), 
+									service.getServiceId()));
 				} catch (XMPPException e) {
 					Logger.log(e);
 					getInternalService().getService().getCoreService().notification( e.getLocalizedMessage());
@@ -318,7 +325,7 @@ public class XMPPRosterListener extends XMPPListener implements RosterListener, 
 	/**
 	 * @return the presenceCache
 	 */
-	Map<String, OnlineInfo> getPresenceCache() {
+	public Map<String, OnlineInfo> getPresenceCache() {
 		return presenceCache;
 	}
 

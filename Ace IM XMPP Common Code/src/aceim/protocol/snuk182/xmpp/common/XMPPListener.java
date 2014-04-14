@@ -1,4 +1,4 @@
-package aceim.protocol.snuk182.xmppcrypto;
+package aceim.protocol.snuk182.xmpp.common;
 
 abstract class XMPPListener {
 	
