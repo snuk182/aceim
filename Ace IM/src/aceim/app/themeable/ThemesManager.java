@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
 
 public class ThemesManager extends PluginsManager {
 	
@@ -30,10 +29,6 @@ public class ThemesManager extends PluginsManager {
 		
 		try {
 			themeContext = getThemeContext(themeId);
-			if (themeContext != null) {
-				Resources r = themeContext.getResources();
-				themeContext.setTheme(r.getIdentifier("Ace.IM.Theme", "style", themeId));
-			} 
 		} catch (NameNotFoundException ne) {
 			Logger.log("No installed theme found: " + themeId, LoggerLevel.INFO);
 			mContext.getSharedPreferences(Constants.SHARED_PREFERENCES_GLOBAL, 0)
@@ -80,7 +75,11 @@ public class ThemesManager extends PluginsManager {
 	}
 	
 	private Context getThemeContext(String themeContainer) throws NameNotFoundException {
-		return mContext.getApplicationContext().createPackageContext(themeContainer, Context.CONTEXT_IGNORE_SECURITY);
+		if (mContext.getPackageName().equals(themeContainer)) {
+			return mContext;
+		} else {
+			return mContext.getApplicationContext().createPackageContext(themeContainer, Context.CONTEXT_IGNORE_SECURITY);
+		}
 	}
 	
 	/**

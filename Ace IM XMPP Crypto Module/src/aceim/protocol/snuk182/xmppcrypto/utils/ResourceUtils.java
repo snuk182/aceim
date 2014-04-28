@@ -1,5 +1,7 @@
 package aceim.protocol.snuk182.xmppcrypto.utils;
 
+import org.jivesoftware.smack.XMPPException;
+
 import aceim.api.dataentity.ActionFeature;
 import aceim.api.dataentity.InputFormFeature;
 import aceim.api.dataentity.ListFeature;
@@ -13,10 +15,8 @@ import aceim.api.dataentity.tkv.StringTKV.ContentType;
 import aceim.api.dataentity.tkv.TKV;
 import aceim.api.service.ApiConstants;
 import aceim.api.utils.Utils;
-import org.jivesoftware.smack.XMPPException;
-
+import aceim.protocol.snuk182.xmpp.common.XMPPApiConstants;
 import aceim.protocol.snuk182.xmppcrypto.R;
-import aceim.protocol.snuk182.xmppcrypto.XMPPApiConstants;
 import android.content.Context;
 
 public final class ResourceUtils {

@@ -189,6 +189,7 @@ public class ThemeResources {
 				//TODO
 				historyMessageItemLayout = new HistoryMessageItemThemeResource(nativeContext, R.layout.history_message);
 				
+				accentBackground = themeContext.getResources().getIdentifier("accent_background", "drawable", themeContext.getPackageName());
 				topBarBackground = themeContext.getResources().getIdentifier("top_bar_background", "drawable", themeContext.getPackageName());
 				bottomBarBackground = themeContext.getResources().getIdentifier("bottom_bar_background", "drawable", themeContext.getPackageName());
 				screenBackground = themeContext.getResources().getIdentifier("screen_background", "drawable", themeContext.getPackageName());

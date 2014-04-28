@@ -29,7 +29,7 @@
 			<plugin>
 				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 				<artifactId>android-maven-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.8.2</version>
 				<configuration>
 					<sdk>
 						<!-- platform or api level (api level 4 = platform 1.6) -->
@@ -47,5 +47,33 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+		    <plugins>
+		        <plugin>
+				<groupId>org.eclipse.m2e</groupId>
+				<artifactId>lifecycle-mapping</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<lifecycleMappingMetadata>
+						<pluginExecutions>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+									<artifactId>android-maven-plugin</artifactId>
+									<versionRange>[3.8.0,)</versionRange>
+									<goals>
+										<goal>consume-aar</goal>
+									</goals>
+								</pluginExecutionFilter>
+								<action>
+									<ignore />
+								</action>
+							</pluginExecution>
+						</pluginExecutions>
+					</lifecycleMappingMetadata>
+				</configuration>
+			</plugin>
+		    </plugins>
+		</pluginManagement>
 	</build>
 </project>

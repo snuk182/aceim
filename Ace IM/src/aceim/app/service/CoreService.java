@@ -455,12 +455,13 @@ public class CoreService extends Service {
 			if (as.getProtocolService() != null && as.getAccount().getConnectionState() != ConnectionState.DISCONNECTED) {
 				as.getProtocolService().getProtocol().disconnect(account.getServiceId());
 			}
+			
+			mStorage.removeAccount(account);
 
 			mNotificator.removeAccountIcon(account);
 			mHistorySaver.removeAccount(account);
 			ViewUtils.removeAccountIcons(account, getBaseContext());
-			mAccounts.set(account.getServiceId(), null);
-			mStorage.removeAccount(account);
+			mAccounts.set(account.getServiceId(), null);			
 		}
 
 		@Override
@@ -487,9 +488,9 @@ public class CoreService extends Service {
 				as.getAccount().merge(account);
 			}
 			
-			mNotificator.onAccountStateChanged(mAccounts);
-
 			mStorage.saveAccount(account, options, false);
+
+			mNotificator.onAccountStateChanged(mAccounts);
 
 			if (mUserInterface != null) {
 				mUserInterface.onAccountUpdated(account, ItemAction.MODIFIED);
@@ -1619,6 +1620,9 @@ public class CoreService extends Service {
 		mNotificator.removeAppIcon();
 
 		for (AccountService as : mAccounts) {
+			if (as == null) {
+				continue;
+			}
 			mNotificator.removeAccountIcon(as.getAccount());
 		}
 

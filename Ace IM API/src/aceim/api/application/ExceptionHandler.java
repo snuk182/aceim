@@ -6,8 +6,6 @@ import aceim.api.utils.Logger;
 /**
  * Overridden exception handler for storing stack traces in text log file.
  * 
- * @author Sergiy
- *
  */
 class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 

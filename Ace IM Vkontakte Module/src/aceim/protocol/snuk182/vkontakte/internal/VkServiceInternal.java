@@ -642,8 +642,8 @@ public class VkServiceInternal {
 				Logger.log("Icon request for " + uid + " / " + path, LoggerLevel.VERBOSE);
 			}
 
-			if (!path.startsWith("http://")) {
-				path = "http://" + path;
+			if (!path.startsWith("https://") && !path.startsWith("http://")) {
+				path = "https://" + path;
 			}
 
 			byte[] icon = engine.getIcon(path);

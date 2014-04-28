@@ -3,10 +3,11 @@ package aceim.protocol.snuk182.xmppcrypto;
 import aceim.api.dataentity.ProtocolOption;
 import aceim.api.dataentity.ProtocolOption.ProtocolOptionType;
 import aceim.api.dataentity.ProtocolServiceFeature;
-import aceim.api.service.ProtocolService;
+import aceim.protocol.snuk182.xmpp.common.XMPPApiConstants;
+import aceim.protocol.snuk182.xmpp.common.XMPPCommonProtocol;
 import aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils;
 
-public class XMPPProtocol extends ProtocolService<XMPPService> {
+public class XMPPProtocol extends XMPPCommonProtocol {
 
 	@Override
 	protected XMPPService createService(byte serviceId, String protocolUid) {
@@ -16,11 +17,6 @@ public class XMPPProtocol extends ProtocolService<XMPPService> {
 	@Override
 	protected ProtocolServiceFeature[] getProtocolFeatures() {
 		return ResourceUtils.getFeatures(getBaseContext());
-	}
-
-	@Override
-	protected String getProtocolName() {
-		return XMPPApiConstants.PROTOCOL_NAME;
 	}
 
 	@Override

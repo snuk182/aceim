@@ -183,6 +183,7 @@ public class Notificator {
 		notificationIntent.putExtra(Constants.INTENT_EXTRA_ACCOUNT, account);
 		notificationIntent.putExtra(Constants.INTENT_EXTRA_BUDDY, buddy);
 		notificationIntent.putExtra(Constants.INTENT_EXTRA_MESSAGE, message);
+		notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 	}
 
 	public void onAccountStateChanged(List<AccountService> accountServices) {
@@ -246,7 +247,7 @@ public class Notificator {
 		default:
 			mNotificatorManager.cancel(APP_ICON_ID);
 			for (AccountService as : accountServices) {
-				mNotificatorManager.cancel(as.getAccount().getAccountId().hashCode());			
+				if (as != null) mNotificatorManager.cancel(as.getAccount().getAccountId().hashCode());			
 			}
 			break;
 		}

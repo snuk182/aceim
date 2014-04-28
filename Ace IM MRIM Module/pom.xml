@@ -11,8 +11,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<version>0.9</version>
-		<api.version>0.9</api.version>
+		<version>0.9.3</version>
+		<api.version>0.9.3</api.version>
 	</properties>
 
 	<dependencies>
@@ -27,7 +27,7 @@
 			<artifactId>support-v4</artifactId>
 			<version>v17</version>
 			<scope>system</scope>
-			<systemPath>d:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
+			<systemPath>c:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
 		</dependency>
 		<dependency>
 		    <groupId>aceim</groupId>
@@ -43,7 +43,7 @@
 			<plugin>
 				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 				<artifactId>android-maven-plugin</artifactId>
-				<version>3.6.0</version>
+				<version>3.8.2</version>
 				<configuration>
 					<sdk>
 						<!-- platform or api level (api level 4 = platform 1.6) -->
