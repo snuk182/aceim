@@ -293,11 +293,7 @@ public final class ViewUtils {
 
 	public static Intent getSearchPluginsInPlayStoreIntent(Account account) {
 		Intent i = new Intent(Intent.ACTION_VIEW);
-		if (account == null) {
-			i.setData(Uri.parse("market://search?q=" + MainActivity.class.getPackage().getName()));
-		} else {
-			i.setData(Uri.parse("market://search?q=" + account.getProtocolServicePackageName()));
-		}
+		i.setData(Uri.parse("market://search?q=aceim"));
 		return i;
 	}
 
