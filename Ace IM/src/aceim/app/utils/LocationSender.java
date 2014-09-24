@@ -61,7 +61,7 @@ public class LocationSender {
 
 		@Override
 		public void onLocationChanged(Location location) {
-			String url = mCoreService.getBaseContext().getString(R.string.im_here) + "http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "&z=16";
+			String url = mCoreService.getBaseContext().getString(R.string.im_here, "http://maps.google.com/maps?q=" + location.getLatitude() + "," + location.getLongitude() + "&z=16");
 			
 			mCoreService.sendLocation(buddy, url);
 			

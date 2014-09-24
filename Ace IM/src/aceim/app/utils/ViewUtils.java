@@ -666,7 +666,7 @@ public final class ViewUtils {
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
 
 		Bitmap b = BitmapFactory.decodeStream(fis, null, options);
-		if (width < 1 && height < 1) {
+		if (b == null || (width < 1 && height < 1)) {
 			return b;
 		} else {
 			if (width < 1 || height < 1) {

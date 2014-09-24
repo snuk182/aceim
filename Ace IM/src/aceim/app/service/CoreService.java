@@ -866,8 +866,15 @@ public class CoreService extends Service {
 		}
 
 		@Override
-		public void sendLocation(Buddy buddy) throws RemoteException {
-			mLocationSender.requestLocationForBuddy(buddy);
+		public void sendLocation(final Buddy buddy) throws RemoteException {
+			mHandler.post(new Runnable(){
+
+				@Override
+				public void run() {
+					mLocationSender.requestLocationForBuddy(buddy);
+				}
+				
+			});
 		}
 
 		@Override
