@@ -181,7 +181,7 @@
     <string name="show_icons">"Показувати іконки контактів"</string>
     <string name="send_my_location">"Послати моє місцезнаходження"</string>
     <string name="send_by_enter">"Відправляти Ентером"</string>
-    <string name="about_text">"Автор: Сергій Плигун\nДомашня сторінка https://github.com/snuk182/aceim . \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Окрема подяка сайту OpenClipArt.org та його учасникам: Warszawianka (Tango project), nicubunu та іншим."</string>
+    <string name="about_text">"Автор: Сергій Плигун\nДомашня сторінка https://github.com/snuk182/aceim . \nСмайлики - автор шаблона Roland81 (http://www.openclipart.org/user-detail/roland81). Окрема подяка сайту OpenClipArt.org та його учасникам: Warszawianka (Tango project), nicubunu та іншим.\n\nТакож подяка за переклад:\nІспанська: Suso Comesaña"</string>
     <string name="file_from">"Файл від "</string>
     <string name="files">" файлів"</string>
     <string name="error_fill_uid">Будь-ласка, вкажіть UID</string>

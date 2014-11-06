@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="app_name">"Ace IM (beta)"</string>
+<string name="error_broken_auth_data">No hay datos de autentificación necesarios previstos</string>
+<string name="error_connection_failed">Error de conexión</string>
+<string name="error_groupchat_already_exists">El grupo de charla con este ID ya existe</string>
+<string name="error_no_groupchat_available">No hay ningún grupo de charla con este ID disponible en el servidor</string>
+<string name="error_cannot_authorize">No se puede autorizar, los datos de autentificación parecen ser incorrectos</string>
+<string name="error_connection_limit_exceeded">Ha sido desconectado, debido al límete superior de la velocidad de conexión.</string>
+<string name="error_no_x_protocol_found">No % se encontró el plugin de protocolo instalado. Haga clic para buscar en Play Store.</string>
+<string name="default_theme">Por defecto (transparente)</string>
+<string name="theme">Tema</string>
+<string name="connect_first">Para enviar un mensaje, por favor conéctese a la red con una cuenta</string>
+<string name="reconnection_attempts">Intentando reconexión</string>
+<string name="network_unavailable">La red de datos no está disponible, intente conectarse más tarde</string>
+<string name="unfilled_key_field">El campo clave (%s) no puede estar vacío</string>
+<string name="key_field_contain_spaces">El campo clave (%s) no puede contener espacios</string>
+<string name="version_X" formatted="false">Versión: %s</string>
+<string name="api_version_X" formatted="false">API versión: %s</string>
+<string name="all_transfers">Todas las transferencias</string>
+<string name="unsaved_data">Existen datos no guardados</string>
+<string name="accept">Aceptar</string>
+<string name="decline">Declinar</string>
+<string name="search_result">Resultado de la búsqueda</string>
+<string name="rename_X" formatted="false">Renombrar %s</string>
+<string name="move_X" formatted="false">Mover %s</string>
+<string name="add_X">Añadir %s</string>
+<string name="confirm_delete">Confirmar borrar</string>
+<string name="unknown_command" formatted="false">Comando desconocido: %s</string>
+<string name="choose_photo">Elija la foto</string>
+<string name="take_photo">Saque una foto</string>
+<string name="remove_photo">Elimine la foto</string>
+<string name="setting_account_icon">Establecer nuevo icono de la cuenta</string>
+<string name="force_draw_wallpaper">Forzar la imagen como fondo de chat</string>
+<string name="set_status">"Establecer el estado"</string>
+<string name="pw_does_not_match">Las contraseñas no coinciden</string>
+<string name="enter_password">Introduzca una nueva contraseña</string>
+<string name="reenter_password">Re-introduzca una nueva contraseña</string>
+<string name="export_accounts">Exportar las cuentas a un archivo de almacenamiento</string>
+<string name="import_accounts">Importar las cuentas de un archivo de almacenamiento</string>
+<string name="utils">Utilidades</string>
+<string name="buddy_sends_files">%s envía los siguientes archivos:</string>
+<string name="send_photo">Enviar una foto</string>
+<string name="press_to_open">Pulse para abrir</string>
+<string name="file_transfers" formatted="false">Archivos - %s</string>
+<string name="no_app_for_picking_file_found">Se ha encontrado ningún explorador de archivos para seleccionar los archivos. Por favor, instale uno y vuelva a intentarlo.</string>
+<string name="confirm_delete_history">¿Confirma la eliminación del historial de chat de todos los contactos? (No se puede deshacer.)</string>
+<string name="get_more" formatted="false">Obtener el siguiente %s</string>
+<string name="new_message_added">Nuevo mensaje añadido</string>
+<string name="smileys_in_dialog">Los emoticonos en un diálogo separado</string>
+<string name="history_header" formatted="false">Historial de chat - %s</string>
+<string name="file_transfer_init" formatted="false">Inicializando...</string>
+<string name="file_transfer_completed" formatted="false">Transferencia completa</string>
+<string name="file_transfer_bytes_completed" formatted="false">%s de %s bytes transferidos</string>
+<string name="pick_protocol_to_proceed">Elija protocolo en un cuadro combinado para continuar</string>
+<string name="no_protocol_services_installed_found">Me parece que no tiene ningún protocolo de servicios instalado en el dispositivo. Los servicios de protocolo permiten el apoyo a determinado servicio de chat (XMPP, ICQ etc). Por favor pulse el botón de play market que aparece a continuación para buscar servicios de protocolo en Google Play.</string>
+<string name="no_protocol_service_installed_found_for_x">No se encontró unservicio de protocolo instalado para %s.</string>
+<string name="click_to_search_in_play">Haga clic aquí para buscar en el Play Market</string>
+<string name="unfilled_mandatory_warning">Los campos resaltados son obligatorios</string>
+<string name="options">Opciones</string>
+<string name="options_for" formatted="false">OPciones para %s</string>
+<string name="X_cannot_be_empty" formatted="false">%s no puede estar vacío</string>
+<string name="wrong_pw">Contraseña incorrecta</string>
+<string name="use_master_password">Usar contraseña maestra</string>
+<string name="pls_enter_master_password">Por favor introduzca la contraseña maestra</string>
+<string name="old_pw">Contraseña antigua</string>
+<string name="new_pw">Nueva contraseña (dejar en blanco para eliminar)</string>
+<string name="master_password">Contraseña Maestra</string>
+<string name="view_type">Ver modo</string>
+<string name="view_type_auto">Automático (depende del tamaño de la pantalla)</string>
+<string name="view_type_simple">Simple</string>
+<string name="view_type_tablet">Tablet</string>
+<string name="view_type_panorama">Panorámico</string>
+<string name="screen_orientation">Orientación de pantalla</string>
+<string name="screen_orientation_system">Sistema</string>
+<string name="screen_orientation_portrait">En vertical</string>
+<string name="screen_orientation_landscape">En horizontal</string>
+<string name="screen_orientation_sensor">Sensor</string>
+<string name="blink_type_off">Sin destello</string>
+<string name="blink_type_default">Destello por defecto de Android</string>
+<string name="blink_type_native">Destello específico del dispositivo (puede no funcionar en todos los dispositivos)</string>
+<string name="sound_type_all_on">"Sonido + Vivbrción"</string>
+<string name="sound_type_vibra">"Vibración solo"</string>
+<string name="sound_type_off">"Apagado"</string>
+<string name="sound_type_profile">"Dependiente del perfil"</string>
+<string name="sound_type_sound">"Sonido solo"</string>
+<string name="statusbar_type_messages">"Mensajes entrantes"</string>
+<string name="statusbar_type_accounts">"Cuentas"</string>
+<string name="statusbar_type_off">"Apagado"</string>
+<string name="statusbar_type_icon">Icono de aplicación</string>
+<string name="unread_group">"No leido"</string>
+<string name="online_group">"En línea"</string>
+<string name="offline_group">"Fuera de línea"</string>
+<string name="chats_group">"Salas (chats en grupo)"</string>
+<string name="not_in_list_group">"No está en la lista"</string>
+<string name="create_groupchat">Crear una Sala</string>
+<string name="connect_to_chat">Conectar al chat</string>
+<string name="refresh_chat_list">Actualizar la lista de chats</string>
+<string name="joinedchats">Se unió al chat</string>
+<string name="chat_name">Nombre del Chat</string>
+<string name="nickname">Apodo</string>
+<string name="chat_id">Identificador de chat ((Letras, números, guiones, y subrayado solamente))</string>
+<string name="pwd_protected">Protegido por contraseña</string>
+<string name="password">Contraseña</string>
+<string name="get_available_chats">Hacer disponible</string>
+<string name="chat_options">OPciones del chat</string>
+<string name="hide_participants">Ocultar los participantes</string>
+<string name="show_participants">Mostrar los participantes</string>
+<string name="chat_enter_manually">Introducir manualmente</string>
+<string name="this_account_to_be_enabled" formatted="false">"'%s' se va a activar, ¿continuar?"</string>
+<string name="this_account_to_be_disabled" formatted="false">"'%s' debe ser inhabilitado, ¿continuar?"</string>
+<string name="name">Nombre</string>
+<string name="account_activity_log">Registro de actividad de la cuenta</string>
+<string name="copy_all">Copiar todo</string>
+<string name="personal_info_X">Información personal - %s</string>
+<string name="male">Hombre</string>
+<string name="female">Mujer</string>
+<string name="autoconnect">Autoconectar al inicio</string>
+<string name="message_sound_only">Solo sonido de mensaje</string>
+<string name="manage_visibility">Visibilidad</string>
+<string name="blink_led">Destello del led con un mensaje nuevo</string>
+<string name="secure_login">Inicio de sesión seguro</string>
+<string name="send_typing">Enviar notificaciones de escritura</string>
+<string name="fullscreen_landscape_kb">Teclado horizontal con pantalla completa </string>
+<string name="deny_messages_not_from_list">"Denegar todos los mensajes de "Fuera de lista"</string>
+<string name="sound_volume">Volumen de notificación</string>
+<string name="buddy">"Contacto "</string>
+<string name="group">"Grupo "</string>
+<string name="X_added" formatted="false">%s añadido</string>
+<string name="X_modified" formatted="false">%s modificado</string>
+<string name="X_deleted" formatted="false">%s borrado</string>
+<string name="error_fill_uid">Por favor, rellene campo UID</string>
+<string name="search_buddies">"Buscar/Añadir..."</string>
+<string name="add_to_list">"Añadir"</string>
+<string name="rename">"Renombrar"</string>
+<string name="move">"Mover"</string>
+<string name="inempty_group">"Este grupo no está vacío. ¿Qué hacemos con los contactos que hay?"</string>
+<string name="dont_draw_smileys">"No mostrar emoticonos"</string>
+<string name="text_size">Tamño de la fuente del chat</string>
+<string name="file_from">"Archivo de "</string>
+<string name="files">" archivos"</string>
+<string name="add_me_request">"Por favor, añádeme a tu lista de contactos"</string>
+<string name="wait">"Por favor, espere..."</string>
+<string name="export">Exportar a la tarjeta SD</string>
+<string name="copied_to_clipboard">"Copiado al portapapeles"</string>
+<string name="send_file">"Enviar archivo"</string>
+<string name="about">Acerca de</string>
+<string name="delete_history">"Borrar historial"</string>
+<string name="grid">Cuadrícula</string>
+<string name="list">Lista</string>
+<string name="doublelist">Lista de dos columnas</string>
+<string name="notinlist_save">"Guardar en el grupo 'Fuera de lista'"</string>
+<string name="sound_type">"Sonido de notificaciones"</string>
+<string name="statusbar_type">"Notificaciones de la barra de estado"</string>
+<string name="contact_menu" formatted="false">Menú para %s</string>
+<string name="im_here" formatted="false">Estoy aquí - %s</string>
+<string name="deny">"Denegar"</string>
+<string name="allow">"Permitir"</string>
+<string name="ignore">"Ignorar"</string>
+<string name="add_group">"Añadir Grupo"</string>
+<string name="wait_starting">"Empezando"</string>
+<string name="new_account">"Nueva cuenta"</string>
+<string name="offline">"Fuera de linea"</string>
+<string name="online">En linea</string>
+<string name="x_gone_y" formatted="false">%s ausente %s</string>
+<string name="accounts">"Cuentas"</string>
+<string name="me">"Yo"</string>
+<string name="unread_messages">"Mensajes no leídos"</string>
+<string name="connect">"Conectado"</string>
+<string name="disconnect">"Desconectado"</string>
+<string name="account_settings">"Configuración de la cuenta"</string>
+<string name="more">"Más"</string>
+<string name="manage_accounts">"Gestión de cuentas"</string>
+<string name="exit_app">"Salir de Ace IM"</string>
+<string name="pick_status">"Escoja un estado"</string>
+<string name="smileys">Emoticonos</string>
+<string name="disconnected">"Desconectado"</string>
+<string name="buddy_details">"Detalles del contacto"</string>
+<string name="return_to_buddylist">"Volver a la lista de contactos"</string>
+<string name="edit">"Editar "</string>
+<string name="remove">"Eliminar "</string>
+<string name="are_you_sure_you_want_to_remove" formatted="false">"Seguro que desea eliminar a %s?"</string>
+<string name="yes">"Si"</string>
+<string name="no">"No"</string>
+<string name="close">"Cerrar"</string>
+<string name="close_chat">Cerrar el chat</string>
+<string name="add_new_account">"Añadir una cuenta nueva"</string>
+<string name="account_type">"Tipo de cuenta:"</string>
+<string name="account_id">"Identificador (ID) de cuenta:"</string>
+<string name="account_password">"Contraseña de la cuenta:"</string>
+<string name="create">"Crear"</string>
+<string name="cancel">Cancelar</string>
+<string name="save">Guardar</string>
+<string name="dont_save">No guarde</string>
+<string name="sorry_back_button">"Lo siento. Minimizar aplicación con Home, cerca de menú"</string>
+<string name="are_you_sure_you_want_to_cancel" formatted="false">¿Seguro que desea cancelar %s?</string>
+<string name="log_to_file">"Habilitar registro en un archivo"</string>
+<string name="bg_type">"Tipo de fondo"</string>
+<string name="show_groups">"Mostrar los grupos"</string>
+<string name="show_offline">"Mortrar los contactos fuera de linea"</string>
+<string name="service_addr">"Dirección del servidor"</string>
+<string name="service_port">"Puerto del servidor"</string>
+<string name="history">Historial</string>
+<string name="appearance_prefs">Apariencia</string>
+<string name="notification_prefs">Notificación</string>
+<string name="chat_prefs">Chat</string>
+<string name="misc_prefs">Miscelánea</string>
+<string name="account_options">Opciones de la cuenta</string>
+<string name="general_options">Opciones generales</string>
+<string name="you_must_enter_uid">"Debe introducir la UID"</string>
+<string name="list_type">"Tipo de lista de contactos"</string>
+<string name="clear">Ninguno</string>
+<string name="tabs_list">"listado en columnas"</string>
+<string name="xstatus_text_title">"Título"</string>
+<string name="xstatus_text_value">"Texto"</string>
+<string name="chat_date">"Fecha del Chat"</string>
+<string name="load_icons">"Descargar las fotos de los contactos"</string>
+<string name="show_icons">"Mostrar las fotos de los contactos"</string>
+<string name="send_by_enter">"Enviar con la tecla enter"</string>
+<string name="send_my_location">"Enviar mi localización"</string>
+<string name="about_text">"\nAuthor: Sergiy Plygun.
+\nHomepage https://github.com/snuk182/aceim \nThe emoticons authors are Roland81
+(http://www.openclipart.org/user-detail/roland81) and me. Special
+thanks to http://OpenClipArt.org and its
+participants: Warszawianka
+(Tango project), nicubunu and others.\n\nAlso thanks for translation:\nEspañol: Suso Comesaña</string>
+<string name="connecting">conectando</string>
+<string name="completed">completado</string>
+<string name="too_many_accounts">Demasiadas cuentas</string>
+<string name="menu_value_copy">Copiar</string>
+<string name="menu_value_add_to_copied">Añadir a copiar</string>
+<string name="menu_value_copy_all">Copiat todo</string>
+<string name="menu_value_add_to_list">"Añadir a la lista"</string>
+<string name="menu_value_view_info">"Ver la información personal"</string>
+<string name="menu_value_delete_contact">"Borrar contacto"</string>
+<string name="menu_value_ask_auth">"Solicitar la autorización"</string>
+<string name="menu_value_rename">"Renombrar"</string>
+<string name="menu_value_move">"Mover"</string>
+<string name="menu_value_to_permits">"Para la lista de permitidos"</string>
+<string name="menu_value_from_permits">Eliminar de la lista de permitidos</string>
+<string name="menu_value_to_denys">Para la lista de dengados</string>
+<string name="menu_value_from_denys">Borrar de la lista de eliminados</string>
+<string name="menu_value_add_group">"Añadir un grupo nuevo..."</string>
+<string name="menu_value_delete_group">"Borrar grupo"</string>
+<string name="menu_value_join_chat">Únirse a una sala</string>
+<string name="menu_value_leave_chat">Dejar la sala</string>
+<string name="menu_value_add_pgp_key">Asignar clave PGP</string>
+<string name="menu_value_remove_pgp_key">Borrar clave PGP</string>
+<string formatted="false" name="logparam_typing">"%s está escribiendo"</string>
+<string formatted="false" name="logparam_buddy_state">"%s fue %s"</string>
+<string formatted="false" name="logparam_ask_for_auth">"%s solicita autorización a: %s"</string>
+<string formatted="false" name="logparam_file_request">"%s envía archivos a: %s"</string>
+<string formatted="false" name="logparam_default">"%s"</string>
+<string name="chat_menu">Menu del Chat</string>
+<string name="account_menu">Menú de la cuenta</string>
+<string name="no_group">Sin grupo</string>
+<string name="toggle_menu_on_tab_longclick">Alternar de menú con un click en la pestaña larga</string>
+</resources>
