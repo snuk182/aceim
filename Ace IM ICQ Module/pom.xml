@@ -11,7 +11,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<version>0.9.3</version>
+		<version>0.9.3.1</version>
 		<api.version>0.9.3</api.version>
 	</properties>
 
@@ -27,7 +27,7 @@
 			<artifactId>support-v4</artifactId>
 			<version>v17</version>
 			<scope>system</scope>
-			<systemPath>c:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
+			<systemPath>C:/android-sdk-windows/extras/android/support/v4/android-support-v4.jar</systemPath>
 		</dependency>
 		<dependency>
 		    <groupId>aceim</groupId>

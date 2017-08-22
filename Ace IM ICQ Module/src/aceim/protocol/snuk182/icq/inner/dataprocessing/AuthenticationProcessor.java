@@ -28,6 +28,8 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 	private int reconnectPort = 0;
 
 	public boolean isSecureLogin = false;
+	
+	public static final int MAX_PASSWORD_LEN = 16;
 
 	private static final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
 
@@ -80,7 +82,7 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 
 			tlvs[2] = new TLV(ICQConstants.TLV_NEWPASSWORD, roastPw(service.getPw()));
 
-			tlvs[3] = new TLV(ICQConstants.TLV_CLIENTIDENTITY, new String("Asia 0.5.2a").getBytes());
+			tlvs[3] = new TLV(ICQConstants.TLV_CLIENTIDENTITY, new String("Ace IM").getBytes());
 
 			byte[] clientid = { (byte) 0x88, (byte) 0x88 };
 			tlvs[4] = new TLV(ICQConstants.TLV_CLIENTID, clientid);
@@ -130,9 +132,9 @@ public class AuthenticationProcessor extends AbstractFlapProcessor {
 		byte[] pwhash = new byte[pw.length];
 		
 		int ln;
-		// they don't support passwords longer than 8 symbols (facepalm)
-		if (pw.length > 8) {
-			ln = 8;
+		
+		if (pw.length > MAX_PASSWORD_LEN) {
+			ln = MAX_PASSWORD_LEN;
 		} else {
 			ln = pw.length;
 		}

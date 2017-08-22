@@ -169,7 +169,6 @@ public class ICQServiceInternal {
 			if (flapSeqNumber >= 0x8000) {
 				flapSeqNumber = 0;
 			}
-			;
 			return flapSeqNumber++;
 		}
 
@@ -665,9 +664,8 @@ public class ICQServiceInternal {
 			un = (String) args[0];
 			pw = (String) args[1];
 			
-			// ICQ does not support passwords longer than 8 symbols
-			if (pw != null && pw.length() > 8) {
-				pw = pw.substring(0, 8);
+			if (pw != null && pw.length() > AuthenticationProcessor.MAX_PASSWORD_LEN) {
+				pw = pw.substring(0, AuthenticationProcessor.MAX_PASSWORD_LEN);
 			}
 
 			if (args[2] != null) {
