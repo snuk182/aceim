@@ -1,0 +1,4 @@
+include ':api'
+include ':app'
+include ':common-resources'
+rootProject.name = "Ace IM"
