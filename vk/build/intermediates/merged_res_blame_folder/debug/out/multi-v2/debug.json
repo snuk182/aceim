@@ -1,0 +1,164 @@
+{
+    "logs": [
+        {
+            "outputFile": "/Users/olga/AndroidStudioProjects/aceim/vk/build/intermediates/res/merged/debug/values-v14_values-v14.arsc.flat",
+            "map": [
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values-v14/styles.xml",
+                    "from": {
+                        "startLines": "7",
+                        "startColumns": "4",
+                        "startOffsets": "225",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "373"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "4",
+                        "endColumns": "12",
+                        "endOffsets": "201"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/olga/AndroidStudioProjects/aceim/vk/build/intermediates/res/merged/debug/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values/styles.xml",
+                    "from": {
+                        "startLines": "6,15",
+                        "startColumns": "4,4",
+                        "startOffsets": "191,522",
+                        "endLines": "12,17",
+                        "endColumns": "12,12",
+                        "endOffsets": "481,679"
+                    },
+                    "to": {
+                        "startLines": "14,21",
+                        "startColumns": "4,4",
+                        "startOffsets": "824,1115",
+                        "endLines": "20,23",
+                        "endColumns": "12,12",
+                        "endOffsets": "1110,1270"
+                    }
+                },
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values/version.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "57",
+                        "endColumns": "43",
+                        "endOffsets": "96"
+                    },
+                    "to": {
+                        "startLines": "12",
+                        "startColumns": "4",
+                        "startOffsets": "700",
+                        "endColumns": "43",
+                        "endOffsets": "739"
+                    }
+                },
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/api/build/intermediates/packaged_res/debug/values/values.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "45",
+                        "endOffsets": "96"
+                    }
+                },
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "5,11,9,4,14,12,8,1,7,3",
+                        "startColumns": "4,1,1,4,1,1,1,4,1,1",
+                        "startOffsets": "210,463,376,158,585,522,332,17,275,77",
+                        "endColumns": "60,57,82,50,113,58,42,55,55,76",
+                        "endOffsets": "266,519,457,204,697,579,373,68,329,152"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6,7,8,9,10,11,13",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "101,162,223,309,360,477,539,585,641,744",
+                        "endColumns": "60,60,85,50,116,61,45,55,58,79",
+                        "endOffsets": "157,218,304,355,472,534,580,636,695,819"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/olga/AndroidStudioProjects/aceim/vk/build/intermediates/res/merged/debug/values-ru_values-ru.arsc.flat",
+            "map": [
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values-ru/strings.xml",
+                    "from": {
+                        "startLines": "5,7,4,10,8,1,6,3",
+                        "startColumns": "4,1,4,1,1,1,1,4",
+                        "startOffsets": "212,327,167,459,382,14,275,78",
+                        "endColumns": "64,53,43,109,72,53,50,83",
+                        "endOffsets": "272,379,206,567,453,66,324,157"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,120,177,221,334,410,467,521",
+                        "endColumns": "64,56,43,112,75,56,53,83",
+                        "endOffsets": "115,172,216,329,405,462,516,600"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/olga/AndroidStudioProjects/aceim/vk/build/intermediates/res/merged/debug/values-uk_values-uk.arsc.flat",
+            "map": [
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values-uk/strings.xml",
+                    "from": {
+                        "startLines": "5,7,4,10,8,1,6,3",
+                        "startColumns": "4,1,4,1,1,1,1,4",
+                        "startOffsets": "205,318,160,446,373,14,268,78",
+                        "endColumns": "64,53,43,108,68,53,48,76",
+                        "endOffsets": "265,370,199,553,440,66,315,150"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,120,177,221,333,405,462,514",
+                        "endColumns": "64,56,43,111,71,56,51,76",
+                        "endOffsets": "115,172,216,328,400,457,509,586"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/olga/AndroidStudioProjects/aceim/vk/build/intermediates/res/merged/debug/values-v11_values-v11.arsc.flat",
+            "map": [
+                {
+                    "source": "/Users/olga/AndroidStudioProjects/aceim/vk/src/main/res/values-v11/styles.xml",
+                    "from": {
+                        "startLines": "6",
+                        "startColumns": "4",
+                        "startOffsets": "182",
+                        "endLines": "8",
+                        "endColumns": "12",
+                        "endOffsets": "316"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "4",
+                        "endColumns": "12",
+                        "endOffsets": "187"
+                    }
+                }
+            ]
+        }
+    ]
+}

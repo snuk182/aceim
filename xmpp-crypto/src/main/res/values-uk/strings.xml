@@ -1,0 +1,14 @@
+<resources>
+
+    <string name="app_name">Модуль Ace IM XMPP з шифруванням</string>
+	<string name="info">Модуль XMPP (Jabber) з підтримкою шифрування для Ace IM. Домашня сторінка https://github.com/snuk182/aceim.</string>
+    
+    <string name="pgp_key_file">Приватний ключ PGP</string>
+    <string name="pgp_key_password">Пароль ключа PGP</string>
+    <string name="label_secure_connection">Безпечне з\'єднання</string>
+    
+    <string name="add_public_key">Додати ключ PGP</string>
+    <string name="remove_public_key">Видалити ключ PGP</string>
+    <string name="encryption_on">Шифрування ввімкнене</string>
+    <string name="encryption_off">Шифрування вимкнене</string>
+</resources>

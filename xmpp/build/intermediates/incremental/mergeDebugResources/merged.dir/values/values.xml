@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xmpp_proxy_names">
+		<item>none</item>
+		<item>http</item>
+		<item>socks4</item>
+		<item>socks5</item>		
+	</string-array>
+    <string-array name="xmpp_status_icons">
+		<item>@drawable/ic_online</item>
+		<item>@drawable/xmpp_away_big</item>
+		<item>@drawable/xmpp_na_big</item>
+		<item>@drawable/xmpp_dnd_big</item>
+		<item>@drawable/xmpp_free4chat_big</item>
+		<item>@drawable/xmpp_invisible_big</item>
+	</string-array>
+    <string-array name="xmpp_status_strings">
+		<item>@string/label_st_online</item>
+		<item>@string/label_st_away</item>
+		<item>@string/label_st_na</item>
+		<item>@string/label_st_dnd</item>
+		<item>@string/label_st_free4chat</item>
+		<item>@string/label_st_invisible</item>
+	</string-array>
+    <string name="add_buddy">Add buddy</string>
+    <string name="add_connect_groupchat">Connect chat room</string>
+    <string name="add_public_key">Add public PGP key</string>
+    <string name="api_version">0.9.3</string>
+    <string name="app_name">Ace IM XMPP Module</string>
+    <string name="ask_authorization">Authorization request</string>
+    <string name="ask_authorization_message_default">Hello, add me to your contact list</string>
+    <string name="chat_action">Room action</string>
+    <string formatted="false" name="chat_exists">Chat %s cannot be created, as already exists</string>
+    <string name="chat_room_id">Chat room ID</string>
+    <string name="confirm_destroy_room">Chat room is to be destroyed, proceed?</string>
+    <string name="create_new_chat">Create new room</string>
+    <string name="destroy_room">Destroy chat</string>
+    <string name="encryption_off">Encryption is OFF</string>
+    <string name="encryption_on">Encryption is ON</string>
+    <string name="groupchats">Group chats rooms</string>
+    <string name="host">Host</string>
+    <string name="info">XMPP (Jabber) connectivity module for Ace IM. Homepage https://github.com/snuk182/aceim</string>
+    <string name="jid">JID</string>
+    <string name="join_existing_room">Join existing room</string>
+    <string name="label_secure_connection">Secure connection</string>
+    <string name="label_st_away">Away</string>
+    <string name="label_st_dnd">Do not disturb</string>
+    <string name="label_st_free4chat">Free for chat</string>
+    <string name="label_st_invisible">Invisible</string>
+    <string name="label_st_na">Not available</string>
+    <string name="label_st_online">Online</string>
+    <string name="message">Message</string>
+    <string name="nickname">Nickname (Optional)</string>
+    <string name="password">Password</string>
+    <string name="pgp_key_file">PGP private key file</string>
+    <string name="pgp_key_password">PGP key password</string>
+    <string name="ping_timeout">Ping timeout</string>
+    <string name="proxy_host">Proxy hostname</string>
+    <string name="proxy_password">Proxy password</string>
+    <string name="proxy_port">Proxy port</string>
+    <string name="proxy_type">Proxy type</string>
+    <string name="proxy_username">Proxy username</string>
+    <string name="remove_public_key">Remove PGP key</string>
+    <string name="room_configuration">Chat configuration</string>
+    <string name="server_host">Server name</string>
+    <string name="server_port">Server port</string>
+    <string name="status">Status</string>
+    <string name="version">0.9.3</string>
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+</resources>

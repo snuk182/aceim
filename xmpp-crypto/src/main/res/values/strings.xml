@@ -1,0 +1,14 @@
+<resources>
+
+    <string name="app_name">Ace IM XMPP Crypto Module</string>
+    <string name="info">XMPP (Jabber) connectivity module with PGP support for Ace IM. Homepage https://github.com/snuk182/aceim</string>
+
+    <string name="pgp_key_file">PGP private key file</string>
+    <string name="pgp_key_password">PGP key password</string>
+    <string name="label_secure_connection">Secure connection</string>
+    
+    <string name="add_public_key">Add public PGP key</string>
+    <string name="remove_public_key">Remove PGP key</string>
+    <string name="encryption_on">Encryption is ON</string>
+    <string name="encryption_off">Encryption is OFF</string>
+</resources>

@@ -1,0 +1,20 @@
+aceim/protocol/snuk182/xmppcrypto/XMPPCryptoApiConstants.java
+ aceim.protocol.snuk182.xmppcrypto.XMPPCryptoApiConstants
+aceim/protocol/snuk182/xmppcrypto/utils/ResourceUtils.java
+ aceim.protocol.snuk182.xmppcrypto.utils.ResourceUtils
+org/jivesoftware/smackx/packet/SignedPresence.java
+ org.jivesoftware.smackx.packet.SignedPresence
+aceim/protocol/snuk182/xmppcrypto/XMPPCryptoEntityAdapter.java
+ aceim.protocol.snuk182.xmppcrypto.XMPPCryptoEntityAdapter
+org/jivesoftware/smackx/provider/EncryptedDataProvider.java
+ org.jivesoftware.smackx.provider.EncryptedDataProvider
+aceim/protocol/snuk182/xmppcrypto/XMPPProtocol.java
+ aceim.protocol.snuk182.xmppcrypto.XMPPProtocol
+org/jivesoftware/smackx/EncryptionUtils.java
+ org.jivesoftware.smackx.EncryptionUtils
+org/jivesoftware/smackx/packet/EncryptedMessage.java
+ org.jivesoftware.smackx.packet.EncryptedMessage
+aceim/protocol/snuk182/xmppcrypto/BuildConfig.java
+ aceim.protocol.snuk182.xmppcrypto.BuildConfig
+aceim/protocol/snuk182/xmppcrypto/XMPPService.java
+ aceim.protocol.snuk182.xmppcrypto.XMPPService

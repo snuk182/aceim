@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="api_version">0.9.3</string>
+    <string name="app_name">Ace IM Vkontakte Module</string>
+    <string name="auth_server_url">OAuth server url</string>
+    <string name="auto_submit_auth_dialog">Submit login dialog automatically</string>
+    <string name="groupchats">Group chats</string>
+    <string name="info">Vkontakte connectivity module for Ace IM. Homepage https://github.com/snuk182/aceim</string>
+    <string name="longpoll_wait_time">Poll wait time</string>
+    <string name="password">Password</string>
+    <string name="status_string">Status string</string>
+    <string name="username">Email or phone number</string>
+    <string name="version">0.9.3.1</string>
+    <string formatted="false" name="x_is_not_a_chat">%s is not a chat!</string>
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+</resources>

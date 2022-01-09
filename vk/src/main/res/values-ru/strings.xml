@@ -1,0 +1,12 @@
+<resources>
+	<string name="status_string">Строка статуса</string>
+    
+    <string name="x_is_not_a_chat" formatted="false">%s не является чатом!</string>    
+    <string name="groupchats">Чаты</string>
+    <string name="app_name">Модуль ВКонтакте для Ace IM</string>
+	<string name="username">Имя пользователя</string>
+	<string name="auth_server_url">Сервер OAuth</string>
+	<string name="longpoll_wait_time">Время ожидания для Long poll</string>
+	
+	<string name="info">Модуль ВКонтакте для Ace IM. Домашняя страница https://github.com/snuk182/aceim</string>	
+</resources>

@@ -1,0 +1,94 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+MERGED from [:api] /Users/olga/AndroidStudioProjects/aceim/api/build/intermediates/library_manifest/debug/AndroidManifest.xml:2:1-11:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:1-38:12
+	package
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:2:5-47
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+	android:versionName
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:4:5-42
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:1:11-69
+	android:versionCode
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:3:5-28
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+	android:installLocation
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:5:5-43
+uses-permission#android.permission.INTERNET
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:6:2-64
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:6:19-61
+uses-permission#android.permission.WAKE_LOCK
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:7:2-64
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:7:19-62
+uses-sdk
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:9:5-11:41
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:9:5-11:41
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:9:5-11:41
+MERGED from [:api] /Users/olga/AndroidStudioProjects/aceim/api/build/intermediates/library_manifest/debug/AndroidManifest.xml:7:5-9:41
+MERGED from [:api] /Users/olga/AndroidStudioProjects/aceim/api/build/intermediates/library_manifest/debug/AndroidManifest.xml:7:5-9:41
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:9:5-11:41
+INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:9:5-11:41
+	android:targetSdkVersion
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:11:9-38
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:10:9-34
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+		INJECTED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml
+application
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:13:5-36:19
+	android:label
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:17:9-41
+	android:icon
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:16:9-45
+	android:allowBackup
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:15:9-35
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:14:9-66
+service#aceim.protocol.snuk182.vkontakte.VkProtocol
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:18:9-25:13
+	android:process
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:20:7-57
+	android:exported
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:19:7-30
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:18:18-44
+intent-filter#action:name:aceim.protocol+category:name:android.intent.category.DEFAULT
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:21:4-24:20
+action#aceim.protocol
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:22:5-45
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:22:13-42
+category#android.intent.category.DEFAULT
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:23:5-64
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:23:15-61
+activity#aceim.protocol.snuk182.vkontakte.internal.LoginActivity
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:27:9-35:20
+	android:launchMode
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:29:13-42
+	android:configChanges
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:28:13-63
+	android:theme
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:30:13-56
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:27:19-89
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.DEFAULT
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:31:13-34:20
+action#android.intent.action.MAIN
+ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:32:5-57
+	android:name
+		ADDED from /Users/olga/AndroidStudioProjects/aceim/vk/src/main/AndroidManifest.xml:32:13-54
