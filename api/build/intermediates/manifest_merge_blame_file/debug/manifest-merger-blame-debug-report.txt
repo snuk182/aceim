@@ -8,7 +8,7 @@
 7-->/Users/olga/AndroidStudioProjects/aceim/api/src/main/AndroidManifest.xml:6:5-8:41
 8        android:minSdkVersion="5"
 8-->/Users/olga/AndroidStudioProjects/aceim/api/src/main/AndroidManifest.xml:7:9-34
-9        android:targetSdkVersion="17" />
+9        android:targetSdkVersion="30" />
 9-->/Users/olga/AndroidStudioProjects/aceim/api/src/main/AndroidManifest.xml:8:9-38
 10
 11</manifest>

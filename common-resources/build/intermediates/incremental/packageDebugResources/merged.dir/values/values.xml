@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_contact_list_grid_item_icons_size">15dip</dimen>
+    <dimen name="default_contact_list_grid_item_label_size">12sp</dimen>
+    <dimen name="default_contact_list_grid_item_size">100dip</dimen>
+    <dimen name="default_contact_list_plain_item_height">50dip</dimen>
+    <dimen name="default_padding">7dp</dimen>
+    <dimen name="top_bottom_padding">2dp</dimen>
+    <item name="group_header_item" type="layout">@android:layout/simple_expandable_list_item_2</item>
+    <string name="res_version">0.9.2</string>
+</resources>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/default_contact_list_plain_item_height"
+    android:background="@android:drawable/menuitem_background"
+    android:clickable="true"
+    android:longClickable="true" 
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/image_status"
+        android:layout_width="@dimen/default_contact_list_plain_item_height"
+        android:layout_height="@dimen/default_contact_list_plain_item_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:src="@android:drawable/ic_menu_add" />
+
+    <ImageView
+        android:id="@+id/image_icon"
+        android:layout_width="@dimen/default_contact_list_plain_item_height"
+        android:layout_height="@dimen/default_contact_list_plain_item_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/dummy_icon" />
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/image_icon"
+        android:layout_toRightOf="@id/image_status"
+        android:background="#11000000"
+        android:padding="1px"
+        android:shadowColor="#cd000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1.4"
+        android:text="Username"
+        android:textColor="#ffff"
+        android:textSize="18dip"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/image_extra_1"
+        android:layout_width="@dimen/default_contact_list_grid_item_icons_size"
+        android:layout_height="@dimen/default_contact_list_grid_item_icons_size"
+        android:adjustViewBounds="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/username"
+        android:layout_toRightOf="@id/image_status"
+        android:padding="1px"
+        android:src="@android:drawable/btn_star" />
+
+    <ImageView
+        android:id="@+id/image_extra_2"
+        android:layout_width="@dimen/default_contact_list_grid_item_icons_size"
+        android:layout_height="@dimen/default_contact_list_grid_item_icons_size"
+        android:adjustViewBounds="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/username"
+        android:layout_toRightOf="@id/image_extra_1"
+        android:padding="1px"
+        android:src="@android:drawable/btn_star" />
+	<ImageView
+        android:id="@+id/image_extra_3"
+        android:layout_width="@dimen/default_contact_list_grid_item_icons_size"
+        android:layout_height="@dimen/default_contact_list_grid_item_icons_size"
+        android:adjustViewBounds="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/username"
+        android:layout_toRightOf="@id/image_extra_2"
+        android:padding="1px"
+        android:src="@android:drawable/btn_star" />
+	<ImageView
+        android:id="@+id/image_extra_4"
+        android:layout_width="@dimen/default_contact_list_grid_item_icons_size"
+        android:layout_height="@dimen/default_contact_list_grid_item_icons_size"
+        android:adjustViewBounds="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/username"
+        android:layout_toRightOf="@id/image_extra_3"
+        android:padding="1px"
+        android:src="@android:drawable/btn_star" />
+	
+    <TextView
+        android:id="@+id/label_xstatus"
+        android:layout_width="wrap_content"
+        android:layout_height="12dip"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/username"
+        android:layout_toLeftOf="@id/image_icon"
+        android:layout_toRightOf="@id/image_extra_4"
+        android:src="@android:drawable/btn_radio"
+        android:text="Offline"
+        android:gravity="left|bottom"
+        android:textSize="11dip" />
+
+</RelativeLayout>

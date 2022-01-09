@@ -215,6 +215,7 @@ public class MainActivity extends AceIMActivity {
 	private void initCoreService() {
 		if (mCoreServiceIntent == null) {
 			mCoreServiceIntent = new Intent("aceim.app.service.CoreService");
+			mCoreServiceIntent.setPackage(getPackageName());
 		}
 		startService(mCoreServiceIntent);
 		bindService(mCoreServiceIntent, mCoreServiceConnection, 0);

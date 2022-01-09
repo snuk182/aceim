@@ -276,5 +276,6 @@
     <string name="chat_menu">Chat menu</string>
     <string name="account_menu">Account menu</string>
     <string name="no_group">No group</string>
-	<string name="toggle_menu_on_tab_longclick">Toggle menu on tab long click</string>
+    <string name="security_preferences">Security preferences</string>
+    <string name="toggle_menu_on_tab_longclick">Toggle menu on tab long click</string>
 </resources>
