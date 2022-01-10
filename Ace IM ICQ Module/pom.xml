@@ -37,57 +37,359 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>${project.artifactId}</finalName>
 		<sourceDirectory>src</sourceDirectory>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
-				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+				<groupId>com.simpligility.maven.plugins</groupId>
 				<artifactId>android-maven-plugin</artifactId>
-				<version>3.8.2</version>
+				<version>4.1.0</version>
 				<configuration>
 					<sdk>
-						<!-- platform or api level (api level 4 = platform 1.6) -->
-						<platform>16</platform>
+						<platform>${android.platform}</platform>
 					</sdk>
+					<proguardSkip>${proguardSkip}</proguardSkip>
+					<proguard>
+						<config>proguard.cfg</config>
+					</proguard>
+					<proguardFile>proguard-project.txt</proguardFile>
+					<release>${release}</release>
+					<androidManifestFile>AndroidManifest.xml</androidManifestFile>
+					<sourceDirectories>
+						<sourceDirectory>src</sourceDirectory>
+					</sourceDirectories>
+					<resourceDirectory>res</resourceDirectory>
+					<assetsDirectory>assets</assetsDirectory>
+					<nativeLibrariesDirectory>libs</nativeLibrariesDirectory>
+					<genDirectory>gen</genDirectory>
+
+					<includeLibsJarsFromAar>true</includeLibsJarsFromAar>
+					<includeLibsJarsFromApklib>true</includeLibsJarsFromApklib>
 				</configuration>
+
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.5</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
+					<compilerVersion>1.7</compilerVersion>
 				</configuration>
-			</plugin>
+			</plugin>			
 		</plugins>
+
 		<pluginManagement>
-		    <plugins>
-		        <plugin>
-				<groupId>org.eclipse.m2e</groupId>
-				<artifactId>lifecycle-mapping</artifactId>
-				<version>1.0.0</version>
-				<configuration>
-					<lifecycleMappingMetadata>
-						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>com.jayway.maven.plugins.android.generation2</groupId>
-									<artifactId>android-maven-plugin</artifactId>
-									<versionRange>[3.8.0,)</versionRange>
-									<goals>
-										<goal>consume-aar</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore />
-								</action>
-							</pluginExecution>
-						</pluginExecutions>
-					</lifecycleMappingMetadata>
-				</configuration>
-			</plugin>
-		    </plugins>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.simpligility.maven.plugins</groupId>
+										<artifactId>android-maven-plugin</artifactId>
+										<versionRange>[3.8.0,)</versionRange>
+										<goals>
+											<goal>generate-sources</goal>
+											<goal>proguard</goal>
+											<goal>consume-aar</goal>
+											<goal>emma</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+		</extensions>
 	</build>
+		<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<environment>dev</environment>
+				<release>false</release>
+				<proguardSkip>true</proguardSkip>
+				<customManifestSuffix></customManifestSuffix>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>qa</id>
+			<properties>
+				<environment>dev</environment>
+				<release>false</release>
+				<proguardSkip>true</proguardSkip>
+				<customManifestSuffix>.qa</customManifestSuffix>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>qa-upload</id>
+			<properties>
+				<environment>dev</environment>
+				<release>false</release>
+				<proguardSkip>true</proguardSkip>
+				<customManifestSuffix>.qa</customManifestSuffix>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>ftp</id>
+								<phase>install</phase>
+								<configuration>
+									<target>
+
+										<ftp action="send" server="${ftp.server}" remotedir="${ftp.root}/android/driver"
+											userid="${ftp.username}" password="${ftp.password}" depends="yes" passive="yes"
+											verbose="yes">
+											<fileset dir="${project.build.directory}">
+												<include name="*.apk" />
+											</fileset>
+										</ftp>
+
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>commons-net</groupId>
+								<artifactId>commons-net</artifactId>
+								<version>1.4.1</version>
+							</dependency>
+							<dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-commons-net</artifactId>
+								<version>1.8.1</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+			<properties>
+				<environment>prod</environment>
+				<release>true</release>
+				<proguardSkip>true</proguardSkip>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>signing</id>
+								<goals>
+									<goal>sign</goal>
+									<goal>verify</goal>
+								</goals>
+								<phase>package</phase>
+								<inherited>true</inherited>
+								<configuration>
+									<removeExistingSignatures>true</removeExistingSignatures>
+									<archiveDirectory />
+									<includes>
+										<include>${project.build.directory}/${project.artifactId}.apk</include>
+									</includes>
+									<keystore>${sign.keystore}</keystore>
+									<alias>${sign.alias}</alias>
+									<storepass>${sign.storepass}</storepass>
+									<keypass>${sign.keypass}</keypass>
+									<verbose>true</verbose>
+									<arguments>
+										<argument>-sigalg</argument>
+										<argument>MD5withRSA</argument>
+										<argument>-digestalg</argument>
+										<argument>SHA1</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>com.simpligility.maven.plugins</groupId>
+						<artifactId>android-maven-plugin</artifactId>
+						<version>4.1.0</version>
+						<configuration>
+							<sign>
+								<debug>false</debug>
+							</sign>
+							<sdk>
+								<platform>${android.platform}</platform>
+							</sdk>
+							<zipalign>
+								<skip>false</skip>
+								<verbose>true</verbose>
+								<inputApk>${project.build.directory}/${project.artifactId}.apk</inputApk>
+								<outputApk>${project.build.directory}/${project.artifactId}.apk</outputApk>
+							</zipalign>
+						</configuration>
+						<executions>
+							<execution>
+								<id>alignApk</id>
+								<phase>package</phase>
+								<inherited>true</inherited>
+								<goals>
+									<goal>zipalign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>					
+				</plugins>
+			</build>
+		</profile>
+		
+		<profile>
+			<id>prod-upload</id>
+			<properties>
+				<environment>prod</environment>
+				<release>true</release>
+				<proguardSkip>true</proguardSkip>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>signing</id>
+								<goals>
+									<goal>sign</goal>
+									<goal>verify</goal>
+								</goals>
+								<phase>package</phase>
+								<inherited>true</inherited>
+								<configuration>
+									<removeExistingSignatures>true</removeExistingSignatures>
+									<archiveDirectory />
+									<includes>
+										<include>${project.build.directory}/${project.artifactId}.apk</include>
+									</includes>
+									<keystore>${sign.keystore}</keystore>
+									<alias>${sign.alias}</alias>
+									<storepass>${sign.storepass}</storepass>
+									<keypass>${sign.keypass}</keypass>
+									<verbose>true</verbose>
+									<arguments>
+										<argument>-sigalg</argument>
+										<argument>MD5withRSA</argument>
+										<argument>-digestalg</argument>
+										<argument>SHA1</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>com.simpligility.maven.plugins</groupId>
+						<artifactId>android-maven-plugin</artifactId>
+						<version>4.1.0</version>
+						<configuration>
+							<sign>
+								<debug>false</debug>
+							</sign>
+							<sdk>
+								<platform>${android.platform}</platform>
+							</sdk>
+							<zipalign>
+								<skip>false</skip>
+								<verbose>true</verbose>
+								<inputApk>${project.build.directory}/${project.artifactId}.apk</inputApk>
+								<outputApk>${project.build.directory}/${project.artifactId}-aligned.apk</outputApk>
+							</zipalign>
+						</configuration>
+						<executions>
+							<execution>
+								<id>alignApk</id>
+								<phase>package</phase>
+								<inherited>true</inherited>
+								<goals>
+									<goal>zipalign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>ftp</id>
+								<phase>install</phase>
+								<configuration>
+									<target>
+
+										<ftp action="send" server="${ftp.server}" remotedir="${ftp.root}/android/driver"
+											userid="${ftp.username}" password="${ftp.password}" depends="yes" passive="yes"
+											verbose="yes">
+											<fileset dir="${project.build.directory}">
+												<include name="*.apk" />
+											</fileset>
+										</ftp>
+
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>commons-net</groupId>
+								<artifactId>commons-net</artifactId>
+								<version>1.4.1</version>
+							</dependency>
+							<dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-commons-net</artifactId>
+								<version>1.8.1</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

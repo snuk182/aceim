@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 16.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="150"
+   height="150"
+   viewBox="0 0 150 150"
+   enable-background="new 0 0 500 500"
+   xml:space="preserve"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="vkontakte-icon-connecting.svg"><metadata
+   id="metadata9"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs7" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview5"
+   showgrid="false"
+   inkscape:zoom="1.888"
+   inkscape:cx="171.96709"
+   inkscape:cy="70.469143"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0" />
+<path
+   d="m 29.394993,0 h 91.209997 c 16.168,0 29.395,13.227 29.395,29.392 v 91.213 c 0,16.166 -13.224,29.395 -29.396,29.395 H 29.393993 C 13.229993,150 -7.3563763e-6,136.771 -7.3563763e-6,120.604 V 29.391 C -7.3563763e-6,13.227 13.226993,0 29.394993,0 l 0,0 z m 83.818997,91.944 0,0 c 0,-5.687 -1.557,-10.214 -4.668,-13.573 -3.108,-3.359 -7.259,-5.566 -12.420997,-6.665 v -0.438 c 3.59,-1.518 6.412997,-3.858 8.447997,-7.047 2.054,-3.189 3.071,-6.822 3.071,-10.908 0,-3.534 -0.748,-6.648 -2.226,-9.354 -1.48,-2.684 -3.728,-4.858 -6.721997,-6.469 -2.765,-1.503 -5.741,-2.479 -8.911,-2.941 -3.169,-0.48 -7.831,-0.713 -13.98,-0.713 h -29.592 v 83.765 h 33.527 c 5.821,0 10.6,-0.521 14.364,-1.575 3.785,-1.055 7.242997,-2.809 10.387997,-5.282 2.673,-2.075 4.782,-4.668 6.36,-7.819 1.575,-3.146 2.362,-6.819 2.362,-10.981 l 0,0 z m -26.940997,-34.409 0,0 c 0,-1.362 -0.343,-2.743 -1.036,-4.166 -0.692,-1.419 -1.766,-2.456 -3.249,-3.091 -1.379,-0.616 -3.01,-0.939 -4.91,-0.997 -1.901,-0.058 -4.726,-0.078 -8.47,-0.078 h -1.459 v 17.725 h 2.648 c 3.591,0 6.124,-0.037 7.565,-0.117 1.438,-0.072 2.939,-0.457 4.475,-1.169 1.671,-0.789 2.842,-1.883 3.473,-3.264 0.638,-1.407 0.963,-3.021 0.963,-4.843 l 0,0 z m 5.285,34.023 0,0 c 0,-2.587 -0.521,-4.604 -1.575,-6.065 -1.055,-1.478 -2.63,-2.572 -4.727,-3.32 -1.269,-0.506 -3.031,-0.77 -5.26,-0.834 -2.226,-0.055 -5.224,-0.07 -8.968,-0.07 h -3.879 v 20.97 h 1.133 c 5.471,0 9.255,-0.04 11.352,-0.116 2.091,-0.074 4.243,-0.576 6.407,-1.515 1.922,-0.827 3.304,-2.032 4.187,-3.632 0.882,-1.592 1.33,-3.401 1.33,-5.418 z"
+   id="path3"
+   style="fill:#ffc200;fill-opacity:1"
+   inkscape:export-filename="D:\git\aceim\Ace IM Vkontakte Module\res\drawable-hdpi\vk_connecting.png"
+   inkscape:export-xdpi="57.599998"
+   inkscape:export-ydpi="57.599998"
+   inkscape:connector-curvature="0" />
+</svg>

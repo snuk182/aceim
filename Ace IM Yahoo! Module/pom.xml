@@ -2,18 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>aceim</groupId>
-	<artifactId>app</artifactId>
+	<groupId>aceim.protocol.snuk182</groupId>
+	<artifactId>yahoo</artifactId>
 	<version>${version}</version>
 	<packaging>apk</packaging>
-	<name>Ace IM</name>
+	<name>Ace IM Yahoo! module</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<version>0.9.3</version>
-		<api-version>0.9.3</api-version>
-		<res-version>0.9.2</res-version>
+		<api.version>0.9.3</api.version>
 	</properties>
 
 	<dependencies>
@@ -24,34 +23,22 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.android-query</groupId>
-			<artifactId>android-query</artifactId>
-			<version>0.25.9</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>support-v4</artifactId>
 			<version>v19.1</version>
-			<!-- <scope>system</scope>
-			<systemPath>C:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath> -->
+			<scope>system</scope>
+			<systemPath>c:/android-sdk-windows/android-compatibility/v4/android-support-v4.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>aceim</groupId>
-			<artifactId>api</artifactId>
-			<version>${api-version}</version>
-			<type>apklib</type>
+		    <groupId>aceim</groupId>
+		    <artifactId>api</artifactId>
+		    <version>${api.version}</version>
+		    <type>apklib</type>
 		</dependency>
 		<dependency>
-			<groupId>aceim</groupId>
-			<artifactId>res</artifactId>
-			<version>${res-version}</version>
-			<type>apklib</type>
-		</dependency>
-		<dependency>
-			<groupId>ua.snuk182</groupId>
-			<artifactId>expandablegrid</artifactId>
-			<version>0.1</version>
-			<type>apklib</type>
+		    <groupId>net.sf.openymsg</groupId>
+		    <artifactId>openymsg</artifactId>
+		    <version>0.6.3</version>
 		</dependency>
 	</dependencies>
 	<build>
