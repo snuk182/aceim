@@ -69,7 +69,7 @@ public class VkService extends AccountService {
 		
 		@Override
 		public void setFeature(String featureId, OnlineInfo arg1) {
-			if (featureId.equals(VkApiConstants.FEATURE_GROUPCHATS)) {
+			if (featureId.equals(VkConstants.FEATURE_GROUPCHATS)) {
 				internal.requestAvailableGroupchats();
 			} else if (featureId.equals(ApiConstants.FEATURE_XSTATUS)) {
 				internal.setStatus(arg1);

@@ -1,6 +1,0 @@
-aceim/protocol/snuk182/xmpp/BuildConfig.java
- aceim.protocol.snuk182.xmpp.BuildConfig
-aceim/protocol/snuk182/xmpp/XMPPProtocol.java
- aceim.protocol.snuk182.xmpp.XMPPProtocol
-aceim/protocol/snuk182/xmpp/XMPPService.java
- aceim.protocol.snuk182.xmpp.XMPPService

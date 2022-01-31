@@ -35,7 +35,6 @@
     <string name="message">Сообщение</string>
     <string name="ask_authorization_message_default">Привет, добавь меня в свой список контактов</string>
     
-    <string name="uin">UIN (номер)</string>
     <string name="screenname">Ник</string>
     
     <string name="info">Модуль ICQ для Ace IM. Домашняя страница https://github.com/snuk182/aceim.</string>

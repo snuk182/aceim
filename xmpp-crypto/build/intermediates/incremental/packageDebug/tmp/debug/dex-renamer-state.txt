@@ -1,4 +1,0 @@
-#Sun Jan 09 23:29:27 CET 2022
-base.0=/Users/olga/AndroidStudioProjects/aceim/xmpp-crypto/build/intermediates/dex/debug/mergeDexDebug/classes.dex
-path.0=classes.dex
-renamed.0=classes.dex

@@ -442,7 +442,7 @@ public class VkServiceInternal {
 			VkBuddy myInfo = engine.getMyInfo();
 
 			OnlineInfo info = requestStatusInternal(accessToken.getUserID(), null);
-			info.getFeatures().putBoolean(VkApiConstants.FEATURE_GROUPCHATS, true);
+			info.getFeatures().putBoolean(VkConstants.FEATURE_GROUPCHATS, true);
 			info.getFeatures().putByte(ApiConstants.FEATURE_STATUS, (byte) 0);
 			info.getFeatures().putByte(ApiConstants.FEATURE_XSTATUS, (byte) 0);
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <string name="uin">ICQ Номер</string>
+    <string name="uin">ICQ UIN (Номер)</string>
 	<string name="password">Пароль</string>
 	<string name="host">Адреса сервера</string>
 	<string name="port">Порт сервера</string>

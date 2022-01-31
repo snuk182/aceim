@@ -23,7 +23,7 @@ public class VkProtocol extends ProtocolService<VkService> {
 	@Override
 	protected ProtocolServiceFeature[] getProtocolFeatures() {
 		return new ProtocolServiceFeature[]{
-				new ActionFeature(VkApiConstants.FEATURE_GROUPCHATS,
+				new ActionFeature(VkConstants.FEATURE_GROUPCHATS,
 						getBaseContext().getString(R.string.groupchats),
 						R.drawable.ic_menu_allfriends,
 						false,

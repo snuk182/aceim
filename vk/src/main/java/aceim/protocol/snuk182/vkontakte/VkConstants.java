@@ -30,6 +30,7 @@ public final class VkConstants {
 
 	public static final String KEY_UNEXPIRABLE_TOKEN = "Unexpirable";
 
-	
+	public static final String FEATURE_GROUPCHATS = "Groupchats";
+
 	private VkConstants() {}
 }
