@@ -1,0 +1,3 @@
+[submodule "expandablegrid"]
+	path = expandablegrid
+	url = https://github.com/snuk182/expandablegrid

@@ -1,0 +1,11 @@
+include ':api'
+include ':app'
+include ':common-resources'
+include ':expandablegrid'
+include ':icq'
+include ':mrim'
+include ':vk'
+include ':xmpp-common'
+include ':xmpp'
+include ':xmpp-crypto'
+rootProject.name = "Ace IM"

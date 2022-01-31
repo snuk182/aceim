@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Модуль ICQ для Ace IM</string>
+    
+    <string name="label_st_online">"В мережі"</string>
+    <string name="label_st_offline">"Не в мережі"</string>
+    <string name="label_st_away">"Пішов"</string>
+    <string name="label_st_na">"Поза доступом"</string>
+    <string name="label_st_busy">"Зайнятий"</string>
+    <string name="label_st_dnd">"Дуже зайнятий"</string>
+    <string name="label_st_free4chat">"Нумо чатитись"</string>
+    <string name="label_st_invisible">"Ховаюсь"</string>
+    <string name="label_st_home">"Вдома"</string>
+    <string name="label_st_work">"Працюю"</string>
+    <string name="label_st_angry">"Злий"</string>
+    <string name="label_st_dinner">"Їжа"</string>
+    <string name="label_st_depress">"Недобре"</string>
+    
+    <string name="label_vis_nobody">Ныхто мене не бачить</string>
+	<string name="label_vis_allows">Бачуть лише Дозволены</string>
+    <string name="label_vis_buddies">Бачуть лише контакти</string>
+    <string name="label_vis_except_denys">Не бачуть Недозволені</string>
+    <string name="label_vis_all">Мене бачуть всі</string>
+    
+    <string name="label_vis_allowed">Дозволений</string>
+    <string name="label_vis_denied">Недозволений</string>
+    
+    <string name="status">Статус</string>
+    <string name="xstatus">Х-Статус</string>
+    <string name="visibility">Видимість</string>
+    <string name="search">Пошук контактів</string>
+    <string name="ask_authorization">Запит авторизації</string>
+    
+    <string name="message">Повідомлення</string>
+    <string name="ask_authorization_message_default">Привіт, скоріш додай мене до свого списку контактів</string>
+    
+    <string name="screenname">Нік</string>
+    
+    <string name="info">Модуль ICQ для Ace IM. Домашня сторінка https://github.com/snuk182/aceim.</string>
+</resources>

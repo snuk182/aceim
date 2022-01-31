@@ -1,0 +1,40 @@
+<resources>
+
+    <string name="app_name">Ace IM ICQ Module</string>
+    
+    <string name="label_st_online">"Online"</string>
+    <string name="label_st_offline">"Offline"</string>
+    <string name="label_st_away">"Away"</string>
+    <string name="label_st_na">"Not available"</string>
+    <string name="label_st_busy">"Busy"</string>
+    <string name="label_st_dnd">"Do not disturb"</string>
+    <string name="label_st_free4chat">"Free for chat"</string>
+    <string name="label_st_invisible">"Invisible"</string>
+    <string name="label_st_home">"At home"</string>
+    <string name="label_st_work">"At work"</string>
+    <string name="label_st_angry">"Angry"</string>
+    <string name="label_st_dinner">"Meal"</string>
+    <string name="label_st_depress">"Depression"</string>
+    
+    <string name="label_vis_nobody">Nobody sees me</string>
+	<string name="label_vis_allows">Visible to Seeing list</string>
+    <string name="label_vis_buddies">Visible to buddies</string>
+    <string name="label_vis_except_denys">Invisible to Not Seeing</string>
+    <string name="label_vis_all">Visible to all</string>
+    
+    <string name="label_vis_allowed">Seeing</string>
+    <string name="label_vis_denied">Not seeing</string>
+    	
+    <string name="status">Status</string>
+    <string name="xstatus">Extended status</string>
+    <string name="visibility">Visibility</string>
+    <string name="search">Search contacts</string>
+    <string name="ask_authorization">Ask for authorization</string>
+    
+    <string name="message">Message</string>
+    <string name="ask_authorization_message_default">Hello, add me to your contact list</string>
+    
+    <string name="screenname">Screen name (nick)</string>
+    
+    <string name="info">ICQ connectivity module for Ace IM. Homepage https://github.com/snuk182/aceim.</string>
+</resources>
