@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -51,8 +52,12 @@ public class ProtocolService implements ServiceConnection {
 		intent.setClassName(packageName, className);
 		
         Logger.log("binding: "+intent );
-        
-        mContext.startService(intent);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			mContext.startForegroundService(intent);
+		} else {
+			mContext.startService(intent);
+		}
 		boolean d = mContext.getApplicationContext().bindService(intent, this, 0);
 		
 		Logger.log(d ? "Binded" : "Not binded");
